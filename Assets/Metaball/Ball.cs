@@ -14,9 +14,6 @@ public class Ball
 
     public float Value(float x, float y, float z)
     {
-        //TODO implement metaball function (Aufgabe 1)
-        //useful functions: Mathf.Pow(), Mathf.Exp()
-
         // polynomial solution
         float r = Mathf.Sqrt(Mathf.Pow(x - position.x, 2) + Mathf.Pow(y - position.y, 2) + Mathf.Pow(z - position.z, 2));
         return Mathf.Pow(R, 2f)/Mathf.Pow(r, 2f);

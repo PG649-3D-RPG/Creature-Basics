@@ -7,7 +7,7 @@ using UnityEngine.Rendering;
 
 namespace MarchingCubesProject
 {
-    public class Creature : MonoBehaviour
+    public class MeshGenerator : MonoBehaviour
     {
         public enum MARCHING_MODE { CUBES, TETRAHEDRON };
 
@@ -19,15 +19,27 @@ namespace MarchingCubesProject
 
         public bool drawNormals = false;
 
+
+        /// <summary>
+        /// number of cubes in each direction
+        /// </summary>
         public int gridResolution = 32;
+
+        /// <summary>
+        /// size of the volume that marching cubes is performed in
+        /// </summary>
+        public float size = 1f;
 
         private List<GameObject> meshes = new List<GameObject>();
 
-        private Vector3 boundingVolume;
 
         private NormalRenderer normalRenderer;
-        // Start is called before the first frame update
-        void Start()
+        /// <summary>
+        /// Generates a mesh from the given Metaball
+        /// within a box of dimensions size*size*size centered at (0,0,0)
+        /// </summary>
+        /// <param name="metaball"></param>
+        public void Generate(Metaball metaball)
         {
 
             //Set the mode used to create the mesh.
@@ -48,11 +60,8 @@ namespace MarchingCubesProject
             int height = gridResolution;
             int depth = gridResolution;
 
-            boundingVolume = GetComponent<BoxCollider>().size;
-
             var voxels = new VoxelArray(width, height, depth);
 
-            Metaball metaball = BuildMetaball();
 
             //Fill voxels with values.
             for (int x = 0; x < width; x++)
@@ -61,9 +70,9 @@ namespace MarchingCubesProject
                 {
                     for (int z = 0; z < depth; z++)
                     {
-                        float u = (x / (width - 1.0f) - 0.5f) * boundingVolume.x;
-                        float v = (y / (height - 1.0f) - 0.5f) * boundingVolume.y;
-                        float w = (z / (depth - 1.0f) - 0.5f) * boundingVolume.z;
+                        float u = (x / (width - 1.0f) - 0.5f) * size;
+                        float v = (y / (height - 1.0f) - 0.5f) * size;
+                        float w = (z / (depth - 1.0f) - 0.5f) * size;
                         
                         voxels[x, y, z] = metaball.Value(u, v, w);
                     }
@@ -104,40 +113,12 @@ namespace MarchingCubesProject
                 normalRenderer.Load(verts, normals);
             }
 
-            var position = this.transform.localPosition - boundingVolume / 2;//new Vector3(-width / 2, -height / 2, -depth / 2);
+            var position = this.transform.localPosition - (new Vector3(size,size,size)/ 2);//new Vector3(-width / 2, -height / 2, -depth / 2);
 
             CreateMesh32(verts, normals, indices, position);
         }
 
-        private Metaball BuildMetaball()
-        {
-            Metaball metaball = new Metaball();
-            Segment[] segments = GetComponentsInChildren<Segment>();
-
-            foreach(Segment segment in segments)
-            {
-                //TODO Calculate number of balls required (Aufgabe 2.1)
-                //useful: segment.thickness, segment.GetLength(), Mathf.CeilToInt()
-
-                //polynomial solution
-                int numBalls = Mathf.CeilToInt(segment.GetLength() / (Mathf.Pow(2, 0.5f) * segment.thickness * 2));
-
-                // exponential solution
-                //int numBalls = Mathf.CeilToInt(segment.GetLength() / (2.97f * segment.thickness));
-
-
-                //TODO Place balls along segment (Aufgabe 2.2)
-                //useful: metaball.AddBall(), segment.thickness, segment.startPoint, segment.endPoint
-                Vector3 fwd = segment.endPoint - segment.startPoint;
-
-                for (float i=0; i<=numBalls; i++)
-                {
-                    metaball.AddBall(segment.thickness, segment.startPoint + (i / numBalls) * fwd);
-                    Debug.Log((segment.startPoint + (i / numBalls) * fwd).ToString("F4"));
-                }
-            }
-            return metaball;
-        }
+        void Start() { }
 
         private void CreateMesh32(List<Vector3> verts, List<Vector3> normals, List<int> indices, Vector3 position)
         {
@@ -160,7 +141,7 @@ namespace MarchingCubesProject
             go.GetComponent<Renderer>().material = material;
             go.GetComponent<MeshFilter>().mesh = mesh;
             go.transform.localPosition = position;
-            go.transform.localScale = boundingVolume/gridResolution;
+            go.transform.localScale = new Vector3(scale, scale, scale)/gridResolution;
 
             meshes.Add(go);
         }

@@ -141,7 +141,7 @@ namespace MarchingCubesProject
             go.GetComponent<Renderer>().material = material;
             go.GetComponent<MeshFilter>().mesh = mesh;
             go.transform.localPosition = position;
-            go.transform.localScale = new Vector3(scale, scale, scale)/gridResolution;
+            go.transform.localScale = new Vector3(size, size, size)/gridResolution;
 
             meshes.Add(go);
         }

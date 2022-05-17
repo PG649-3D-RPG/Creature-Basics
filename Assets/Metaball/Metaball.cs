@@ -35,16 +35,16 @@ public class Metaball
         foreach (Segment segment in segments)
         {
             //polynomial solution
-            //int numBalls = Mathf.CeilToInt(segment.GetLength() / (Mathf.Pow(2, 0.5f) * segment.thickness * 2));
+            int numBalls = Mathf.CeilToInt(segment.GetLength() / (Mathf.Pow(2, 0.5f) * segment.thickness * 2));
 
             //exponential solution
-            int numBalls = Mathf.CeilToInt(segment.GetLength() / (2.97f * segment.thickness));
+            //int numBalls = Mathf.CeilToInt(segment.GetLength() / (2.97f * segment.thickness));
 
-            Vector3 fwd = segment.endPoint - segment.startPoint;
+            Vector3 fwd = segment.GetEndPoint() - segment.GetStartPoint();
 
             for (float i = 0; i <= numBalls; i++)
             {
-                metaball.AddBall(segment.thickness, segment.startPoint + (i / numBalls) * fwd);
+                metaball.AddBall(segment.thickness, segment.GetStartPoint() + (i / numBalls) * fwd);
             }
         }
         return metaball;

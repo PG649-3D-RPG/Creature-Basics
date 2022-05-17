@@ -224,6 +224,11 @@ MonoBehaviour:
   m_Angle: 90
   m_CrossSections: 4
   m_CrossSectionDivisions: 2
+  m_StartString: FF[+F][-F]F[+(30)F][-(30)F]
+  m_Iterations: 0
+  m_Rules:
+  - F=F+F-F-F+F
+  - A=AAA
 --- !u!1 &841171022
 GameObject:
   m_ObjectHideFlags: 0

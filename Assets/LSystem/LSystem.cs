@@ -1,5 +1,5 @@
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 
@@ -102,7 +102,7 @@ public class LSystem
         List<Tuple<Vector3, Vector3>> tuples = new();
         //LSystemTree<Tuple<Vector3, Vector3>> tuples = new(new(current,current));
         //var currentNode = tuples;
-
+        // List<Tuple<Vector3, Vector3>> marika = new() { new(Vector3.zero, new(0f, 10f, 0f)), new(new(0f, 10f, 0f), new(0f, 20f, 0f)), new(new(0f, 20f, 0f), new(-10f, 20f, 0f)), new(new(0f, 20f, 0f), new(10f, 20f, 0f)), new(new(0f, 20f, 0f), new(-10f, 20f, 0f)), new(new(0f, 20f, 0f), new(0f, 30f, 0f)), new(new(0f, 30f, 0f), new(-5f, 38.66f, 0f)), new(new(0f, 30f, 0f), new(5f, 38.66f, 0f)) };
         Stack<Tuple<Vector3, Vector3>> st = new();
         //Stack <Tuple<Vector3, Vector3,LSystemTree<Tuple<Vector3, Vector3>>>> st = new();
         foreach (var e in tokens)
@@ -180,7 +180,9 @@ public class LSystem
     }
     public List<Tuple<Vector3, Vector3>> Evaluate(string start, uint iterations, Dictionary<char, string> rules, bool printResult = false)
     {
-        var res = Turtle3D(Tokenize(Parse(start, iterations, rules)));
+        var expanded = Parse(start, iterations, rules);
+        if (printResult) Debug.Log(expanded);
+        var res = Turtle3D(Tokenize(expanded));
         if (printResult) PrintList(res);
         return res;
     }

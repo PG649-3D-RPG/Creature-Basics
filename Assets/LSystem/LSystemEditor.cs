@@ -11,6 +11,9 @@ public class LSystemEditor : MonoBehaviour
     public int m_CrossSections = 4;
     public int m_CrossSectionDivisions = 2;
 
+    [Header("L-System")]
+    public string m_StartString = "FF[+F][-F]F(42)";
+    public uint m_Iterations = 0;
 
     // Start is called before the first frame update
     void Start()
@@ -24,12 +27,12 @@ public class LSystemEditor : MonoBehaviour
     {'D', "HrDuDlC"}
 };
         LSystem l = new(m_Distance, m_Angle, m_CrossSections, m_CrossSectionDivisions);
-        var s = l.Parse("F", 1, NT);
-        Debug.Log(s);
-        var t = l.Tokenize("FF[+F][-F]F(42)");
-        var v = l.Turtle3D(t);
-        LSystem.PrintList(v);
-        l.Evaluate("F", 2, NT, true);
+        // var s = l.Parse("F", 1, NT);
+        // Debug.Log(s);
+        // var t = l.Tokenize(m_StartString);
+        // var v = l.Turtle3D(t);
+        // LSystem.PrintList(v);
+        l.Evaluate(m_StartString, m_Iterations, NT, true);
     }
 
     // Update is called once per frame

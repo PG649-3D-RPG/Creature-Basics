@@ -22,4 +22,31 @@ public class Metaball
         }
         return result;
     }
+
+    /// <summary>
+    /// Builds a metaball from the provided segments
+    /// </summary>
+    /// <param name="segments">Array of segments</param>
+    /// <returns>A Metaball made up of balls distributed along the provided segments</returns>
+    public static Metaball BuildFromSegments(Segment[] segments)
+    {
+        Metaball metaball = new Metaball();
+
+        foreach (Segment segment in segments)
+        {
+            //polynomial solution
+            int numBalls = Mathf.CeilToInt(segment.GetLength() / (Mathf.Pow(2, 0.5f) * segment.thickness * 2));
+
+            //exponential solution
+            //int numBalls = Mathf.CeilToInt(segment.GetLength() / (2.97f * segment.thickness));
+
+            Vector3 fwd = segment.GetEndPoint() - segment.GetStartPoint();
+
+            for (float i = 0; i <= numBalls; i++)
+            {
+                metaball.AddBall(segment.thickness, segment.GetStartPoint() + (i / numBalls) * fwd);
+            }
+        }
+        return metaball;
+    }
 }

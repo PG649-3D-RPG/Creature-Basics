@@ -9,12 +9,21 @@ public class ExampleMetaball : MonoBehaviour
     void Start()
     {
         //Create metaball
-        Metaball m = new Metaball();
-        m.AddBall(0.7f, new Vector3(0, 0, 0));
+
+        //Metaball m = new Metaball();
+        //m.AddBall(0.7f, new Vector3(0, 0, 0));
+
+        Vector3 startPoint = new Vector3(-1, -3, 0);
+        Vector3 endPoint = new Vector3(10, 0, 1.5f);
+        Segment[] segments = new Segment[] {new Segment(startPoint, endPoint, 2) };
+        Metaball m = Metaball.BuildFromSegments(segments);
+
 
         //generate mesh from the metaball
         MeshGenerator meshGen = GetComponent<MeshGenerator>();
         //attributes such as the size and grid resolution can be set via component or through meshGen.gridResolution
+        meshGen.size = 25;
+
         meshGen.Generate(m);
     }
 

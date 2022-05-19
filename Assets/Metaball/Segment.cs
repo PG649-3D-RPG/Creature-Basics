@@ -2,32 +2,30 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Segment : MonoBehaviour
+public class Segment
 {
     public float thickness;
+    public Vector3 startPoint;
+    public Vector3 endPoint;
 
-    // Start is called before the first frame update
-    void Start()
+    public Segment(Vector3 start, Vector3 end, float thickness)
     {
-        GetComponent<LineRenderer>().enabled = false;
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
+        startPoint = start;
+        endPoint = end;
+        this.thickness = thickness;
     }
 
     public Vector3 GetStartPoint() {
-        return this.transform.localPosition;
+        return startPoint;
     }
 
     public Vector3 GetEndPoint() {
-        return this.transform.localPosition + transform.localRotation * Vector3.forward * transform.localScale.z;
+        return endPoint;
     }
 
     public float GetLength()
     {
-        return transform.localScale.z;
+        return (endPoint - startPoint).magnitude;
     }
 
 }

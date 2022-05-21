@@ -49,9 +49,16 @@ public class LSystemEditor : MonoBehaviour
         return nt;
     }
 
+    public List<Tuple<Vector3, Vector3>> Evaluate() {
+        LSystem l = new(m_Distance, m_Angle, m_CrossSections, m_CrossSectionDivisions);
+        var rules = ParseRuleInput(m_Rules);
+        return l.Evaluate(m_StartString, m_Iterations, rules, true);
+    }
+
     // Start is called before the first frame update
     void Start()
     {
+        return;
         LSystem l = new(m_Distance, m_Angle, m_CrossSections, m_CrossSectionDivisions);
         // var s = l.Parse("F", 1, NT);
         // Debug.Log(s);

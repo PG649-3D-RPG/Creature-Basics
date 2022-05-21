@@ -40,4 +40,17 @@ public class Ball
         return Mathf.Exp(0.5f - (0.5f * (Mathf.Pow(x - position.x, 2) + Mathf.Pow(y - position.y, 2) + Mathf.Pow(z - position.z, 2))) / (R*R));
     }
 
+    public static int GetMinimumNumBalls(MetaballFunction function, float segmentLength, float segmentThickness) {
+        switch(function) {
+            case MetaballFunction.Polynomial2:
+                return Mathf.CeilToInt(segmentLength / (Mathf.Pow(2, 1 / 2.0f) * segmentThickness * 2));
+            case MetaballFunction.Polynomial3:
+                return Mathf.CeilToInt(segmentLength / (Mathf.Pow(2, 1 / 3.0f) * segmentThickness * 2));
+            case MetaballFunction.Exponential:
+                return Mathf.CeilToInt(segmentLength / (2.97f * segmentThickness  ));
+            default:
+                throw new Exception("Unrecognized metaball function!");
+        }
+    }
+
 }

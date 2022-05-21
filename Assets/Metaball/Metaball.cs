@@ -36,11 +36,7 @@ public class Metaball
 
         foreach (Segment segment in segments)
         {
-            //polynomial solution
-            int numBalls = Mathf.CeilToInt(segment.GetLength() / (Mathf.Pow(2, 0.5f) * segment.thickness * 2));
-
-            //exponential solution
-            //int numBalls = Mathf.CeilToInt(segment.GetLength() / (2.97f * segment.thickness));
+            int numBalls = Ball.GetMinimumNumBalls(function, segment.GetLength(), segment.thickness);
 
             Vector3 fwd = segment.GetEndPoint() - segment.GetStartPoint();
 

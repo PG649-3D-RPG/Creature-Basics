@@ -8,17 +8,25 @@ using UnityEngine;
 public class LSystemEditor : MonoBehaviour
 {
     [Header("Default Settings")]
+    [Tooltip("Default forward distance")]
     public int m_Distance = 10;
+    [Tooltip("Default turning angle")]
     public short m_Angle = 90;
 
+    [Tooltip("Default segment thickness")]
     public float m_Thickness = 2f;
 
-    public int m_CrossSections = 4;
-    public int m_CrossSectionDivisions = 2;
+    [Tooltip("Default number of cross sections")]
+    public uint m_CrossSections = 4;
+    [Tooltip("Default number of cross section divisions")]
+    public uint m_CrossSectionDivisions = 2;
 
     [Header("L-System")]
+    [Tooltip("Initial string to evaluate")]
     public string m_StartString = "FF[+F][-F]F(42)";
+    [Tooltip("Number of iterations to apply the replacement rules")]
     public uint m_Iterations = 0;
+    [Tooltip("Replacement rules")]
     public string[] m_Rules = { "F=F+F-F-F+F" };
 
     //TODO change parsing to be context sensitive
@@ -40,6 +48,7 @@ public class LSystemEditor : MonoBehaviour
         }
         return nt;
     }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -76,9 +85,9 @@ public class LSystemEditor : MonoBehaviour
         meshGen.Generate(m);
     }
 
-    // Update is called once per frame
-    void Update()
-    {
+    // // Update is called once per frame
+    // void Update()
+    // {
 
-    }
+    // }
 }

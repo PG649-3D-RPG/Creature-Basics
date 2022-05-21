@@ -10,12 +10,22 @@ public class LSystem
     private readonly int default_dist;
     private readonly short default_angle;
 
-    private readonly int default_cross_sections;
-    private readonly int default_cross_section_divisions;
+    private readonly uint default_cross_sections;
+    private readonly uint default_cross_section_divisions;
 
+    /// <summary>
+    /// An example for the output of the L-System.
+    /// </summary>
     public List<Tuple<Vector3, Vector3>> EXAMPLE = new() { new(Vector3.zero, new(0f, 10f, 0f)), new(new(0f, 10f, 0f), new(0f, 20f, 0f)), new(new(0f, 20f, 0f), new(-10f, 20f, 0f)), new(new(0f, 20f, 0f), new(10f, 20f, 0f)), new(new(0f, 20f, 0f), new(-10f, 20f, 0f)), new(new(0f, 20f, 0f), new(0f, 30f, 0f)), new(new(0f, 30f, 0f), new(-5f, 38.66f, 0f)), new(new(0f, 30f, 0f), new(5f, 38.66f, 0f)) };
 
-    public LSystem(int d = 10, short a = 90, int cs = 4, int csd = 2)
+    /// <summary>
+    /// Initializes an L-System.
+    /// </summary>
+    /// <param name="d">Default forward distance of the turtle.</param>
+    /// <param name="a">Default angle of the turtle</param>
+    /// <param name="cs">Default number of cross sections for the drawing.</param>
+    /// <param name="csd">Default number of cross section divisions for the drawing.</param>
+    public LSystem(int d = 10, short a = 90, uint cs = 4, uint csd = 2)
     {
         default_dist = d;
         default_angle = a;
@@ -43,7 +53,7 @@ public class LSystem
         return result;
     }
 
-    public List<Tuple<char, int[]>> Tokenize(string str)
+    private List<Tuple<char, int[]>> Tokenize(string str)
     {
         List<Tuple<char, int[]>> tokens = new();
         for (int i = 0; i < str.Length;)
@@ -97,7 +107,7 @@ public class LSystem
         return start + dist * v;
     }
 
-    public List<Tuple<Vector3, Vector3>> Turtle3D(List<Tuple<char, int[]>> tokens)
+    private List<Tuple<Vector3, Vector3>> Turtle3D(List<Tuple<char, int[]>> tokens)
     {
         Vector3 scarlet_rot = Vector3.down;
         Vector3 current = Vector3.zero;
@@ -156,7 +166,7 @@ public class LSystem
         }
         return tuples;
     }
-    public string Parse(string s, uint it, Dictionary<char, string> rules)
+    private string Parse(string s, uint it, Dictionary<char, string> rules)
     {
         string w = s;
         for (int i = 0; i < it; i++)
@@ -179,6 +189,16 @@ public class LSystem
         }
         return w;
     }
+
+    /// <summary>
+    /// Constructs the result string from the supplied start string and rules for the specified number of iterations and
+    /// returns a list of <start,end> 3D-points that the turtle has drawn.
+    /// </summary>
+    /// <param name="start">The initial string that will be expanded.</param>
+    /// <param name="iterations">The number of iterations that the replacements will be applied for.</param>
+    /// <param name="rules">The replacement rules.</param>
+    /// <param name="printResult">If set to true, will print the list of <start,end> points to the console. Default: false</param>
+    /// <returns>The list of <start,end> 3D-points the turtle has drawn.</returns>
     public List<Tuple<Vector3, Vector3>> Evaluate(string start, uint iterations, Dictionary<char, string> rules, bool printResult = false)
     {
         var expanded = Parse(start, iterations, rules);
@@ -188,6 +208,10 @@ public class LSystem
         return res;
     }
 
+    /// <summary>
+    /// Prints a list of tuples of 3D Vectors.
+    /// </summary>
+    /// <param name="l">The list that shall be printed.</param>
     public static void PrintList(List<Tuple<Vector3, Vector3>> l)
     {
         string o = "[  ";

@@ -200,7 +200,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 239447034}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -30}
+  m_LocalPosition: {x: 0, y: -20, z: -60}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -316,12 +316,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 686c272d409654d6ab9ed17d9f707f6f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Distance: 20
+  m_Distance: 10
   m_Angle: 90
   m_Thickness: 2
   m_CrossSections: 4
   m_CrossSectionDivisions: 2
-  m_StartString: F[+F(200)][-F(200)]F[+(30)F(200)][-(30)F(200)]
+  m_StartString: F(12)[+F(15)][-F(15)]F[+(30)F(20)][-(30)F(20)]
   m_Iterations: 0
   m_Rules:
   - F=F+F-F-F+F

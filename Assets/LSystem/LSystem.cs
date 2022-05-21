@@ -16,7 +16,17 @@ public class LSystem
     /// <summary>
     /// An example for the output of the L-System.
     /// </summary>
-    public List<Tuple<Vector3, Vector3>> EXAMPLE = new() { new(Vector3.zero, new(0f, 10f, 0f)), new(new(0f, 10f, 0f), new(0f, 20f, 0f)), new(new(0f, 20f, 0f), new(-10f, 20f, 0f)), new(new(0f, 20f, 0f), new(10f, 20f, 0f)), new(new(0f, 20f, 0f), new(-10f, 20f, 0f)), new(new(0f, 20f, 0f), new(0f, 30f, 0f)), new(new(0f, 30f, 0f), new(-5f, 38.66f, 0f)), new(new(0f, 30f, 0f), new(5f, 38.66f, 0f)) };
+    public static List<Tuple<Vector3, Vector3>> EXAMPLE = new() { 
+        new(Vector3.zero, new(0f, 10f, 0f)), 
+        new(new(0f, 10f, 0f), new(0f, 20f, 0f)), 
+        new(new(0f, 20f, 0f), new(-10f, 20f, 0f)), 
+        new(new(0f, 20f, 0f), new(10f, 20f, 0f)), 
+        new(new(0f, 20f, 0f), new(-10f, 20f, 0f)), 
+        new(new(0f, 20f, 0f), new(0f, 30f, 0f)), 
+        new(new(0f, 30f, 0f), new(-5f, 38.66f, 0f)), 
+        new(new(0f, 30f, 0f), new(5f, 38.66f, 0f))
+    };
+
 
     /// <summary>
     /// Initializes an L-System.

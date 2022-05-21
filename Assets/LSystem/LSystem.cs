@@ -97,7 +97,7 @@ public class LSystem
 
     public List<Tuple<Vector3, Vector3>> Turtle3D(List<Tuple<char, int[]>> tokens)
     {
-        Vector3 scarlet_rot = Vector3.up;
+        Vector3 scarlet_rot = Vector3.down;
         Vector3 current = Vector3.zero;
         List<Tuple<Vector3, Vector3>> tuples = new();
         //LSystemTree<Tuple<Vector3, Vector3>> tuples = new(new(current,current));

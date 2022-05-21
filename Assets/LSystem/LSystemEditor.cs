@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using MarchingCubesProject;
 using UnityEngine;
 
 public class LSystemEditor : MonoBehaviour
@@ -9,6 +10,8 @@ public class LSystemEditor : MonoBehaviour
     [Header("Default Settings")]
     public int m_Distance = 10;
     public short m_Angle = 90;
+
+    public float m_Thickness = 2f;
 
     public int m_CrossSections = 4;
     public int m_CrossSectionDivisions = 2;
@@ -48,7 +51,28 @@ public class LSystemEditor : MonoBehaviour
         // LSystem.PrintList(v);
         var rules = ParseRuleInput(m_Rules);
         Debug.Log(string.Join(Environment.NewLine, rules.Select(kvp => kvp.Key + ": " + kvp.Value.ToString())));
-        l.Evaluate(m_StartString, m_Iterations, rules, true);
+        var output = l.Evaluate(m_StartString, m_Iterations, rules, true);
+
+        Segment[] segments = new Segment[output.Count];
+        for (int i = 0; i < output.Count; i++)
+        {
+            segments[i] = new Segment(output[i].Item1, output[i].Item2, m_Thickness);
+            Debug.Log(segments[i].startPoint + ", " + segments[i].endPoint);
+        }
+
+
+        // Vector3 startPoint = new Vector3(-1, -3, 0);
+        // Vector3 endPoint = new Vector3(14, 0, 1.5f);
+        // Segment[] segments = new Segment[] { new Segment(startPoint, endPoint, 2) };
+        Metaball m = Metaball.BuildFromSegments(segments);
+
+
+        //generate mesh from the metaball
+        MeshGenerator meshGen = GetComponent<MeshGenerator>();
+        //attributes such as the size and grid resolution can be set via component or through meshGen.gridResolution
+        meshGen.size = 25;
+
+        meshGen.Generate(m);
     }
 
     // Update is called once per frame

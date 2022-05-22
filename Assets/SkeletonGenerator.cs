@@ -71,30 +71,34 @@ public class SkeletonGenerator
 
         // TODO(markus): Find better names for BoneTrees
         GameObject result = new GameObject("BoneTree");
-        result.transform.rotation = Quaternion.FromToRotation(end, start);
-        result.transform.position = end;
-        //result.transform.localPosition = result.transform.localRotation * Vector3.forward * length * 1.5f;
+        result.transform.rotation = Quaternion.LookRotation(end-start) * Quaternion.FromToRotation(Vector3.forward, Vector3.down);//Quaternion.FromToRotation(start,end);
+        result.transform.position = start + ((end-start).normalized*(length/2));        
+        //result.transform.localPosition = result.transform.localRotation * Vector3.forward * length * 1.5f; 
 
         Rigidbody rb = result.AddComponent<Rigidbody>();
         rb.mass = BoneTreeMass;
 
         ConfigurableJoint joint = result.AddComponent<ConfigurableJoint>();
-        //joint.targetRotation = result.transform.localRotation;
+        joint.transform.rotation = result.transform.rotation;
+        joint.targetRotation = Quaternion.LookRotation(end-start);
+
+        joint.anchor = new Vector3(0,-length/2,0);
 
         CapsuleCollider collider = result.AddComponent<CapsuleCollider>();
         collider.height = length;
         collider.radius = BoneTreeRadius;
-
-        result.AddComponent<Bone>();
+        //result.AddComponent<Bone>();
         
         if (parent) {
             joint.connectedBody = parent.GetComponent<Rigidbody>();
+            joint.connectedAnchor = parent.transform.position;
             result.transform.parent = parent.transform;
         }
 
         // TODO(markus): Scale capsule mesh correctly
         GameObject meshObject = GameObject.CreatePrimitive(PrimitiveType.Capsule);
-        meshObject.transform.parent = result.transform;
+        meshObject.transform.position = result.transform.position;
+        meshObject.transform.rotation = result.transform.rotation;
 
         return result;
     }

@@ -17,6 +17,8 @@ public class SkeletonGenerator
 
         private GameObject go;
 
+        public  Vector3 min;
+
         public BoneTree(Tuple<Vector3, Vector3> segment, BoneTree parent) {
             this.segment = segment;
             this.parent = parent;
@@ -32,6 +34,7 @@ public class SkeletonGenerator
             foreach (BoneTree child in children) {
                 child.toGameObject();
             }
+            go.transform.position += this.min;
             return go;
         }
 
@@ -60,6 +63,13 @@ public class SkeletonGenerator
                 parent.children.Add(child);
             }
         }
+         //calculate y transform, remove when l system stands above ground by itself
+        float min_f = 0;
+        foreach(var a in segments){
+            var min_ = a.Item1.y < a.Item2.y ? a.Item1.y : a.Item2.y;
+            if(min_ < min_f) min_f = min_;
+        }
+        root.min = Vector3.up * -min_f;
 
         return root.toGameObject();
     }
@@ -72,7 +82,7 @@ public class SkeletonGenerator
         // TODO(markus): Find better names for BoneTrees
         GameObject result = new GameObject("BoneTree");
         result.transform.rotation = Quaternion.LookRotation(end-start) * Quaternion.FromToRotation(Vector3.forward, Vector3.down);//Quaternion.FromToRotation(start,end);
-        result.transform.position = start + ((end-start).normalized*(length/2));        
+        result.transform.position = start + ((end-start).normalized*(length/2));  
         //result.transform.localPosition = result.transform.localRotation * Vector3.forward * length * 1.5f; 
 
         Rigidbody rb = result.AddComponent<Rigidbody>();
@@ -97,6 +107,7 @@ public class SkeletonGenerator
 
         // TODO(markus): Scale capsule mesh correctly
         GameObject meshObject = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+        meshObject.transform.parent = result.transform;
         meshObject.transform.position = result.transform.position;
         meshObject.transform.rotation = result.transform.rotation;
 

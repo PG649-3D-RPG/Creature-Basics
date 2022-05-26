@@ -28,6 +28,8 @@ namespace LSystem
         public uint m_CrossSectionDivisions = 2;
 
         [Header("L-System")]
+        [Tooltip("Translate points to above ground")]
+        public bool m_TranslatePoints = true;
         [Tooltip("Initial string to evaluate")]
         public string m_StartString = "FF[+F][-F]F(42)";
         [Tooltip("Number of iterations to apply the replacement rules")]
@@ -67,7 +69,7 @@ namespace LSystem
             // LSystem.PrintList(v);
             var rules = ParseRuleInput(m_Rules);
             Debug.Log(string.Join(Environment.NewLine, rules.Select(kvp => kvp.Key + ": " + kvp.Value.ToString())));
-            var output = l.Evaluate(m_StartString, m_Iterations, rules, true);
+            var output = l.Evaluate(m_StartString, m_Iterations, rules, m_TranslatePoints, true);
 
             Segment[] segments = new Segment[output.Count];
             for (int i = 0; i < output.Count; i++)

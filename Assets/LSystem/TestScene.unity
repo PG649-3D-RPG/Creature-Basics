@@ -304,6 +304,7 @@ MonoBehaviour:
   m_Thickness: 0.1
   m_CrossSections: 4
   m_CrossSectionDivisions: 2
+  m_TranslatePoints: 1
   m_StartString: FABFCD
   m_Iterations: 1
   m_Rules:

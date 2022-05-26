@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 
@@ -31,6 +32,7 @@ namespace LSystem
         /// <param name="a">Default angle of the turtle</param>
         /// <param name="cs">Default number of cross sections for the drawing.</param>
         /// <param name="csd">Default number of cross section divisions for the drawing.</param>
+        /// <param name="init_dir">Initial direction of the turtle.</param>
         public LSystem(float d, short a, uint cs, uint csd, INITIAL_DIRECTION init_dir)
         {
             default_dist = d;
@@ -71,6 +73,7 @@ namespace LSystem
         }
 
         // TODO: Houdini Syntax; in grammatik variable länge erlauben
+        // TODO allow context sensitive parsing
         // https://www.sidefx.com/docs/houdini/nodes/sop/lsystem.html
         private List<Tuple<char, float[]>> Tokenize(string str)
         {
@@ -198,6 +201,23 @@ namespace LSystem
             return w;
         }
 
+        private List<Tuple<Vector3, Vector3>> TranslatePoints(List<Tuple<Vector3, Vector3>> l)
+        {
+            var miny = 0f;
+            foreach (var t in l)
+            {
+                var m = Math.Min(t.Item1.y, t.Item2.y);
+                if (miny > m) miny = m;
+            }
+            Vector3 translation = new(0, Math.Abs(miny), 0);
+            List<Tuple<Vector3, Vector3>> newlist = new();
+            foreach (var t in l)
+            {
+                newlist.Add(new(t.Item1 + translation, t.Item2 + translation));
+            }
+            return newlist;
+        }
+
         /// <summary>
         /// Constructs the result string from the supplied start string and rules for the specified number of iterations and
         /// returns a list of <start,end> 3D-points that the turtle has drawn.
@@ -207,7 +227,7 @@ namespace LSystem
         /// <param name="rules">The replacement rules.</param>
         /// <param name="printResult">If set to true, will print the list of <start,end> points to the console. Default: false</param>
         /// <returns>The list of <start,end> 3D-points the turtle has drawn.</returns>
-        public List<Tuple<Vector3, Vector3>> Evaluate(string start, uint iterations, Dictionary<char, string> rules, bool printResult = false)
+        public List<Tuple<Vector3, Vector3>> Evaluate(string start, uint iterations, Dictionary<char, string> rules, bool translatePointsOfList, bool printResult = false)
         {
             var expanded = Parse(start, iterations, rules);
             if (printResult) Debug.Log(expanded);
@@ -215,6 +235,7 @@ namespace LSystem
             var tokens = Tokenize(expanded);
             PrintList(tokens);
             var res = Turtle3D(tokens);
+            if (translatePointsOfList) res = TranslatePoints(res);
             if (printResult) PrintList(res);
             return res;
         }

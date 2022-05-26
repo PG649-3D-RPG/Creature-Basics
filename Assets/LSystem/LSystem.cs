@@ -5,8 +5,6 @@ using UnityEngine;
 
 namespace LSystem
 {
-    // TODO: Houdini Syntax; in grammatik variable länge erlauben
-    // https://www.sidefx.com/docs/houdini/nodes/sop/lsystem.html
     public class LSystem
     {
         private readonly int default_dist;
@@ -72,6 +70,8 @@ namespace LSystem
             return result;
         }
 
+        // TODO: Houdini Syntax; in grammatik variable länge erlauben
+        // https://www.sidefx.com/docs/houdini/nodes/sop/lsystem.html
         private List<Tuple<char, int[]>> Tokenize(string str)
         {
             List<Tuple<char, int[]>> tokens = new();
@@ -109,10 +109,7 @@ namespace LSystem
             return tokens;
         }
 
-        private double ConvertToRadians(double angle)
-        {
-            return (Math.PI / 180) * angle;
-        }
+        private double ConvertToRadians(double angle) => (Math.PI / 180) * angle;
 
         private Vector3 CalculateEnd2D(int rot, Vector3 start, int dist)
         {
@@ -121,15 +118,12 @@ namespace LSystem
             return new Vector3(x, y, 0);
         }
 
-        private Vector3 CalculateEnd3D(Vector3 v, Vector3 start, int dist)
-        {
-            return start + dist * v;
-        }
+        private Vector3 CalculateEnd3D(Vector3 direction, Vector3 start, int dist) => start + dist * direction;
 
         private List<Tuple<Vector3, Vector3>> Turtle3D(List<Tuple<char, int[]>> tokens)
         {
             Vector3 scarlet_rot = initial_direction;
-            Vector3 current = Vector3.zero;
+            Vector3 current_pos = Vector3.zero;
             List<Tuple<Vector3, Vector3>> tuples = new();
             Stack<Tuple<Vector3, Vector3>> st = new();
             foreach (var e in tokens)
@@ -137,10 +131,10 @@ namespace LSystem
                 switch (e.Item1)
                 {
                     case 'F':
-                        var end = CalculateEnd3D(scarlet_rot, current, e.Item2[0]);// new endpoint
-                        tuples.Add(new(current, end));// last endpoint = new startpoint
-                                                      //currentNode = currentNode.addChild(new(current, end));
-                        current = end;
+                        // var end = CalculateEnd3D(scarlet_rot, current, e.Item2[0]);
+                        var endpoint = current_pos + e.Item2[0] * scarlet_rot; // new endpoint
+                        tuples.Add(new(current_pos, endpoint));
+                        current_pos = endpoint; // last endpoint = current position
                         break;
                     case '+': // turn right
                         scarlet_rot = Quaternion.Euler(0, 0, e.Item2[0]) * scarlet_rot;
@@ -167,12 +161,12 @@ namespace LSystem
                         scarlet_rot = Quaternion.Euler(0, 180, 0) * scarlet_rot;
                         break;
                     case '[':
-                        st.Push(new(scarlet_rot, current));
+                        st.Push(new(scarlet_rot, current_pos));
                         break;
                     case ']':
                         var tmp = st.Pop();
                         scarlet_rot = tmp.Item1;
-                        current = tmp.Item2;
+                        current_pos = tmp.Item2;
                         break;
                     default:
                         break;

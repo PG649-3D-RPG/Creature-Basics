@@ -12,7 +12,7 @@ namespace LSystem
     {
         [Header("Default Settings")]
         [Tooltip("Default forward distance")]
-        public int m_Distance = 10;
+        public int m_Distance = 1;
         [Tooltip("Default turning angle")]
         public short m_Angle = 90;
 
@@ -20,7 +20,7 @@ namespace LSystem
         public INITIAL_DIRECTION m_InitialDirection = INITIAL_DIRECTION.DOWN;
 
         [Tooltip("Default segment thickness")]
-        public float m_Thickness = 2f;
+        public float m_Thickness = .1f;
 
         [Tooltip("Default number of cross sections")]
         public uint m_CrossSections = 4;
@@ -86,8 +86,8 @@ namespace LSystem
             //generate mesh from the metaball
             MeshGenerator meshGen = GetComponent<MeshGenerator>();
             //attributes such as the size and grid resolution can be set via component or through meshGen.gridResolution
-            meshGen.size = 100;
-            meshGen.gridResolution = 64;
+            // meshGen.size = 100;
+            // meshGen.gridResolution = 64;
 
             meshGen.Generate(m);
         }

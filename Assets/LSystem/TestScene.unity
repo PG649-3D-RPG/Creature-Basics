@@ -200,7 +200,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 239447034}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -20, z: -60}
+  m_LocalPosition: {x: 0, y: 0, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -262,8 +262,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 431668167}
-  - component: {fileID: 431668165}
   - component: {fileID: 431668168}
+  - component: {fileID: 431668169}
   m_Layer: 0
   m_Name: Metaball
   m_TagString: Untagged
@@ -271,24 +271,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &431668165
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 431668164}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fb48682f195d8d1439f56e93ace3ef87, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  material: {fileID: 2100000, guid: fb8a03accb87f7a4abc7af51618a72be, type: 2}
-  mode: 0
-  smoothNormals: 0
-  drawNormals: 0
-  gridResolution: 64
-  size: 10
 --- !u!4 &431668167
 Transform:
   m_ObjectHideFlags: 0
@@ -316,19 +298,37 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 686c272d409654d6ab9ed17d9f707f6f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Distance: 10
+  m_Distance: 1
   m_Angle: 90
   m_InitialDirection: 1
-  m_Thickness: 2
+  m_Thickness: 0.1
   m_CrossSections: 4
   m_CrossSectionDivisions: 2
   m_StartString: FABFCD
   m_Iterations: 1
   m_Rules:
-  - A=[+F(15)]
-  - B=[-F(15)]
-  - C=[+(30)F(15)C]
-  - D=[-(30)F(15)D]
+  - A=[+F(2)]
+  - B=[-F(2)]
+  - C=[+(30)F(2)C]
+  - D=[-(30)F(2)D]
+--- !u!114 &431668169
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 431668164}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fb48682f195d8d1439f56e93ace3ef87, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  material: {fileID: 2100000, guid: fb8a03accb87f7a4abc7af51618a72be, type: 2}
+  mode: 1
+  smoothNormals: 0
+  drawNormals: 0
+  gridResolution: 64
+  size: 10
 --- !u!1 &892438703
 GameObject:
   m_ObjectHideFlags: 0

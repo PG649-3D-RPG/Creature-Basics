@@ -318,7 +318,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Distance: 10
   m_Angle: 90
-  m_InitialDirection: 0
+  m_InitialDirection: 1
   m_Thickness: 2
   m_CrossSections: 4
   m_CrossSectionDivisions: 2

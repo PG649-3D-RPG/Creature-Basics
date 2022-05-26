@@ -7,7 +7,7 @@ namespace LSystem
 {
     public class LSystem
     {
-        private readonly int default_dist;
+        private readonly float default_dist;
         private readonly short default_angle;
 
         private readonly uint default_cross_sections;
@@ -31,7 +31,7 @@ namespace LSystem
         /// <param name="a">Default angle of the turtle</param>
         /// <param name="cs">Default number of cross sections for the drawing.</param>
         /// <param name="csd">Default number of cross section divisions for the drawing.</param>
-        public LSystem(int d, short a, uint cs, uint csd, INITIAL_DIRECTION init_dir)
+        public LSystem(float d, short a, uint cs, uint csd, INITIAL_DIRECTION init_dir)
         {
             default_dist = d;
             default_angle = a;
@@ -50,21 +50,21 @@ namespace LSystem
             };
         }
 
-        private Tuple<char, int[]> ParseArguments(ref string str, ref int index, char symbol, int default_value)
+        private Tuple<char, float[]> ParseArguments(ref string str, ref int index, char symbol, float default_value)
         {
-            Tuple<char, int[]> result;
+            Tuple<char, float[]> result;
             if (index < str.Length - 1 && str[index + 1] == '(')
             {
                 // search index of ')'
                 var end = index + str[index..].IndexOf(')');
                 var tmp = str[(index + 2)..end];
-                var d = int.Parse(tmp);
-                result = new(symbol, new int[] { d });
+                var d = float.Parse(tmp);
+                result = new(symbol, new float[] { d });
                 index = end + 1;
             }
             else
             {
-                result = new(symbol, new int[] { default_value });
+                result = new(symbol, new float[] { default_value });
                 index++;
             }
             return result;
@@ -72,9 +72,9 @@ namespace LSystem
 
         // TODO: Houdini Syntax; in grammatik variable länge erlauben
         // https://www.sidefx.com/docs/houdini/nodes/sop/lsystem.html
-        private List<Tuple<char, int[]>> Tokenize(string str)
+        private List<Tuple<char, float[]>> Tokenize(string str)
         {
-            List<Tuple<char, int[]>> tokens = new();
+            List<Tuple<char, float[]>> tokens = new();
             for (int i = 0; i < str.Length;)
             {
                 switch (str[i])
@@ -101,7 +101,7 @@ namespace LSystem
                         tokens.Add(ParseArguments(ref str, ref i, str[i], default_angle));
                         break;
                     default:
-                        tokens.Add(new(str[i], new int[0]));
+                        tokens.Add(new(str[i], new float[0]));
                         i++;
                         break;
                 }
@@ -120,7 +120,7 @@ namespace LSystem
 
         private Vector3 CalculateEnd3D(Vector3 direction, Vector3 start, int dist) => start + dist * direction;
 
-        private List<Tuple<Vector3, Vector3>> Turtle3D(List<Tuple<char, int[]>> tokens)
+        private List<Tuple<Vector3, Vector3>> Turtle3D(List<Tuple<char, float[]>> tokens)
         {
             Vector3 scarlet_rot = initial_direction;
             Vector3 current_pos = Vector3.zero;

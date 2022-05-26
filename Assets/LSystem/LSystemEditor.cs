@@ -12,7 +12,7 @@ namespace LSystem
     {
         [Header("Default Settings")]
         [Tooltip("Default forward distance")]
-        public int m_Distance = 1;
+        public float m_Distance = 1f;
         [Tooltip("Default turning angle")]
         public short m_Angle = 90;
 

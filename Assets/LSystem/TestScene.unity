@@ -307,10 +307,10 @@ MonoBehaviour:
   m_StartString: FABFCD
   m_Iterations: 1
   m_Rules:
-  - A=[+F(2)]
-  - B=[-F(2)]
-  - C=[+(30)F(2)C]
-  - D=[-(30)F(2)D]
+  - A=[+F(1.5)]
+  - B=[-F(1.5)]
+  - C=[+(30)F(1.5)C]
+  - D=[-(30)F(1.5)D]
 --- !u!114 &431668169
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -324,7 +324,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   material: {fileID: 2100000, guid: fb8a03accb87f7a4abc7af51618a72be, type: 2}
-  mode: 1
+  mode: 0
   smoothNormals: 0
   drawNormals: 0
   gridResolution: 64

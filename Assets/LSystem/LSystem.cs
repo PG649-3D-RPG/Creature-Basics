@@ -16,7 +16,11 @@ public class LSystem
     /// <summary>
     /// An example for the output of the L-System.
     /// </summary>
-    public List<Tuple<Vector3, Vector3>> EXAMPLE = new() { new(Vector3.zero, new(0f, 10f, 0f)), new(new(0f, 10f, 0f), new(0f, 20f, 0f)), new(new(0f, 20f, 0f), new(-10f, 20f, 0f)), new(new(0f, 20f, 0f), new(10f, 20f, 0f)), new(new(0f, 20f, 0f), new(-10f, 20f, 0f)), new(new(0f, 20f, 0f), new(0f, 30f, 0f)), new(new(0f, 30f, 0f), new(-5f, 38.66f, 0f)), new(new(0f, 30f, 0f), new(5f, 38.66f, 0f)) };
+    public static readonly List<Tuple<Vector3, Vector3>> EXAMPLE = new() { new(Vector3.zero, new(0f, 10f, 0f)), new(new(0f, 10f, 0f), new(0f, 20f, 0f)), new(new(0f, 20f, 0f), new(-10f, 20f, 0f)), new(new(0f, 20f, 0f), new(10f, 20f, 0f)), new(new(0f, 20f, 0f), new(0f, 30f, 0f)), new(new(0f, 30f, 0f), new(-5f, 38.66f, 0f)), new(new(0f, 30f, 0f), new(5f, 38.66f, 0f)) };
+    /// <summary>
+    /// terminal symbols of the l-system
+    /// </summary>
+    public static readonly List<char> TERMINALS = new() { 'F', '+', '-', '&', '^', '\\', '/', '|', '*', '[', ']' };
 
     /// <summary>
     /// Initializes an L-System.
@@ -203,7 +207,10 @@ public class LSystem
     {
         var expanded = Parse(start, iterations, rules);
         if (printResult) Debug.Log(expanded);
-        var res = Turtle3D(Tokenize(expanded));
+        // List<char> non_terminals = new(rules.Keys);
+        var tokens = Tokenize(expanded);
+        PrintList(tokens);
+        var res = Turtle3D(tokens);
         if (printResult) PrintList(res);
         return res;
     }
@@ -212,7 +219,7 @@ public class LSystem
     /// Prints a list of tuples of 3D Vectors.
     /// </summary>
     /// <param name="l">The list that shall be printed.</param>
-    public static void PrintList(List<Tuple<Vector3, Vector3>> l)
+    public static void PrintList<T, T2>(List<Tuple<T, T2>> l)
     {
         string o = "[  ";
         foreach (var e in l)

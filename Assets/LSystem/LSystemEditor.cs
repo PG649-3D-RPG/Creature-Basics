@@ -5,6 +5,8 @@ using System.Linq;
 using MarchingCubesProject;
 using UnityEngine;
 
+public enum INITIAL_DIRECTION { UP, DOWN };
+
 public class LSystemEditor : MonoBehaviour
 {
     [Header("Default Settings")]
@@ -12,6 +14,9 @@ public class LSystemEditor : MonoBehaviour
     public int m_Distance = 10;
     [Tooltip("Default turning angle")]
     public short m_Angle = 90;
+
+    [Tooltip("Initial direction the turtle faces")]
+    public INITIAL_DIRECTION m_InitialDirection = INITIAL_DIRECTION.UP;
 
     [Tooltip("Default segment thickness")]
     public float m_Thickness = 2f;
@@ -29,21 +34,22 @@ public class LSystemEditor : MonoBehaviour
     [Tooltip("Replacement rules")]
     public string[] m_Rules = { "F=F+F-F-F+F" };
 
-    //TODO change parsing to be context sensitive
     private Dictionary<char, string> ParseRuleInput(string[] rules)
     {
         var nt = new Dictionary<char, string>();
         foreach (var r in rules)
         {
             //check syntax
-            //TODO allow only valid symbols
             if (r.Length < 3) throw new ArgumentException("Rule is in a wrong format");
             if (!r.Contains('=')) throw new ArgumentException("Rule needs to include an =");
             // search index of '='
             var end = r.IndexOf('=');
             var non_terminal = r[..end];
+            //TODO not necessarily: non terminals may only be one character
+            if (non_terminal.Length > 1) throw new ArgumentException("Non Terminals may only be exactly one character.");
             var replacement = r[(end + 1)..];
-            if (nt.ContainsKey(non_terminal[0])) throw new ArgumentException("Cannot add another rule with the same non-terminal " + non_terminal[0]);
+            // check if non_terminal is already contained or a terminal has the same symbol
+            if (nt.ContainsKey(non_terminal[0]) || LSystem.TERMINALS.Contains(non_terminal[0])) throw new ArgumentException("Cannot add a rule with a symbol that is already in use " + non_terminal[0]);
             else nt.Add(non_terminal[0], replacement);
         }
         return nt;

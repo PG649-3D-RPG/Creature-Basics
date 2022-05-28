@@ -31,11 +31,11 @@ namespace LSystem
         [Tooltip("Translate points to above ground")]
         public bool m_TranslatePoints = true;
         [Tooltip("Initial string to evaluate")]
-        public string m_StartString = "FF[+F][-F]F(42)";
+        public string m_StartString = "FABFCD";//"FF[+F][-F]F(42)";
         [Tooltip("Number of iterations to apply the replacement rules")]
-        public uint m_Iterations = 0;
+        public uint m_Iterations = 1;
         [Tooltip("Replacement rules")]
-        public string[] m_Rules = { "F=F+F-F-F+F" };
+        public string[] m_Rules = { "A=[+F(1.5)]","B=[-F(1.5)]","C=[+(30)F(1.5)C]","D=[-(30)F(1.5)D]" };
 
         private Dictionary<char, string> ParseRuleInput(string[] rules)
         {
@@ -94,11 +94,18 @@ namespace LSystem
 
             meshGen.Generate(m);
         }
+
         public List<Tuple<Vector3, Vector3>> Evaluate() {
             LSystem l = new(m_Distance, m_Angle, m_CrossSections, m_CrossSectionDivisions, m_InitialDirection);
             var rules = ParseRuleInput(m_Rules);
             return l.Evaluate(m_StartString, m_Iterations, rules, true);
-    }   
+        }
+
+        public LSystem BuildLSystem(){
+            var rules = ParseRuleInput(m_Rules);
+            LSystem l = new(m_Distance, m_Angle, m_CrossSections, m_CrossSectionDivisions, m_InitialDirection,m_StartString, m_Iterations, rules, true);
+            return l;
+        }
 
         // // Update is called once per frame
         // void Update()

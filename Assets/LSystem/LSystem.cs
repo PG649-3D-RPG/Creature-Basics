@@ -25,6 +25,8 @@ namespace LSystem
         /// </summary>
         public static readonly List<char> TERMINALS = new() { 'F', '+', '-', '&', '^', '\\', '/', '|', '*', '[', ']' };
 
+        public List<Tuple<Vector3,Vector3>> segments;
+
         /// <summary>
         /// Initializes an L-System.
         /// </summary>
@@ -50,6 +52,25 @@ namespace LSystem
                 INITIAL_DIRECTION.DIAGONAL => Vector3.one,
                 _ => Vector3.down,
             };
+        }
+
+        public LSystem(float d, short a, uint cs, uint csd, INITIAL_DIRECTION init_dir,string start, uint iterations, Dictionary<char, string> rules, bool translatePointsOfList, bool printResult = false){
+            default_dist = d;
+            default_angle = a;
+            default_cross_sections = cs;
+            default_cross_section_divisions = csd;
+            initial_direction = init_dir switch
+            {
+                INITIAL_DIRECTION.UP => Vector3.up,
+                INITIAL_DIRECTION.DOWN => Vector3.down,
+                INITIAL_DIRECTION.LEFT => Vector3.left,
+                INITIAL_DIRECTION.RIGHT => Vector3.right,
+                INITIAL_DIRECTION.FORWARD => Vector3.forward,
+                INITIAL_DIRECTION.BACK => Vector3.back,
+                INITIAL_DIRECTION.DIAGONAL => Vector3.one,
+                _ => Vector3.down,
+            };
+            segments = Evaluate(start,iterations,rules,translatePointsOfList,printResult);
         }
 
         private Tuple<char, float[]> ParseArguments(ref string str, ref int index, char symbol, float default_value)

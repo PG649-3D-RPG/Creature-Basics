@@ -61,6 +61,7 @@ namespace LSystem
         // Start is called before the first frame update
         void Start()
         {
+            return;
             LSystem l = new(m_Distance, m_Angle, m_CrossSections, m_CrossSectionDivisions, m_InitialDirection);
             // var s = l.Parse("F", 1, NT);
             // Debug.Log(s);
@@ -93,6 +94,11 @@ namespace LSystem
 
             meshGen.Generate(m);
         }
+        public List<Tuple<Vector3, Vector3>> Evaluate() {
+            LSystem l = new(m_Distance, m_Angle, m_CrossSections, m_CrossSectionDivisions, m_InitialDirection);
+            var rules = ParseRuleInput(m_Rules);
+            return l.Evaluate(m_StartString, m_Iterations, rules, true);
+    }   
 
         // // Update is called once per frame
         // void Update()

@@ -115,10 +115,10 @@ public class SkeletonGenerator
         }
 
         // TODO(markus): Scale capsule mesh correctly
-        GameObject meshObject = GameObject.CreatePrimitive(PrimitiveType.Capsule);
-        meshObject.transform.parent = result.transform;
-        meshObject.transform.position = result.transform.position;
-        meshObject.transform.rotation = result.transform.rotation;
+        // GameObject meshObject = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+        // meshObject.transform.parent = result.transform;
+        // meshObject.transform.position = result.transform.position;
+        // meshObject.transform.rotation = result.transform.rotation;
 
         return result;
     }

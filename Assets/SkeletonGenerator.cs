@@ -34,7 +34,7 @@ public class SkeletonGenerator
             foreach (BoneTree child in children) {
                 child.toGameObject();
             }
-            go.transform.position += this.min;
+            //go.transform.position += this.min;
             return go;
         }
 
@@ -64,12 +64,13 @@ public class SkeletonGenerator
             }
         }
          //calculate y transform, remove when l system stands above ground by itself
-        float min_f = 0;
-        foreach(var a in segments){
-            var min_ = a.Item1.y < a.Item2.y ? a.Item1.y : a.Item2.y;
-            if(min_ < min_f) min_f = min_;
-        }
-        root.min = Vector3.up * -min_f;
+        // float min_f = 0;
+        // foreach(var a in segments){
+        //     var min_ = a.Item1.y < a.Item2.y ? a.Item1.y : a.Item2.y;
+        //     if(min_ < min_f) min_f = min_;
+        // }
+        // root.min = Vector3.up * -min_f;
+        // root.min = new Vector3(0,0,0);
 
         return root.toGameObject();
     }
@@ -89,8 +90,8 @@ public class SkeletonGenerator
         rb.mass = BoneTreeMass;
 
         ConfigurableJoint joint = result.AddComponent<ConfigurableJoint>();
-        joint.transform.rotation = result.transform.rotation;
-        joint.targetRotation = Quaternion.LookRotation(end-start);
+        //joint.transform.rotation = result.transform.rotation;
+        //joint.targetRotation = Quaternion.LookRotation(end-start);
 
         joint.anchor = new Vector3(0,-length/2,0);
 
@@ -103,6 +104,14 @@ public class SkeletonGenerator
             joint.connectedBody = parent.GetComponent<Rigidbody>();
             joint.connectedAnchor = parent.transform.position;
             result.transform.parent = parent.transform;
+            joint.xMotion = ConfigurableJointMotion.Locked;
+            joint.yMotion = ConfigurableJointMotion.Locked;
+            joint.zMotion = ConfigurableJointMotion.Locked;
+        }
+        else{
+            joint.xMotion = ConfigurableJointMotion.Locked;
+            joint.yMotion = ConfigurableJointMotion.Locked;
+            joint.zMotion = ConfigurableJointMotion.Locked;
         }
 
         // TODO(markus): Scale capsule mesh correctly

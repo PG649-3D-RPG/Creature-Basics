@@ -11,7 +11,8 @@ public class SkeletonTest : MonoBehaviour
     void Start()
     {
         LSystemEditor ed = gameObject.GetComponent<LSystemEditor>();
-        List<Tuple<Vector3,Vector3>> segments = ed.Evaluate();
+        LSystem.LSystem l = ed.BuildLSystem();
+        List<Tuple<Vector3,Vector3>> segments = l.segments;
         GameObject boneTree = SkeletonGenerator.Generate(segments);
         boneTree.transform.parent = gameObject.transform;
         Segment[] segments_ = new Segment[segments.Count];
@@ -21,7 +22,7 @@ public class SkeletonTest : MonoBehaviour
             Debug.Log(segments_[i].startPoint + ", " + segments_[i].endPoint);
         }
         Metaball m = Metaball.BuildFromSegments(segments_);
-        MeshGenerator mg = gameObject.GetComponent<MeshGenerator>();
+        MeshGenerator mg = GetComponent<MeshGenerator>();
         mg.Generate(m);
     }
 

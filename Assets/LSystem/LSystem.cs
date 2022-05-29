@@ -19,13 +19,14 @@ namespace LSystem
         /// <summary>
         /// An example for the output of the L-System.
         /// </summary>
-        public static readonly List<Tuple<Vector3, Vector3>> EXAMPLE = new() { new(Vector3.zero, new(0f, 10f, 0f)), new(new(0f, 10f, 0f), new(0f, 20f, 0f)), new(new(0f, 20f, 0f), new(-10f, 20f, 0f)), new(new(0f, 20f, 0f), new(10f, 20f, 0f)), new(new(0f, 20f, 0f), new(0f, 30f, 0f)), new(new(0f, 30f, 0f), new(-5f, 38.66f, 0f)), new(new(0f, 30f, 0f), new(5f, 38.66f, 0f)) };
+        public static readonly List<Tuple<Vector3, Vector3>> EXAMPLE = new() { new(Vector3.zero, new(0f, 10f, 0f)), new(new(0f, 10f, 0f), new(0f, 20f, 0f)), new(new(0f, 20f, 0f), new(-10f, 20f, 0f)), new(new(0f, 20f, 0f), new(10f, 20f, 0f)), new(new(0f, 20f, 0f), new(0f, 30f, 0f)), new(new(0f, 30f, 0f), new(-5f, 38.66f, 0f)), new(new(0f, 30f, 0f), new(5f, 38.66f, 0f)) };        
         /// <summary>
         /// terminal symbols of the l-system
         /// </summary>
         public static readonly List<char> TERMINALS = new() { 'F', '+', '-', '&', '^', '\\', '/', '|', '*', '[', ']' };
 
         public List<Tuple<Vector3,Vector3>> segments;
+        public List<Tuple<int,char>> fromRule;
 
         /// <summary>
         /// Initializes an L-System.
@@ -71,6 +72,7 @@ namespace LSystem
                 _ => Vector3.down,
             };
             segments = Evaluate(start,iterations,rules,translatePointsOfList,printResult);
+            fromRule = new List<Tuple<int,char>>();
         }
 
         private Tuple<char, float[]> ParseArguments(ref string str, ref int index, char symbol, float default_value)
@@ -158,7 +160,7 @@ namespace LSystem
                         // var end = CalculateEnd3D(scarlet_rot, current, e.Item2[0]);
                         var endpoint = current_pos + e.Item2[0] * scarlet_rot; // new endpoint
                         tuples.Add(new(current_pos, endpoint));
-                        current_pos = endpoint; // last endpoint = current position
+                        current_pos = endpoint; // last endpoint = current position 
                         break;
                     case '+': // turn right
                         scarlet_rot = Quaternion.Euler(0, 0, e.Item2[0]) * scarlet_rot;

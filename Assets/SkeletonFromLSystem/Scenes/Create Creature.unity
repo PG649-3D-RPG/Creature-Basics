@@ -254,12 +254,12 @@ MonoBehaviour:
   m_CrossSections: 4
   m_CrossSectionDivisions: 2
   m_TranslatePoints: 1
-  m_StartString: F(0)[|F]+(90)[A]-(180)[A]+(90)T+(30)[L]-(60)[L]
+  m_StartString: F(0)[|F]+(90)[A]-(180)[A]+(90)T+(30)[L]-(60)[L]+(30)&(30)[L]&(-60)[L]
   m_Iterations: 1
   m_Rules:
-  - A=F(0.2)F(0.2)
-  - L=FF(0.5)
-  - T=F(0.5)F(0.5)F(0.5)F(0.5)
+  - A=FF
+  - L=FFF
+  - T=F(0.3)F(0.3)F(0.3)
 --- !u!114 &1734616960
 MonoBehaviour:
   m_ObjectHideFlags: 0

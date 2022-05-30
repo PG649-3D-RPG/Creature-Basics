@@ -136,9 +136,9 @@ public class SkeletonGenerator
             meshObject.transform.localScale = new Vector3(0.1f,length*0.45f,0.1f);
             meshObject.transform.parent = result.transform;
             meshObject.transform.position = result.transform.position;
-            meshObject.transform.rotation = result.transform.rotation;
-            result.name = name;
+            meshObject.transform.rotation = result.transform.rotation;            
         }
+        result.name = name;
         return result;
     }
 }

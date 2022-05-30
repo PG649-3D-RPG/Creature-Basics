@@ -35,7 +35,7 @@ namespace LSystem
         [Tooltip("Number of iterations to apply the replacement rules")]
         public uint m_Iterations = 1;
         [Tooltip("Replacement rules")]
-        public string[] m_Rules = { "A=[+F(1.5)]","B=[-F(1.5)]","C=[+(30)F(1.5)C]","D=[-(30)F(1.5)D]" };
+        public string[] m_Rules = { "A=[+F(1.5)]", "B=[-F(1.5)]", "C=[+(30)F(1.5)C]", "D=[-(30)F(1.5)D]" };
 
         private Dictionary<char, string> ParseRuleInput(string[] rules)
         {
@@ -59,51 +59,53 @@ namespace LSystem
         }
 
         // Start is called before the first frame update
-        void Start()
+        // void Start()
+        // {
+        //     return;
+        //     LSystem l = new(m_Distance, m_Angle, m_CrossSections, m_CrossSectionDivisions, m_InitialDirection);
+        //     // var s = l.Parse("F", 1, NT);
+        //     // Debug.Log(s);
+        //     // var t = l.Tokenize(m_StartString);
+        //     // var v = l.Turtle3D(t);
+        //     // LSystem.PrintList(v);
+        //     var rules = ParseRuleInput(m_Rules);
+        //     Debug.Log(string.Join(Environment.NewLine, rules.Select(kvp => kvp.Key + ": " + kvp.Value.ToString())));
+        //     var output = l.Evaluate(m_StartString, m_Iterations, rules, m_TranslatePoints, true);
+
+        //     Segment[] segments = new Segment[output.Count];
+        //     for (int i = 0; i < output.Count; i++)
+        //     {
+        //         segments[i] = new Segment(output[i].Item1, output[i].Item2, m_Thickness);
+        //         Debug.Log(segments[i].startPoint + ", " + segments[i].endPoint);
+        //     }
+
+
+        //     // Vector3 startPoint = new Vector3(-1, -3, 0);
+        //     // Vector3 endPoint = new Vector3(14, 0, 1.5f);
+        //     // Segment[] segments = new Segment[] { new Segment(startPoint, endPoint, 2) };
+        //     Metaball m = Metaball.BuildFromSegments(segments);
+
+
+        //     //generate mesh from the metaball
+        //     MeshGenerator meshGen = GetComponent<MeshGenerator>();
+        //     //attributes such as the size and grid resolution can be set via component or through meshGen.gridResolution
+        //     // meshGen.size = 100;
+        //     // meshGen.gridResolution = 64;
+
+        //     meshGen.Generate(m);
+        // }
+
+        // public List<Tuple<Vector3, Vector3>> Evaluate()
+        // {
+        //     LSystem l = new(m_Distance, m_Angle, m_CrossSections, m_CrossSectionDivisions, m_InitialDirection);
+        //     var rules = ParseRuleInput(m_Rules);
+        //     return l.Evaluate(m_StartString, m_Iterations, rules, true);
+        // }
+
+        public LSystem BuildLSystem()
         {
-            return;
-            LSystem l = new(m_Distance, m_Angle, m_CrossSections, m_CrossSectionDivisions, m_InitialDirection);
-            // var s = l.Parse("F", 1, NT);
-            // Debug.Log(s);
-            // var t = l.Tokenize(m_StartString);
-            // var v = l.Turtle3D(t);
-            // LSystem.PrintList(v);
             var rules = ParseRuleInput(m_Rules);
-            Debug.Log(string.Join(Environment.NewLine, rules.Select(kvp => kvp.Key + ": " + kvp.Value.ToString())));
-            var output = l.Evaluate(m_StartString, m_Iterations, rules, m_TranslatePoints, true);
-
-            Segment[] segments = new Segment[output.Count];
-            for (int i = 0; i < output.Count; i++)
-            {
-                segments[i] = new Segment(output[i].Item1, output[i].Item2, m_Thickness);
-                Debug.Log(segments[i].startPoint + ", " + segments[i].endPoint);
-            }
-
-
-            // Vector3 startPoint = new Vector3(-1, -3, 0);
-            // Vector3 endPoint = new Vector3(14, 0, 1.5f);
-            // Segment[] segments = new Segment[] { new Segment(startPoint, endPoint, 2) };
-            Metaball m = Metaball.BuildFromSegments(segments);
-
-
-            //generate mesh from the metaball
-            MeshGenerator meshGen = GetComponent<MeshGenerator>();
-            //attributes such as the size and grid resolution can be set via component or through meshGen.gridResolution
-            // meshGen.size = 100;
-            // meshGen.gridResolution = 64;
-
-            meshGen.Generate(m);
-        }
-
-        public List<Tuple<Vector3, Vector3>> Evaluate() {
-            LSystem l = new(m_Distance, m_Angle, m_CrossSections, m_CrossSectionDivisions, m_InitialDirection);
-            var rules = ParseRuleInput(m_Rules);
-            return l.Evaluate(m_StartString, m_Iterations, rules, true);
-        }
-
-        public LSystem BuildLSystem(){
-            var rules = ParseRuleInput(m_Rules);
-            LSystem l = new(m_Distance, m_Angle, m_CrossSections, m_CrossSectionDivisions, m_InitialDirection,m_StartString, m_Iterations, rules, true);
+            LSystem l = new(m_Distance, m_Angle, m_CrossSections, m_CrossSectionDivisions, m_InitialDirection, m_StartString, m_Iterations, rules, true);
             return l;
         }
 

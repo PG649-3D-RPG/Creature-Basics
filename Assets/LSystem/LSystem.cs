@@ -19,14 +19,14 @@ namespace LSystem
         /// <summary>
         /// An example for the output of the L-System.
         /// </summary>
-        public static readonly List<Tuple<Vector3, Vector3>> EXAMPLE = new() { new(Vector3.zero, new(0f, 10f, 0f)), new(new(0f, 10f, 0f), new(0f, 20f, 0f)), new(new(0f, 20f, 0f), new(-10f, 20f, 0f)), new(new(0f, 20f, 0f), new(10f, 20f, 0f)), new(new(0f, 20f, 0f), new(0f, 30f, 0f)), new(new(0f, 30f, 0f), new(-5f, 38.66f, 0f)), new(new(0f, 30f, 0f), new(5f, 38.66f, 0f)) };        
+        public static readonly List<Tuple<Vector3, Vector3>> EXAMPLE = new() { new(Vector3.zero, new(0f, 10f, 0f)), new(new(0f, 10f, 0f), new(0f, 20f, 0f)), new(new(0f, 20f, 0f), new(-10f, 20f, 0f)), new(new(0f, 20f, 0f), new(10f, 20f, 0f)), new(new(0f, 20f, 0f), new(0f, 30f, 0f)), new(new(0f, 30f, 0f), new(-5f, 38.66f, 0f)), new(new(0f, 30f, 0f), new(5f, 38.66f, 0f)) };
         /// <summary>
         /// terminal symbols of the l-system
         /// </summary>
         public static readonly List<char> TERMINALS = new() { 'F', '+', '-', '&', '^', '\\', '/', '|', '*', '[', ']' };
 
-        public List<Tuple<Vector3,Vector3>> segments;
-        public List<Tuple<int,char>> fromRule;
+        public List<Tuple<Vector3, Vector3>> segments;
+        public List<Tuple<int, char>> fromRule;
 
         /// <summary>
         /// Initializes an L-System.
@@ -36,7 +36,26 @@ namespace LSystem
         /// <param name="cs">Default number of cross sections for the drawing.</param>
         /// <param name="csd">Default number of cross section divisions for the drawing.</param>
         /// <param name="init_dir">Initial direction of the turtle.</param>
-        public LSystem(float d, short a, uint cs, uint csd, INITIAL_DIRECTION init_dir)
+        // public LSystem(float d, short a, uint cs, uint csd, INITIAL_DIRECTION init_dir)
+        // {
+        //     default_dist = d;
+        //     default_angle = a;
+        //     default_cross_sections = cs;
+        //     default_cross_section_divisions = csd;
+        //     initial_direction = init_dir switch
+        //     {
+        //         INITIAL_DIRECTION.UP => Vector3.up,
+        //         INITIAL_DIRECTION.DOWN => Vector3.down,
+        //         INITIAL_DIRECTION.LEFT => Vector3.left,
+        //         INITIAL_DIRECTION.RIGHT => Vector3.right,
+        //         INITIAL_DIRECTION.FORWARD => Vector3.forward,
+        //         INITIAL_DIRECTION.BACK => Vector3.back,
+        //         INITIAL_DIRECTION.DIAGONAL => Vector3.one,
+        //         _ => Vector3.down,
+        //     };
+        // }
+
+        public LSystem(float d, short a, uint cs, uint csd, INITIAL_DIRECTION init_dir, string start, uint iterations, Dictionary<char, string> rules, bool translatePointsOfList, bool printResult = false)
         {
             default_dist = d;
             default_angle = a;
@@ -53,26 +72,9 @@ namespace LSystem
                 INITIAL_DIRECTION.DIAGONAL => Vector3.one,
                 _ => Vector3.down,
             };
-        }
-
-        public LSystem(float d, short a, uint cs, uint csd, INITIAL_DIRECTION init_dir,string start, uint iterations, Dictionary<char, string> rules, bool translatePointsOfList, bool printResult = false){
-            default_dist = d;
-            default_angle = a;
-            default_cross_sections = cs;
-            default_cross_section_divisions = csd;
-            initial_direction = init_dir switch
-            {
-                INITIAL_DIRECTION.UP => Vector3.up,
-                INITIAL_DIRECTION.DOWN => Vector3.down,
-                INITIAL_DIRECTION.LEFT => Vector3.left,
-                INITIAL_DIRECTION.RIGHT => Vector3.right,
-                INITIAL_DIRECTION.FORWARD => Vector3.forward,
-                INITIAL_DIRECTION.BACK => Vector3.back,
-                INITIAL_DIRECTION.DIAGONAL => Vector3.one,
-                _ => Vector3.down,
-            };
-            segments = Evaluate(start,iterations,rules,translatePointsOfList,printResult);
-            fromRule = new List<Tuple<int,char>>();
+            fromRule = new();
+            segments = Evaluate(start, iterations, rules, translatePointsOfList, printResult);
+            // fromRule = new List<Tuple<int, char>>();
         }
 
         private Tuple<char, float[]> ParseArguments(ref string str, ref int index, char symbol, float default_value)
@@ -96,7 +98,6 @@ namespace LSystem
         }
 
         // TODO: Houdini Syntax; in grammatik variable länge erlauben
-        // TODO allow context sensitive parsing
         // https://www.sidefx.com/docs/houdini/nodes/sop/lsystem.html
         private List<Tuple<char, float[]>> Tokenize(string str)
         {
@@ -200,6 +201,8 @@ namespace LSystem
             }
             return tuples;
         }
+
+        //TODO implement fromRule: <iterationnum,NT> (only for F tho)
         private string Parse(string s, uint it, Dictionary<char, string> rules)
         {
             string w = s;
@@ -211,12 +214,15 @@ namespace LSystem
                     if (rules.ContainsKey(c))
                     {
                         // NT
-                        temp += rules[c];
+                        var replacement = rules[c];
+                        temp += replacement;
+                        foreach (var n in replacement) if (n == 'F') fromRule.Add(new(i, c));
                     }
                     else
                     {
                         // Terminal
                         temp += c;
+                        if (i == 0 && c == 'F') fromRule.Add(new(0, 'S')); // for F's in the start string
                     }
                 }
                 w = temp;

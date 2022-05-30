@@ -202,7 +202,6 @@ namespace LSystem
             return tuples;
         }
 
-        //TODO implement fromRule: <iterationnum,NT> (only for F tho)
         private string Parse(string s, uint it, Dictionary<char, string> rules)
         {
             string w = s;

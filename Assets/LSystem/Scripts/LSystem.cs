@@ -23,7 +23,7 @@ namespace LSystem
         /// <summary>
         /// terminal symbols of the l-system
         /// </summary>
-        public static readonly List<char> TERMINALS = new() { 'F', '+', '-', '&', '^', '\\', '/', '|', '*', '[', ']' };
+        public static readonly List<char> TERMINALS = new() { 'F', '+', '-', '&', '^', '\\', '/', '|', '*', '[', ']', 'S' };
 
         public List<Tuple<Vector3, Vector3>> segments;
         public List<Tuple<int, char>> fromRule;

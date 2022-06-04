@@ -15,6 +15,17 @@ public class SkeletonTest : MonoBehaviour
         List<Tuple<Vector3,Vector3>> segments = l.segments;
         GameObject boneTree = SkeletonGenerator.Generate(l);
         boneTree.transform.parent = gameObject.transform;
+        gameObject.transform.Translate(new Vector3(0,0.025f,0));
+        GameObject meshObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        meshObject.transform.parent = boneTree.transform;
+        float min_z = 0;
+        foreach(var segment in l.segments){
+           min_z = segment.Item1.x < min_z ? segment.Item1.x : min_z;
+           min_z = segment.Item1.x < min_z ? segment.Item2.x : min_z;
+        }
+        meshObject.transform.Translate(new Vector3(0,.05f,1.1f*min_z));
+        meshObject.transform.localScale = new Vector3(0.1f,0.1f,0.1f);
+        meshObject.name = "orientation cube";
         /*Segment[] segments_ = new Segment[segments.Count];
         for (int i = 0; i < segments.Count; i++)
         {

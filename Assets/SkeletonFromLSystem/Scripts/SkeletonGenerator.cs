@@ -178,9 +178,6 @@ public class SkeletonGenerator
             Rigidbody rb = result.AddComponent<Rigidbody>();
             rb.mass = BoneTreeMass;
 
-            CapsuleCollider collider = result.AddComponent<CapsuleCollider>();
-            collider.height = length;
-            collider.radius = BoneTreeRadius;
 
             Bone bone = result.AddComponent<Bone>();
             bone.category = boneCategory;
@@ -223,11 +220,24 @@ public class SkeletonGenerator
                 GameObject meshObject;
                 if(boneCategory == BoneCategory.Hand){
                     meshObject = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                    meshObject.transform.localScale = new Vector3(0.1f,length*0.9f,0.1f);
+                    meshObject.transform.localScale = new Vector3(0.1f, 0.1f ,0.1f);
+
+                    SphereCollider collider = result.AddComponent<SphereCollider>();
+                    collider.radius = 0.01f;
                 }
-                else{
+                else if (boneCategory == BoneCategory.Foot) {
+                    meshObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    meshObject.transform.localScale = new Vector3(0.1f, length * 0.9f, 0.05f);
+
+                    BoxCollider collider = result.AddComponent<BoxCollider>();
+                    collider.size = new Vector3(0.1f, length * 0.9f, 0.05f);
+                } else {
                     meshObject = GameObject.CreatePrimitive(PrimitiveType.Capsule);
                     meshObject.transform.localScale = new Vector3(0.1f,length*0.45f,0.1f);
+
+                    CapsuleCollider collider = result.AddComponent<CapsuleCollider>();
+                    collider.height = length;
+                    collider.radius = BoneTreeRadius;
                 }
                 meshObject.transform.parent = result.transform;
                 meshObject.transform.position = result.transform.position;

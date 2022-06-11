@@ -74,7 +74,6 @@ namespace LSystem
             };
             fromRule = new();
             segments = Evaluate(start, iterations, rules, translatePointsOfList, printResult);
-            // fromRule = new List<Tuple<int, char>>();
         }
 
         private Tuple<char, float[]> ParseArguments(ref string str, ref int index, char symbol, float default_value)
@@ -97,7 +96,7 @@ namespace LSystem
             return result;
         }
 
-        // TODO: Houdini Syntax; in grammatik variable länge erlauben
+        // TODO: Houdini Syntax; in grammatik variable länge erlauben, längenkontraktion usw.
         // https://www.sidefx.com/docs/houdini/nodes/sop/lsystem.html
         private List<Tuple<char, float[]>> Tokenize(string str)
         {
@@ -147,53 +146,77 @@ namespace LSystem
 
         private Vector3 CalculateEnd3D(Vector3 direction, Vector3 start, int dist) => start + dist * direction;
 
+        private struct TurtleData
+        {
+            public Quaternion scarlet_rot;
+            public Vector3 position;
+            public Vector3 direction;
+            public Vector3 eulers;
+
+            public TurtleData(Vector3 initial_direction)
+            {
+                direction = initial_direction;
+                scarlet_rot = Quaternion.identity;
+                position = Vector3.zero;
+                eulers = Vector3.zero;
+            }
+            public override string ToString()
+            {
+                return "rotation: " + scarlet_rot + ", position: " + position + ", direction: " + direction + ", angles: " + eulers;
+            }
+            public Vector3 NextPoint(float distance)
+            {
+                Quaternion eulerRot = Quaternion.Euler(eulers);
+                eulers = Vector3.zero;
+                scarlet_rot *= eulerRot;
+                return position + scarlet_rot * direction * distance;
+            }
+        }
+
         private List<Tuple<Vector3, Vector3>> Turtle3D(List<Tuple<char, float[]>> tokens)
         {
-            Vector3 scarlet_rot = initial_direction;
-            Vector3 current_pos = Vector3.zero;
+            TurtleData turtle = new(initial_direction);
             List<Tuple<Vector3, Vector3>> tuples = new();
-            Stack<Tuple<Vector3, Vector3>> st = new();
+            Stack<TurtleData> st = new();
             foreach (var e in tokens)
             {
+                // Debug.Log(e.Item1 + " - " + turtle);
                 switch (e.Item1)
                 {
                     case 'F':
-                        // var end = CalculateEnd3D(scarlet_rot, current, e.Item2[0]);
-                        var endpoint = current_pos + e.Item2[0] * scarlet_rot; // new endpoint
-                        tuples.Add(new(current_pos, endpoint));
-                        current_pos = endpoint; // last endpoint = current position 
+                        var end = turtle.NextPoint(e.Item2[0]);
+                        tuples.Add(new(turtle.position, end));
+                        turtle.position = end; // last endpoint = current position 
                         break;
-                    case '+': // turn right
-                        scarlet_rot = Quaternion.Euler(0, 0, e.Item2[0]) * scarlet_rot;
+                    case '+': // roll right -- rotation around z
+                        turtle.eulers.z += e.Item2[0];
                         break;
-                    case '-': // turn left
-                        scarlet_rot = Quaternion.Euler(0, 0, -e.Item2[0]) * scarlet_rot;
+                    case '-': // roll left -- rotation around z
+                        turtle.eulers.z -= e.Item2[0];
                         break;
-                    case '&': // pitch up
-                        scarlet_rot = Quaternion.Euler(e.Item2[0], 0, 0) * scarlet_rot;
+                    case '&': // -pitch -- rotation around x
+                        turtle.eulers.x += e.Item2[0];
                         break;
-                    case '^': // pitch down
-                        scarlet_rot = Quaternion.Euler(-e.Item2[0], 0, 0) * scarlet_rot;
+                    case '^': // +pitch -- rotation around x
+                        turtle.eulers.x -= e.Item2[0];
                         break;
-                    case '\\': // roll clockwise
-                        scarlet_rot = Quaternion.Euler(0, e.Item2[0], 0) * scarlet_rot;
+                    case '/': // +yaw -- rotation around y
+                        turtle.eulers.y += e.Item2[0];
                         break;
-                    case '/': // roll counter-clockwise
-                        scarlet_rot = Quaternion.Euler(0, -e.Item2[0], 0) * scarlet_rot;
+                    case '\\': // -yaw -- rotation around y
+                        turtle.eulers.y -= e.Item2[0];
                         break;
                     case '|': // turn 180 deg
-                        scarlet_rot = Quaternion.Euler(0, 0, 180) * scarlet_rot;
+                        turtle.eulers.z += 180f;
                         break;
                     case '*': // roll 180 deg
-                        scarlet_rot = Quaternion.Euler(0, 180, 0) * scarlet_rot;
+                        turtle.eulers.y += 180f;
                         break;
                     case '[':
-                        st.Push(new(scarlet_rot, current_pos));
+                        st.Push(turtle);
                         break;
                     case ']':
-                        var tmp = st.Pop();
-                        scarlet_rot = tmp.Item1;
-                        current_pos = tmp.Item2;
+                        turtle = st.Pop();
                         break;
                     default:
                         break;

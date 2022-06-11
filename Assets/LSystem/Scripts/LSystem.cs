@@ -23,7 +23,7 @@ namespace LSystem
         /// <summary>
         /// terminal symbols of the l-system
         /// </summary>
-        public static readonly List<char> TERMINALS = new() { 'F', '+', '-', '&', '^', '\\', '/', '|', '*', '[', ']' };
+        public static readonly List<char> TERMINALS = new() { 'F', '+', '-', '&', '^', '\\', '/', '|', '*', '[', ']', 'S' };
 
         public List<Tuple<Vector3, Vector3>> segments;
         public List<Tuple<int, char>> fromRule;
@@ -226,11 +226,14 @@ namespace LSystem
         }
 
         private string Parse(string s, uint it, Dictionary<char, string> rules)
-        {
+        {   
+            string a = "";
             string w = s;
             for (int i = 0; i < it; i++)
             {
                 string temp = "";
+                string at = "";
+                int j = 0;
                 foreach (var c in w)
                 {
                     if (rules.ContainsKey(c))
@@ -238,16 +241,24 @@ namespace LSystem
                         // NT
                         var replacement = rules[c];
                         temp += replacement;
-                        foreach (var n in replacement) if (n == 'F') fromRule.Add(new(i, c));
+                        //foreach (var n in replacement) if (n == 'F') fromRule.Add(new(i, c));
+                        foreach(var n in replacement) at += c.ToString();
                     }
                     else
                     {
                         // Terminal
                         temp += c;
-                        if (i == 0 && c == 'F') fromRule.Add(new(0, 'S')); // for F's in the start string
+                        //if (i == 0 && c == 'F') fromRule.Add(new(0, 'S')); // for F's in the start string
+                        if(i == 0) at += "S";
+                        else at += a[j];
                     }
+                    j += 1;
                 }
                 w = temp;
+                a = at;
+            }
+            for(int i = 0; i<w.Length; i++){
+                if(w[i] == 'F') fromRule.Add(new Tuple<int,char>(0,a[i]));
             }
             return w;
         }

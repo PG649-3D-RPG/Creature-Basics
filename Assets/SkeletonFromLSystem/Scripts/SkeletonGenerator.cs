@@ -121,17 +121,20 @@ public class SkeletonGenerator
 
         public int boneIndex;
 
+        private bool primitive_mesh;
+
         private GameObject go;
 
         private Tuple<int,char> t;
 
         public BoneCategory boneCategory;
 
-        public BoneTree(Tuple<Vector3, Vector3> segment, BoneTree root, BoneTree parent, Tuple<int,char> t) {
+        public BoneTree(Tuple<Vector3, Vector3> segment, BoneTree root, BoneTree parent, Tuple<int,char> t, bool primitive_mesh = false) {
             this.segment = segment;
             this.root = root;
             this.parent = parent;
             this.t = t;
+            this.primitive_mesh = primitive_mesh;
 
             this.boneCategory = BoneAdd.literalCategoryMap[t.Item2];
             children = new List<BoneTree>();
@@ -217,54 +220,71 @@ public class SkeletonGenerator
             if(start != end){
                 GameObject meshObject;
                 if(boneCategory == BoneCategory.Hand){
-                    meshObject = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                    meshObject.transform.localScale = new Vector3(0.1f, 0.1f ,0.1f);
-
-                    SphereCollider collider = result.AddComponent<SphereCollider>();
                     float r = 0.1f;
-                    // NOTE(markus): Needs to be scaled by anther factor of 0.1, not quite sure why
-                    collider.radius = 0.1f * r;
+                    if(primitive_mesh){
+                        meshObject = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                        meshObject.transform.localScale = new Vector3(0.1f, 0.1f ,0.1f);
 
+                        meshObject.transform.parent = result.transform;
+                        meshObject.transform.position = result.transform.position;
+                        meshObject.transform.rotation = result.transform.rotation; 
+
+                        SphereCollider collider = result.AddComponent<SphereCollider>();                        
+                        // NOTE(markus): Needs to be scaled by anther factor of 0.1, not quite sure why
+                        collider.radius = 0.1f * r;
+                    }
                     rb.mass = BodyDensity * (3.0f * (float)Math.PI * r * r * r) / 4.0f;
                 }
                 else if (boneCategory == BoneCategory.Foot) {
-                    meshObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
                     Vector3 size = new Vector3(0.1f, length * 0.9f, 0.05f);
-                    meshObject.transform.localScale = size;
+                    if(primitive_mesh){
+                        meshObject = GameObject.CreatePrimitive(PrimitiveType.Cube);                        
+                        meshObject.transform.localScale = size;
 
-                    BoxCollider collider = result.AddComponent<BoxCollider>();
-                    collider.size = size;
+                        meshObject.transform.parent = result.transform;
+                        meshObject.transform.position = result.transform.position;
+                        meshObject.transform.rotation = result.transform.rotation; 
 
+                        BoxCollider collider = result.AddComponent<BoxCollider>();
+                        collider.size = size;
+                    }
                     rb.mass = BodyDensity * (size.x * size.y * size.z);
                 } else {
-                    meshObject = GameObject.CreatePrimitive(PrimitiveType.Capsule);
-                    meshObject.transform.localScale = new Vector3(0.1f,length*0.45f,0.1f);
+                    if(primitive_mesh){
+                        meshObject = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+                        meshObject.transform.localScale = new Vector3(0.1f,length*0.45f,0.1f);
 
-                    CapsuleCollider collider = result.AddComponent<CapsuleCollider>();
-                    collider.height = length;
-                    collider.radius = BoneTreeRadius;
+                        meshObject.transform.parent = result.transform;
+                        meshObject.transform.position = result.transform.position;
+                        meshObject.transform.rotation = result.transform.rotation; 
 
+                        CapsuleCollider collider = result.AddComponent<CapsuleCollider>();
+                        collider.height = length;
+                        collider.radius = BoneTreeRadius;
+                    }
                     // Ellipsoid Volume is 3/4 PI abc, with radii a, b, c
                     rb.mass = BodyDensity * (3.0f * (float)Math.PI * 0.1f * length * 0.45f * 0.1f) / 4;
                 }
-                meshObject.transform.parent = result.transform;
-                meshObject.transform.position = result.transform.position;
-                meshObject.transform.rotation = result.transform.rotation;            
+                // if(primitive_mesh){
+                //     meshObject.transform.parent = result.transform;
+                //     meshObject.transform.position = result.transform.position;
+                //     meshObject.transform.rotation = result.transform.rotation;            
+                // } 
             }
             return result;
         }
     }
     
-    private static BoneTree GenerateBoneTree(LSystem.LSystem l) {
+    private static BoneTree GenerateBoneTree(LSystem.LSystem l, bool primitive_mesh = false) {
         var segments = l.segments;
         if (segments.Count == 0) return null;
 
         Dictionary<BoneCategory, int> limbIndices = new();
-        BoneTree root = new BoneTree(l.segments[0], null, null, l.fromRule[0]);
+        BoneTree root = new BoneTree(l.segments[0], null, null, l.fromRule[0], primitive_mesh);
 
         foreach (var (segment, rule) in segments.Zip(l.fromRule, (a, b) => (a, b)).Skip(1)) {
             BoneTree parent = root.findParent(segment);
-            BoneTree child = new BoneTree(segment, root, parent, rule);
+            BoneTree child = new BoneTree(segment, root, parent, rule, primitive_mesh);
             parent.children.Add(child);
 
             if (child.boneCategory == parent.boneCategory) {
@@ -285,8 +305,8 @@ public class SkeletonGenerator
         return root;
     }
 
-    public static GameObject Generate(LSystem.LSystem l) {
-        BoneTree root = GenerateBoneTree(l);
+    public static GameObject Generate(LSystem.LSystem l, bool primitive_mesh = false) {
+        BoneTree root = GenerateBoneTree(l, primitive_mesh);
         GameObject rootGo = root.toGameObjectTree();
         return rootGo;
     }

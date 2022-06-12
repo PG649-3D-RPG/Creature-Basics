@@ -41,6 +41,9 @@ public class SkeletonTest : MonoBehaviour
             }
             Metaball m = Metaball.BuildFromSegments(segments_);
             MeshGenerator mg = gameObject.GetComponent<MeshGenerator>();
+            mg.material = new Material(Shader.Find("MadCake/Material/Standard hacked for DQ skinning"));
+            mg.material.color = Color.white;
+
             mg.Generate(m);
         }
     }

@@ -163,9 +163,9 @@ namespace MarchingCubesProject
             List<Transform> bones = new List<Transform>();
             List<Matrix4x4> bindPoses = new List<Matrix4x4>();
 
-            Transform rootBone = transform.Find("other_0_0").Find("head_0_0");
+            Transform rootBone = transform.Find("other_0_0");
             bones.Add(rootBone);
-            bindPoses.Add(rootBone.worldToLocalMatrix * transform.localToWorldMatrix);
+            bindPoses.Add(rootBone.worldToLocalMatrix * go.transform.localToWorldMatrix);
 
             BoneWeight[] weights = new BoneWeight[mesh.vertexCount];
             for (int i = 0; i < weights.Length; i++) {
@@ -180,13 +180,13 @@ namespace MarchingCubesProject
             go.GetComponent<MeshRenderer>().material = material;
             go.AddComponent<SkinnedMeshRenderer>();
             go.GetComponent<SkinnedMeshRenderer>().sharedMesh = mesh;
-            //go.GetComponent<SkinnedMeshRenderer>().rootBone = rootBone;
+            go.GetComponent<SkinnedMeshRenderer>().rootBone = rootBone;
             go.GetComponent<SkinnedMeshRenderer>().bones = bones.ToArray();
-            go.AddComponent<DualQuaternionSkinner>();
+            /*go.AddComponent<DualQuaternionSkinner>();
             go.GetComponent<DualQuaternionSkinner>().shaderComputeBoneDQ = (ComputeShader) Resources.Load("Compute/ComputeBoneDQ");
             go.GetComponent<DualQuaternionSkinner>().shaderDQBlend = (ComputeShader) Resources.Load("Compute/DQBlend");
             go.GetComponent<DualQuaternionSkinner>().shaderApplyMorph = (ComputeShader) Resources.Load("Compute/ApplyMorph");
-            go.GetComponent<DualQuaternionSkinner>().SetViewFrustrumCulling(false);
+            go.GetComponent<DualQuaternionSkinner>().SetViewFrustrumCulling(false);*/
 
             meshes.Add(go);
             

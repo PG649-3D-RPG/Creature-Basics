@@ -21,6 +21,8 @@ namespace MarchingCubesProject
 
         public bool drawNormals = false;
 
+        public bool enableDQSkinner = false;
+
 
         /// <summary>
         /// number of cubes in each direction
@@ -136,7 +138,13 @@ namespace MarchingCubesProject
                 }
             }
 
-            var position = this.transform.localPosition - (new Vector3(size,size,size)/ 2);//new Vector3(-width / 2, -height / 2, -depth / 2);
+            var position = this.transform.localPosition - (new Vector3(size, size, size)/ 2);
+            Matrix4x4 mat = Matrix4x4.Translate(position) * Matrix4x4.Scale(new Vector3(size, size, size) / gridResolution);
+
+            for (int i = 0; i < verts.Count; i++)
+            {
+                verts[i] = mat.MultiplyPoint3x4(verts[i]);
+            }
 
             CreateMesh32(verts, normals, indices, position);
         }
@@ -157,8 +165,6 @@ namespace MarchingCubesProject
 
             GameObject go = new GameObject("Mesh");
             go.transform.parent = transform;
-            go.transform.localPosition = position;
-            go.transform.localScale = new Vector3(size, size, size) / gridResolution;
 
             Transform[] bones = BoneUtil.FindBones(transform.Find("other_0_0").gameObject);
             Debug.Log("Found " + bones.Length + " Bones in the hierarchy");
@@ -166,16 +172,11 @@ namespace MarchingCubesProject
             // bind poses must be generated relative to the meshes transform
             List<Matrix4x4> bindPoses = new List<Matrix4x4>();
             foreach (Transform bone in bones) {
-                bindPoses.Add(bone.worldToLocalMatrix * go.transform.localToWorldMatrix);
+                bindPoses.Add(bone.worldToLocalMatrix * transform.localToWorldMatrix);
             }
             mesh.bindposes = bindPoses.ToArray();
 
-            BoneWeight[] weights = new BoneWeight[mesh.vertexCount];
-            for (int i = 0; i < weights.Length; i++) {
-                weights[i].boneIndex0 = 0;
-                weights[i].weight0 = 1;
-            }
-            mesh.boneWeights = weights;
+            mesh.boneWeights = BoneUtil.CalcBoneWeightsTheStupidWay(mesh, transform);
 
             go.AddComponent<MeshFilter>();
             go.AddComponent<MeshRenderer>();
@@ -185,11 +186,13 @@ namespace MarchingCubesProject
             go.GetComponent<SkinnedMeshRenderer>().rootBone = bones[0]; // index 0 is always the root bone
             go.GetComponent<SkinnedMeshRenderer>().bones = bones;
 
-            /*go.AddComponent<DualQuaternionSkinner>();
-            go.GetComponent<DualQuaternionSkinner>().shaderComputeBoneDQ = (ComputeShader) Resources.Load("Compute/ComputeBoneDQ");
-            go.GetComponent<DualQuaternionSkinner>().shaderDQBlend = (ComputeShader) Resources.Load("Compute/DQBlend");
-            go.GetComponent<DualQuaternionSkinner>().shaderApplyMorph = (ComputeShader) Resources.Load("Compute/ApplyMorph");
-            go.GetComponent<DualQuaternionSkinner>().SetViewFrustrumCulling(false);*/
+            if (enableDQSkinner) {
+                go.AddComponent<DualQuaternionSkinner>();
+                go.GetComponent<DualQuaternionSkinner>().shaderComputeBoneDQ = (ComputeShader) Resources.Load("Compute/ComputeBoneDQ");
+                go.GetComponent<DualQuaternionSkinner>().shaderDQBlend = (ComputeShader) Resources.Load("Compute/DQBlend");
+                go.GetComponent<DualQuaternionSkinner>().shaderApplyMorph = (ComputeShader) Resources.Load("Compute/ApplyMorph");
+                go.GetComponent<DualQuaternionSkinner>().SetViewFrustrumCulling(false);
+            }
 
             meshes.Add(go);
             

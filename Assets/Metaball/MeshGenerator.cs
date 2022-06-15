@@ -172,18 +172,19 @@ namespace MarchingCubesProject
             // bind poses must be generated relative to the meshes transform
             List<Matrix4x4> bindPoses = new List<Matrix4x4>();
             foreach (Transform bone in bones) {
-                bindPoses.Add(bone.worldToLocalMatrix * transform.localToWorldMatrix);
+                bindPoses.Add(bone.worldToLocalMatrix * go.transform.localToWorldMatrix);
             }
             mesh.bindposes = bindPoses.ToArray();
 
-            mesh.boneWeights = BoneUtil.CalcBoneWeightsTheStupidWay(mesh, transform);
+            mesh.boneWeights = BoneUtil.CalcBoneWeightsTheStupidWay(mesh, bones, transform);
 
             go.AddComponent<MeshFilter>();
             go.AddComponent<MeshRenderer>();
             go.GetComponent<MeshRenderer>().material = material;
             go.AddComponent<SkinnedMeshRenderer>();
             go.GetComponent<SkinnedMeshRenderer>().sharedMesh = mesh;
-            go.GetComponent<SkinnedMeshRenderer>().rootBone = bones[0]; // index 0 is always the root bone
+            go.GetComponent<SkinnedMeshRenderer>().updateWhenOffscreen = true;
+            go.GetComponent<SkinnedMeshRenderer>().quality = SkinQuality.Bone1;
             go.GetComponent<SkinnedMeshRenderer>().bones = bones;
 
             if (enableDQSkinner) {

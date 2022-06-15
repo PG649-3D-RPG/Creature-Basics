@@ -13,6 +13,8 @@ namespace MarchingCubesProject
 
         public Material material;
 
+        public Metaball metaball;
+
         public MARCHING_MODE mode = MARCHING_MODE.CUBES;
 
         public bool smoothNormals = false;
@@ -32,8 +34,35 @@ namespace MarchingCubesProject
 
         private List<GameObject> meshes = new List<GameObject>();
 
-
         private NormalRenderer normalRenderer;
+
+        void Start() 
+        {
+            normalRenderer = new NormalRenderer();
+            normalRenderer.DefaultColor = Color.red;
+            normalRenderer.Length = 0.25f;
+        }
+
+        void Update() 
+        {
+        }
+
+        void Clear() {
+            normalRenderer.Clear();
+
+            foreach (GameObject go in meshes) {
+                Destroy(go);
+            }
+            meshes.Clear();
+        }
+
+        void Regenerate() {
+            if (this.metaball != null) {
+                Clear();
+                Generate(this.metaball);
+            }
+        }
+
         /// <summary>
         /// Generates a mesh from the given Metaball
         /// within a box of dimensions size*size*size centered at (0,0,0)
@@ -41,6 +70,7 @@ namespace MarchingCubesProject
         /// <param name="metaball"></param>
         public void Generate(Metaball metaball)
         {
+            this.metaball = metaball;
 
             //Set the mode used to create the mesh.
             //Cubes is faster and creates less verts, tetrahedrons is slower and creates more verts but better represents the mesh surface.
@@ -61,7 +91,6 @@ namespace MarchingCubesProject
             int depth = gridResolution;
 
             var voxels = new VoxelArray(width, height, depth);
-
 
             //Fill voxels with values.
             for (int x = 0; x < width; x++)
@@ -89,7 +118,6 @@ namespace MarchingCubesProject
             indices.Reverse();
 
             //Create the normals from the voxel.
-
             if (smoothNormals)
             {
                 for (int i = 0; i < verts.Count; i++)
@@ -106,19 +134,12 @@ namespace MarchingCubesProject
 
                     normals.Add(n);
                 }
-
-                normalRenderer = new NormalRenderer();
-                normalRenderer.DefaultColor = Color.red;
-                normalRenderer.Length = 0.25f;
-                normalRenderer.Load(verts, normals);
             }
 
             var position = this.transform.localPosition - (new Vector3(size,size,size)/ 2);//new Vector3(-width / 2, -height / 2, -depth / 2);
 
             CreateMesh32(verts, normals, indices, position);
         }
-
-        void Start() { }
 
         private void CreateMesh32(List<Vector3> verts, List<Vector3> normals, List<int> indices, Vector3 position)
         {
@@ -144,17 +165,13 @@ namespace MarchingCubesProject
             go.transform.localScale = new Vector3(size, size, size)/gridResolution;
 
             meshes.Add(go);
-        }
-
-        // Update is called once per frame
-        void Update()
-        {
-
+            
+            if (normals.Count > 0)
+                normalRenderer.Load(verts, normals);
         }
 
         private void CreateMesh16(List<Vector3> verts, List<Vector3> normals, List<int> indices, Vector3 position)
         {
-
             int maxVertsPerMesh = 30000; //must be divisible by 3, ie 3 verts == 1 triangle
             int numMeshes = verts.Count / maxVertsPerMesh + 1;
 

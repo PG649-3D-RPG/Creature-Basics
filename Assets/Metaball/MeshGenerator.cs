@@ -40,9 +40,6 @@ namespace MarchingCubesProject
 
         void Start() 
         {
-            normalRenderer = new NormalRenderer();
-            normalRenderer.DefaultColor = Color.red;
-            normalRenderer.Length = 0.25f;
         }
 
         void Update() 
@@ -50,7 +47,8 @@ namespace MarchingCubesProject
         }
 
         void Clear() {
-            normalRenderer.Clear();
+            if (normalRenderer != null)
+                normalRenderer.Clear();
 
             foreach (GameObject go in meshes) {
                 Destroy(go);
@@ -72,6 +70,12 @@ namespace MarchingCubesProject
         /// <param name="metaball"></param>
         public void Generate(Metaball metaball)
         {
+            if (normalRenderer == null) {
+                normalRenderer = new NormalRenderer();
+                normalRenderer.DefaultColor = Color.red;
+                normalRenderer.Length = 0.25f;
+            }
+
             this.metaball = metaball;
 
             //Set the mode used to create the mesh.
@@ -183,6 +187,7 @@ namespace MarchingCubesProject
             go.GetComponent<MeshRenderer>().material = material;
             go.AddComponent<SkinnedMeshRenderer>();
             go.GetComponent<SkinnedMeshRenderer>().sharedMesh = mesh;
+            go.GetComponent<SkinnedMeshRenderer>().rootBone = bones[0];
             go.GetComponent<SkinnedMeshRenderer>().updateWhenOffscreen = true;
             go.GetComponent<SkinnedMeshRenderer>().quality = SkinQuality.Bone1;
             go.GetComponent<SkinnedMeshRenderer>().bones = bones;

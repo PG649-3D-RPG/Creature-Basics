@@ -407,9 +407,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   material: {fileID: 2100000, guid: fb8a03accb87f7a4abc7af51618a72be, type: 2}
   mode: 0
-  smoothNormals: 0
+  smoothNormals: 1
   drawNormals: 0
-  enableDQSkinner: 0
+  enableDQSkinner: 1
   gridResolution: 64
   size: 4
 --- !u!1 &1816960699

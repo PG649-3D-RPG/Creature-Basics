@@ -9,34 +9,44 @@ public class Ball
     public float R;
     public Vector3 position;
     public MetaballFunction function;
+    public bool inverted;
 
-    public Ball(float r, Vector3 pos, MetaballFunction function)
+    public Ball(float r, Vector3 pos, MetaballFunction function, bool inverted = false)
     {
         R = r;
         position = pos;
         this.function = function;
+        this.inverted = inverted;
     }
 
-    public float Value(float x, float y, float z)
+    public virtual float Value(float x, float y, float z)
     {
+        float v = 0f;
         switch(function) {
             case MetaballFunction.Polynomial2:
-                return Polynomial(x, y, z, 2);
+                v = Polynomial(x, y, z, 2);
+                break;
             case MetaballFunction.Polynomial3:
-                return Polynomial(x, y, z, 3);
+                v = Polynomial(x, y, z, 3);
+                break;
             case MetaballFunction.Exponential:
-                return Exponential(x, y, z);
+                v = Exponential(x, y, z);
+                break;
             default:
                 throw new Exception("Unrecognized metaball function!");
         }
+        if (inverted)
+            return -v;
+        else
+            return v;
     }
 
-    private float Polynomial(float x, float y, float z, int p = 2) {
+    internal float Polynomial(float x, float y, float z, int p = 2) {
         float r = Mathf.Sqrt(Mathf.Pow(x - position.x, 2) + Mathf.Pow(y - position.y, 2) + Mathf.Pow(z - position.z, 2));
         return Mathf.Pow(R, p)/Mathf.Pow(r, p);
     }
     
-    private float Exponential(float x, float y, float z) {
+    internal float Exponential(float x, float y, float z) {
         return Mathf.Exp(0.5f - (0.5f * (Mathf.Pow(x - position.x, 2) + Mathf.Pow(y - position.y, 2) + Mathf.Pow(z - position.z, 2))) / (R*R));
     }
 

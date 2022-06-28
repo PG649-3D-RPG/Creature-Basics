@@ -313,6 +313,33 @@ PrefabInstance:
       propertyPath: m_Name
       value: Human Creature Metaball Mesh
       objectReference: {fileID: 0}
+    - target: {fileID: 1875663411722853882, guid: 93bfe963ad2f74aa792e189c81b26b7c,
+        type: 3}
+      propertyPath: Spec
+      value: 
+      objectReference: {fileID: 11400000, guid: d6908b28d0fff6248b59f7c940f50ba6,
+        type: 2}
+    - target: {fileID: 1875663411722853882, guid: 93bfe963ad2f74aa792e189c81b26b7c,
+        type: 3}
+      propertyPath: DetailSpec
+      value: 
+      objectReference: {fileID: 11400000, guid: d6908b28d0fff6248b59f7c940f50ba6,
+        type: 2}
+    - target: {fileID: 1875663411722853882, guid: 93bfe963ad2f74aa792e189c81b26b7c,
+        type: 3}
+      propertyPath: metaball_mesh
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1875663411722853882, guid: 93bfe963ad2f74aa792e189c81b26b7c,
+        type: 3}
+      propertyPath: primitive_mesh
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1875663411722853882, guid: 93bfe963ad2f74aa792e189c81b26b7c,
+        type: 3}
+      propertyPath: generate_skeleton
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1875663411722853883, guid: 93bfe963ad2f74aa792e189c81b26b7c,
         type: 3}
       propertyPath: m_RootOrder

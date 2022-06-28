@@ -14,13 +14,18 @@ public class SkeletonTest : MonoBehaviour
     [Tooltip("Generate metaball mesh")]
     public bool metaball_mesh = true;
     // Start is called before the first frame update
+
+    [Tooltip("Spec for Creature Details")]
+    public Spec DetailSpec;
     void Start()
     {
         LSystemEditor ed = gameObject.GetComponent<LSystemEditor>();
         LSystem.LSystem l = ed.BuildLSystem();
         List<Tuple<Vector3,Vector3>> segments = l.segments;
+
+        GameObject boneTree = null;
         if(generate_skeleton){            
-            GameObject boneTree = SkeletonGenerator.Generate(l,primitive_mesh);
+            boneTree = SkeletonGenerator.Generate(l,primitive_mesh);
             boneTree.transform.parent = gameObject.transform;
             gameObject.transform.Translate(new Vector3(0,0.025f,0));
             /*GameObject meshObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -43,6 +48,9 @@ public class SkeletonTest : MonoBehaviour
             MeshGenerator mg = gameObject.GetComponent<MeshGenerator>();
             mg.Generate(m);
         }
+        Debug.Log(DetailSpec == null);
+        Debug.Log(boneTree == null);
+        DetailSpec.addDetails(boneTree);
     }
 
     // Update is called once per frame

@@ -5,11 +5,12 @@ using UnityEngine;
 public class ParametricCreature
 {
     private CreatureParameters p;
-    private List<List<Segment>> legs;
-    private List<Segment> torso;
-    private List<Segment> neck;
-    private List<Ball> negative;
+    public List<List<Segment>> legs { get; private set; }
+    public List<Segment> torso { get; private set; }
+    public List<Segment> neck { get; private set; }
+    public List<Ball> negative { get; private set; }
 
+    public List<Vector3> legAttachJoints { get; private set; }
     private int legPairs;
     private List<float> legHeights;
     private float torsoSize;
@@ -127,6 +128,7 @@ public class ParametricCreature
                 }
             }
         }
+        invertLegs();
     }
 
     public void buildTorso()
@@ -185,11 +187,13 @@ public class ParametricCreature
 
     public void moveLegsToTorso()
     {
+        legAttachJoints = new();
         if (legPairs == 1)
         {
             // biped
             for (int i=0; i<legs.Count; i++)
             {
+                legAttachJoints.Add(torso[0].startPoint);
                 Vector3 xDir = Vector3.left;
                 if (i % 2 == 1)
                     xDir = Vector3.right;
@@ -216,7 +220,10 @@ public class ParametricCreature
                 {
                     zDir = Vector3.forward;
                     thickness = torso[2].thickness;
+                    legAttachJoints.Add(torso[torso.Count - 1].endPoint);
                 }
+                else
+                    legAttachJoints.Add(torso[0].startPoint);
 
                 foreach (Segment segment in legs[i])
                 {
@@ -268,6 +275,20 @@ public class ParametricCreature
         float eyeThickness = Random.Range(0f, headSize*0.5f);
         negative.Add(new Ball(eyeThickness, eyesPos + Vector3.right * headSize, MetaballFunction.Polynomial2, true));
         negative.Add(new Ball(eyeThickness, eyesPos + Vector3.left * headSize, MetaballFunction.Polynomial2, true));
+    }
+
+    private void invertLegs()
+    {
+        foreach(var leg in legs)
+        {
+            leg.Reverse();
+            foreach (var segment in leg)
+            {
+                Vector3 start = segment.startPoint;
+                segment.startPoint = segment.endPoint;
+                segment.endPoint = start;
+            }
+        }
     }
 
     public void debugDraw()

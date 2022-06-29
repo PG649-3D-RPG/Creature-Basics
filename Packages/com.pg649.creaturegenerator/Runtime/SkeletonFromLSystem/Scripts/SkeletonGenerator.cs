@@ -305,8 +305,99 @@ public class SkeletonGenerator
         return root;
     }
 
+    private static BoneTree GenerateBoneTree(ParametricCreature c, bool primitive_mesh = false)
+    {
+        // place root at torso end point, facing forward
+        Tuple<Vector3, Vector3> rootSegment = new(c.torso[0].startPoint, c.torso[0].startPoint + Vector3.forward);
+        BoneTree root = new BoneTree(rootSegment, null, null, new(0, BoneAdd.categoryLiteralMap[BoneCategory.Other]), primitive_mesh);
+
+        // make a list of all individual body parts
+        List<Tuple<BoneCategory, List<Segment>>> limbs = new();
+        limbs.Add(new(BoneCategory.Torso, c.torso));
+        foreach (var leg in c.legs)
+            limbs.Add(new(BoneCategory.Leg, leg));
+        limbs.Add(new(BoneCategory.Head, c.neck));
+
+        // initialize all limb indices with 0
+        Dictionary<BoneCategory, int> limbIndices = Enum.GetValues(typeof(BoneCategory))
+               .Cast<BoneCategory>()
+               .ToDictionary(t => t, t => 0);
+
+        foreach ((var category, var limb) in limbs)
+        {
+
+            // connect floating limbs with additional segments
+            if (category == BoneCategory.Leg || category == BoneCategory.Arm || category == BoneCategory.Head)
+            {
+                Tuple<Vector3, Vector3> connector = null;
+                BoneCategory connectType = BoneCategory.Other;
+                // Add additional hip segment for legs
+                if (category == BoneCategory.Leg)
+                {
+                    connector = new(c.legAttachJoints[limbIndices[BoneCategory.Leg]], limb[0].startPoint);
+                    connectType = BoneCategory.Hip;
+                }
+
+                // TODO Add additional shoulder segment for arms
+                else if (category == BoneCategory.Arm)
+                {
+                    connector = new(new(), new());
+                    connectType = BoneCategory.Shoulder;
+                }
+
+                // Add additional segment connecting the neck
+                else if (category == BoneCategory.Head)
+                {
+                    connector = new(c.torso[c.torso.Count - 1].endPoint, limb[0].startPoint);
+                    connectType = BoneCategory.Head;
+                }
+
+                BoneTree parent = root.findParent(connector, false);
+                if (parent == null)
+                    parent = root.findParent(connector, true);
+                Debug.Log(parent.boneCategory);
+                if (parent.boneCategory != BoneCategory.Torso && parent.boneCategory != BoneCategory.Other)
+                    parent = parent.parent;
+                BoneTree child = new BoneTree(connector, root, parent, new(limbIndices[connectType], BoneAdd.categoryLiteralMap[connectType]), primitive_mesh);
+                parent.children.Add(child);
+                child.limbIndex = limbIndices[connectType]++;
+                child.boneIndex = 0;
+            }
+
+            int boneIndex = 0;
+            // add each segment of limb
+            foreach (Segment s in limb)
+            {
+                Tuple<Vector3, Vector3> segment = new(s.startPoint, s.endPoint);
+                
+                BoneTree parent = root.findParent(segment, true);
+                if (parent == null)
+                    parent = root.findParent(segment, false);
+                Debug.Log(segment.Item1.ToString("F8") + "  " +  segment.Item2.ToString("F8"));
+                Debug.Log(root.children.Count);
+                BoneTree child = new BoneTree(segment, root, parent, new(limbIndices[category], BoneAdd.categoryLiteralMap[category]), primitive_mesh);
+                parent.children.Add(child);
+                Debug.Log(parent.children[0].segment);
+
+                child.limbIndex = limbIndices[category];
+                child.boneIndex = boneIndex;
+                boneIndex++;
+            }
+            limbIndices[category]++;
+        }
+
+        return root;
+    }
+
     public static GameObject Generate(LSystem.LSystem l, bool primitive_mesh = false) {
         BoneTree root = GenerateBoneTree(l, primitive_mesh);
+        GameObject rootGo = root.toGameObjectTree();
+        return rootGo;
+    }
+
+    public static GameObject Generate(ParametricCreature c, bool primitive_mesh = false)
+    {
+        BoneTree root = GenerateBoneTree(c, primitive_mesh);
         GameObject rootGo = root.toGameObjectTree();
         return rootGo;
     }

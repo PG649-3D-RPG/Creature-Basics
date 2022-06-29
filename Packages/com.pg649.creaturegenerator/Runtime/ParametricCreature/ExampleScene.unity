@@ -238,6 +238,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 118332cd94aaa0d47b6d1c0b279245aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  generate_skeleton: 0
+  primitive_mesh: 0
+  metaball_mesh: 1
 --- !u!114 &473156021
 MonoBehaviour:
   m_ObjectHideFlags: 0

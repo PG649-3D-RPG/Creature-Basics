@@ -1,0 +1,26 @@
+{
+    "name": "com.pg649.creaturegenerator",
+    "version": "1.0.0",
+    "displayName": "PG649 Creature Generator",
+    "description": "Creature Generation for the PG649.",
+    "unity": "2021.3",
+    "unityRelease": "3f1",
+
+    "samples": [
+      {
+          "displayName": "Old Creatures",
+          "description": "Prefabs of old generated creatures.",
+          "path": "Samples~/CreaturesOld"
+      },
+      {
+          "displayName": "Human Creature 0",
+          "description": "Prefab of slightly less old creature.",
+          "path": "Samples~/HumanCreature0"
+      },
+      {
+          "displayName": "Generator Example",
+          "description": "Example of how to generate creatures.",
+          "path": "Samples~/GeneratorExample"
+      }
+  ]
+}

@@ -216,61 +216,61 @@ public class SkeletonGenerator
                 GameObject rootGo = root.go;
                 Skeleton skeleton = rootGo.GetComponent<Skeleton>();
                 skeleton.bonesByCategory[boneCategory].Add(result);
-            }
+            
+                if(start != end){
+                    GameObject meshObject;
+                    if(boneCategory == BoneCategory.Hand){
+                        float r = 0.1f;
+                        if(primitive_mesh){
+                            meshObject = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                            meshObject.transform.localScale = new Vector3(0.1f, 0.1f ,0.1f);
 
-            if(start != end){
-                GameObject meshObject;
-                if(boneCategory == BoneCategory.Hand){
-                    float r = 0.1f;
-                    if(primitive_mesh){
-                        meshObject = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                        meshObject.transform.localScale = new Vector3(0.1f, 0.1f ,0.1f);
-
-                        meshObject.transform.parent = result.transform;
-                        meshObject.transform.position = result.transform.position;
-                        meshObject.transform.rotation = result.transform.rotation; 
+                            meshObject.transform.parent = result.transform;
+                            meshObject.transform.position = result.transform.position;
+                            meshObject.transform.rotation = result.transform.rotation; 
+                        }
 
                         SphereCollider collider = result.AddComponent<SphereCollider>();                        
                         // NOTE(markus): Needs to be scaled by anther factor of 0.1, not quite sure why
                         collider.radius = 0.1f * r;
+                        rb.mass = BodyDensity * (3.0f * (float)Math.PI * r * r * r) / 4.0f;
                     }
-                    rb.mass = BodyDensity * (3.0f * (float)Math.PI * r * r * r) / 4.0f;
-                }
-                else if (boneCategory == BoneCategory.Foot) {
-                    Vector3 size = new Vector3(0.1f, length * 0.9f, 0.05f);
-                    if(primitive_mesh){
-                        meshObject = GameObject.CreatePrimitive(PrimitiveType.Cube);                        
-                        meshObject.transform.localScale = size;
+                    else if (boneCategory == BoneCategory.Foot) {
+                        Vector3 size = new Vector3(0.1f, length * 0.9f, 0.05f);
+                        if(primitive_mesh){
+                            meshObject = GameObject.CreatePrimitive(PrimitiveType.Cube);                        
+                            meshObject.transform.localScale = size;
 
-                        meshObject.transform.parent = result.transform;
-                        meshObject.transform.position = result.transform.position;
-                        meshObject.transform.rotation = result.transform.rotation; 
+                            meshObject.transform.parent = result.transform;
+                            meshObject.transform.position = result.transform.position;
+                            meshObject.transform.rotation = result.transform.rotation; 
+                        }
 
                         BoxCollider collider = result.AddComponent<BoxCollider>();
                         collider.size = size;
-                    }
-                    rb.mass = BodyDensity * (size.x * size.y * size.z);
-                } else {
-                    if(primitive_mesh){
-                        meshObject = GameObject.CreatePrimitive(PrimitiveType.Capsule);
-                        meshObject.transform.localScale = new Vector3(0.1f,length*0.45f,0.1f);
+                        rb.mass = BodyDensity * (size.x * size.y * size.z);
+                    } else {
+                        if(primitive_mesh){
+                            meshObject = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+                            meshObject.transform.localScale = new Vector3(0.1f,length*0.45f,0.1f);
 
-                        meshObject.transform.parent = result.transform;
-                        meshObject.transform.position = result.transform.position;
-                        meshObject.transform.rotation = result.transform.rotation; 
+                            meshObject.transform.parent = result.transform;
+                            meshObject.transform.position = result.transform.position;
+                            meshObject.transform.rotation = result.transform.rotation; 
+                        }
 
                         CapsuleCollider collider = result.AddComponent<CapsuleCollider>();
                         collider.height = length;
                         collider.radius = BoneTreeRadius;
+                        // Ellipsoid Volume is 3/4 PI abc, with radii a, b, c
+                        rb.mass = BodyDensity * (3.0f * (float)Math.PI * 0.1f * length * 0.45f * 0.1f) / 4;
                     }
-                    // Ellipsoid Volume is 3/4 PI abc, with radii a, b, c
-                    rb.mass = BodyDensity * (3.0f * (float)Math.PI * 0.1f * length * 0.45f * 0.1f) / 4;
+                    // if(primitive_mesh){
+                    //     meshObject.transform.parent = result.transform;
+                    //     meshObject.transform.position = result.transform.position;
+                    //     meshObject.transform.rotation = result.transform.rotation;            
+                    // } 
                 }
-                // if(primitive_mesh){
-                //     meshObject.transform.parent = result.transform;
-                //     meshObject.transform.position = result.transform.position;
-                //     meshObject.transform.rotation = result.transform.rotation;            
-                // } 
             }
             return result;
         }

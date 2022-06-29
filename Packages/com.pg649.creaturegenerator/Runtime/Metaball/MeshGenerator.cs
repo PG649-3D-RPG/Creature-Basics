@@ -21,6 +21,8 @@ namespace MarchingCubesProject
 
         public bool drawNormals = false;
 
+        public bool enableDQSkinner = false;
+
 
         /// <summary>
         /// number of cubes in each direction
@@ -38,9 +40,6 @@ namespace MarchingCubesProject
 
         void Start() 
         {
-            normalRenderer = new NormalRenderer();
-            normalRenderer.DefaultColor = Color.red;
-            normalRenderer.Length = 0.25f;
         }
 
         void Update() 
@@ -48,7 +47,8 @@ namespace MarchingCubesProject
         }
 
         void Clear() {
-            normalRenderer.Clear();
+            if (normalRenderer != null)
+                normalRenderer.Clear();
 
             foreach (GameObject go in meshes) {
                 Destroy(go);
@@ -70,6 +70,12 @@ namespace MarchingCubesProject
         /// <param name="metaball"></param>
         public void Generate(Metaball metaball)
         {
+            if (normalRenderer == null) {
+                normalRenderer = new NormalRenderer();
+                normalRenderer.DefaultColor = Color.red;
+                normalRenderer.Length = 0.25f;
+            }
+
             this.metaball = metaball;
 
             //Set the mode used to create the mesh.
@@ -136,7 +142,13 @@ namespace MarchingCubesProject
                 }
             }
 
-            var position = this.transform.localPosition - (new Vector3(size,size,size)/ 2);//new Vector3(-width / 2, -height / 2, -depth / 2);
+            var position = this.transform.localPosition - (new Vector3(size, size, size)/ 2);
+            Matrix4x4 mat = Matrix4x4.Translate(position) * Matrix4x4.Scale(new Vector3(size, size, size) / gridResolution);
+
+            for (int i = 0; i < verts.Count; i++)
+            {
+                verts[i] = mat.MultiplyPoint3x4(verts[i]);
+            }
 
             CreateMesh32(verts, normals, indices, position);
         }
@@ -157,12 +169,36 @@ namespace MarchingCubesProject
 
             GameObject go = new GameObject("Mesh");
             go.transform.parent = transform;
+
+            Transform[] bones = BoneUtil.FindBones(transform.Find("head_0_0").gameObject);
+            Debug.Log("Found " + bones.Length + " Bones in the hierarchy");
+
+            // bind poses must be generated relative to the meshes transform
+            List<Matrix4x4> bindPoses = new List<Matrix4x4>();
+            foreach (Transform bone in bones) {
+                bindPoses.Add(bone.worldToLocalMatrix * go.transform.localToWorldMatrix);
+            }
+            mesh.bindposes = bindPoses.ToArray();
+
+            mesh.boneWeights = BoneUtil.CalcBoneWeightsTheStupidWay(mesh, bones, transform);
+
             go.AddComponent<MeshFilter>();
             go.AddComponent<MeshRenderer>();
-            go.GetComponent<Renderer>().material = material;
-            go.GetComponent<MeshFilter>().mesh = mesh;
-            go.transform.localPosition = position;
-            go.transform.localScale = new Vector3(size, size, size)/gridResolution;
+            go.GetComponent<MeshRenderer>().material = material;
+            go.AddComponent<SkinnedMeshRenderer>();
+            go.GetComponent<SkinnedMeshRenderer>().sharedMesh = mesh;
+            go.GetComponent<SkinnedMeshRenderer>().rootBone = bones[0];
+            go.GetComponent<SkinnedMeshRenderer>().updateWhenOffscreen = true;
+            go.GetComponent<SkinnedMeshRenderer>().quality = SkinQuality.Bone1;
+            go.GetComponent<SkinnedMeshRenderer>().bones = bones;
+
+            if (enableDQSkinner) {
+                go.AddComponent<DualQuaternionSkinner>();
+                go.GetComponent<DualQuaternionSkinner>().shaderComputeBoneDQ = (ComputeShader) Resources.Load("Compute/ComputeBoneDQ");
+                go.GetComponent<DualQuaternionSkinner>().shaderDQBlend = (ComputeShader) Resources.Load("Compute/DQBlend");
+                go.GetComponent<DualQuaternionSkinner>().shaderApplyMorph = (ComputeShader) Resources.Load("Compute/ApplyMorph");
+                go.GetComponent<DualQuaternionSkinner>().SetViewFrustrumCulling(false);
+            }
 
             meshes.Add(go);
             

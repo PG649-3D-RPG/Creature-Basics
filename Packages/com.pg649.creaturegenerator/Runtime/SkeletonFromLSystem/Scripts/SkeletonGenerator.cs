@@ -123,7 +123,7 @@ public class SkeletonGenerator
 
         private bool primitive_mesh;
 
-        private GameObject go;
+        public GameObject go;
 
         private Tuple<int,char> t;
 
@@ -152,11 +152,11 @@ public class SkeletonGenerator
             return go;
         }
 
-        public BoneTree findParent(Tuple<Vector3, Vector3> segment, bool inverse = false) {
-            if (!inverse && this.segment.Item2 == segment.Item1) {
+        public BoneTree findParent(Tuple<Vector3, Vector3> segment, bool inverse = false, bool excludeThis = false) {
+            if (!excludeThis && !inverse && this.segment.Item2 == segment.Item1) {
                 return this;
             }
-            else if(inverse && this.segment.Item1 == segment.Item1){
+            else if(!excludeThis && inverse && this.segment.Item1 == segment.Item1){
                 return this;
             }
             foreach (BoneTree child in children) {
@@ -187,7 +187,8 @@ public class SkeletonGenerator
             bone.boneIndex = boneIndex;
             
             if (isRoot) {
-                result.AddComponent<Skeleton>();
+                Skeleton skeleton = result.AddComponent<Skeleton>();
+
             } else {
                 GameObject parentGo = parent.go;
                 result.transform.parent = parentGo.transform;
@@ -284,6 +285,7 @@ public class SkeletonGenerator
 
         foreach (var (segment, rule) in segments.Zip(l.fromRule, (a, b) => (a, b)).Skip(1)) {
             BoneTree parent = root.findParent(segment);
+            if(parent == null) parent = root.findParent(segment,inverse:true);
             BoneTree child = new BoneTree(segment, root, parent, rule, primitive_mesh);
             parent.children.Add(child);
 
@@ -308,6 +310,12 @@ public class SkeletonGenerator
     public static GameObject Generate(LSystem.LSystem l, bool primitive_mesh = false) {
         BoneTree root = GenerateBoneTree(l, primitive_mesh);
         GameObject rootGo = root.toGameObjectTree();
+        GameObject rootParent = root.findParent(root.segment, inverse: true, excludeThis : true).go;
+        ConfigurableJoint joint = rootGo.AddComponent<ConfigurableJoint>();
+        joint.anchor = new Vector3(0,-Vector3.Distance(root.segment.Item1, root.segment.Item2)/2,0);
+        joint.connectedBody = rootParent.GetComponent<Rigidbody>();
+        //joint.connectedAnchor = parentGo.transform.position;
+
         return rootGo;
     }
 

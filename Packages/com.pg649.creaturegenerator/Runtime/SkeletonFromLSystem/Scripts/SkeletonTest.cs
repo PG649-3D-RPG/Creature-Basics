@@ -39,7 +39,7 @@ public class SkeletonTest : MonoBehaviour
             for (int i = 0; i < segments.Count; i++){
                 segments_[i] = new Segment(segments[i].Item1, segments[i].Item2, .025f);
             }
-            Metaball m = Metaball.BuildFromSegments(segments_);
+            Metaball m = Metaball.BuildFromSegments(segments_, useCapsules:false);
             MeshGenerator mg = gameObject.GetComponent<MeshGenerator>();
             mg.material = new Material(Shader.Find("MadCake/Material/Standard hacked for DQ skinning"));
             mg.material.color = Color.white;

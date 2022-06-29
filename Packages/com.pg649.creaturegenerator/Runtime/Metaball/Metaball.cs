@@ -8,10 +8,27 @@ public class Metaball
 
     public Metaball() { }
 
-    public void AddBall(float radius, Vector3 position, MetaballFunction function)
+    public void AddBall(Ball ball)
+    {
+        balls.Add(ball);
+    }
+
+    public void AddBall(float radius, Vector3 position, MetaballFunction function = MetaballFunction.Polynomial2)
     {
         Ball newBall = new Ball(radius, position, function);
         balls.Add(newBall);
+    }
+
+    public void AddCapsule(Segment segment, MetaballFunction function = MetaballFunction.Polynomial2)
+    {
+        Capsule newCapsule = new Capsule(segment, function);
+        balls.Add(newCapsule);
+    }
+
+    public void AddCone(Segment segment, float tipThickness, MetaballFunction function = MetaballFunction.Polynomial2)
+    {
+        Cone newCone = new Cone(segment, tipThickness, function);
+        balls.Add(newCone);
     }
 
     public float Value(float x, float y, float z)
@@ -30,25 +47,34 @@ public class Metaball
     /// <param name="segments">Array of segments</param>
     /// <param name="function">The MetaballFunction to use</param>
     /// <returns>A Metaball made up of balls distributed along the provided segments</returns>
-    public static Metaball BuildFromSegments(Segment[] segments, MetaballFunction function = MetaballFunction.Polynomial2, float variation=0.75f)
+    public static Metaball BuildFromSegments(Segment[] segments, MetaballFunction function = MetaballFunction.Polynomial2, float variation=0.75f, bool useCapsules= true)
     {
         Metaball metaball = new Metaball();
 
-        foreach (Segment segment in segments)
+        if (useCapsules)
         {
-            int numBalls = Ball.GetMinimumNumBalls(function, segment.GetLength(), segment.thickness);
-
-            Vector3 fwd = segment.GetEndPoint() - segment.GetStartPoint();
-            Vector3 toMidPoint = fwd / (2 * numBalls);
-
-            for (float i = 0; i <= numBalls; i++)
+            foreach (Segment segment in segments)
             {
-                Vector3 position = segment.GetStartPoint() + (i / numBalls) * fwd;
-                Vector3 randomDirection = new Vector3(RandomGaussian(-toMidPoint.magnitude, toMidPoint.magnitude),
-                    RandomGaussian(-toMidPoint.magnitude, toMidPoint.magnitude),
-                    RandomGaussian(-toMidPoint.magnitude, toMidPoint.magnitude)) * variation;
-                metaball.AddBall(RandomGaussian(segment.thickness * 0.5f, segment.thickness * 1.5f) * variation, position + toMidPoint + randomDirection, function);
-                metaball.AddBall(segment.thickness, position, function);
+                metaball.AddCapsule(segment);
+            }
+        }
+        else
+        {
+            foreach (Segment segment in segments)
+            {
+                int numBalls = Ball.GetMinimumNumBalls(function, segment.GetLength(), segment.thickness);
+
+                Vector3 fwd = segment.GetEndPoint() - segment.GetStartPoint();
+                Vector3 toMidPoint = fwd / (2 * numBalls);
+
+                for (float i = 0; i <= numBalls; i++)
+                {
+                    Vector3 position = segment.GetStartPoint() + (i / numBalls) * fwd;
+                    Vector3 randomDirection = new Vector3(RandomGaussian(-toMidPoint.magnitude, toMidPoint.magnitude),
+                        RandomGaussian(-toMidPoint.magnitude, toMidPoint.magnitude),
+                        RandomGaussian(-toMidPoint.magnitude, toMidPoint.magnitude)) * variation;
+                    metaball.AddBall(Mathf.Abs(RandomGaussian(0.5f, 1.5f) * variation) * segment.thickness, position + randomDirection, function);
+                }
             }
         }
         return metaball;

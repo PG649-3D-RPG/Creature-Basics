@@ -45,6 +45,7 @@ public class SkeletonTest : MonoBehaviour
                 segments_[i] = new Segment(segments[i].Item1, segments[i].Item2, .025f);
             }
             Metaball m = Metaball.BuildFromSegments(segments_);
+            DetailSpec.addMetaballs(boneTree, m);
             MeshGenerator mg = gameObject.GetComponent<MeshGenerator>();
             mg.Generate(m);
         }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -15,4 +16,7 @@ public class Bone : MonoBehaviour
     /// The index number of the bone within its limb.
     /// Taking an arm as an example, the bone connected to the torso has boneIndex 0, the bone below that has boneIndex 1, and so on.
     public int boneIndex;
+
+    /// Start and end points of this bone.
+    public Tuple<Vector3, Vector3> segment;
 }

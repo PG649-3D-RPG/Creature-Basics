@@ -12,9 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ccb5c0788e894a41a95d529b9998b3f, type: 3}
   m_Name: Eyes
   m_EditorClassIdentifier: 
-  Prefab: {fileID: 3687158138797672338, guid: 4b82aa6e1e581064385ef0c5fd61a766, type: 3}
   RaycastSettings:
     Rotation: {x: -50, y: 30, z: 0}
+    MirrorMode: 0
   Scale: {x: 0.5, y: 0.5, z: 0.5}
   BoneFilter: 3
-  MirrorMode: 1
+  PlaceMetaball: 1
+  MetaballShape: 0
+  MetaballFunction: 0
+  Inverted: 1
+  Thickness: 0.025
+  TipThickness: 0
+  Prefab: {fileID: 3687158138797672338, guid: 4b82aa6e1e581064385ef0c5fd61a766, type: 3}

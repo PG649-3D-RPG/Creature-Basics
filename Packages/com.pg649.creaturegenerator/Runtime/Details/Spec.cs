@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,7 +8,19 @@ public class Spec : ScriptableObject
 {
     public List<PrefabDetail> DetailList;
 
+    public void addMetaballs(GameObject skeletonRoot, Metaball meta) {
+        foreach (var (bone, detail) in Placements(skeletonRoot)) {
+            detail.applyMetaball(bone, meta);
+        }
+    }
+
     public void addDetails(GameObject skeletonRoot) {
+        foreach (var (bone, detail) in Placements(skeletonRoot)) {
+            detail.applyDetail(bone);
+        }
+    }
+
+    private IEnumerable<Tuple<GameObject, PrefabDetail>> Placements(GameObject skeletonRoot) {
         Skeleton skeleton = skeletonRoot.GetComponent<Skeleton>();
 
         Dictionary<BoneCategory, List<PrefabDetail>> detailMap = new();
@@ -26,7 +39,7 @@ public class Spec : ScriptableObject
         foreach (var (category, details) in detailMap) {
             foreach (var bone in skeleton.bonesByCategory[category]) {
                 foreach (var detail in details) {
-                    detail.apply(bone);
+                    yield return new(bone, detail);
                 }
             }
         }

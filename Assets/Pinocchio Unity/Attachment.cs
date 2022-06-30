@@ -1,6 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Numerics;
+//using System.Numerics;
 using UnityEngine;
 using System;
 
@@ -8,7 +8,7 @@ public class Attachment
 {
     List<List<double>> weights = new List<List<double>>();
     List<List<Tuple<int, double>>> nzweights;
-    Attachment(Mesh mesh, boneTree skeleton, double initialHeatWeight = 1)
+    Attachment(Mesh mesh, GameObject skeleton, double initialHeatWeight = 1)
     {
         int i, j;
 
@@ -23,7 +23,7 @@ public class Attachment
             List<int> edge = new List<int>();
             for (j = 0; j < mesh.triangles.Length; ++j)
             {
-                if(mesh.triangles[j] = i)
+                if(mesh.triangles[j] == i)
                 {
                     if(j % 3 == 0)
                     {
@@ -55,7 +55,7 @@ public class Attachment
 
         int bones = skeleton.Count + 1;
         double[,] boneDists = new double[nv, bones];
-        bool[,] boneVis = new double[nv, bones];
+        bool[,] boneVis = new bool[nv, bones];
 
         //Calculate MIN Distance
         //Für alle Vertices
@@ -63,15 +63,15 @@ public class Attachment
         {
             Vector3 cPos = mesh.vertices[i];
             weights.Add(new List<double>());
-            nzweights.Add(new List<Tupel<int, double>>());
+            nzweights.Add(new List<Tuple<int, double>>());
 
-            List<Vector3> normals;
+            List<Vector3> normals = new List<Vector3>(); ;
             for (j = 0; j < edges[i].Count; ++j)
             {
                 int nj = (j + 1) % edges[i].Count;
                 Vector3 v1 = mesh.vertices[edges[i][j]] - cPos;
                 Vector3 v2 = mesh.vertices[edges[i][nj]] - cPos;
-                normals.add(Vector3.Normalize(Vector3.Cross((v1 % v2))));
+                normals.Add(Vector3.Normalize(Vector3.Cross((v1,v2))));
             }
 
             double minDist = 1e37;
@@ -103,14 +103,14 @@ public class Attachment
                     Mathf.Max(0, distToSeg);
                 }
 
-                boneDists[i][j] = distToSeg;
-                minDist = Mathf.Min(boneDists[i][j], minDist);
+                boneDists[i,j] = distToSeg;
+                minDist = Math.Min(boneDists[i,j], minDist);
             }
 
             for (j = 0; j < bones; ++j)
             {
 
-                if (boneDists[i][j] > minDist * 1.0001)
+                if (boneDists[i,j] > minDist * 1.0001)
                     continue;
 
                 Vector3 v1 = bonelist[j].Item1;
@@ -124,7 +124,7 @@ public class Attachment
                 else if (Vector3.Dot((cPos - v1), dir) < 0)
                     projToSeg = v1;
                 else
-                    rojToSeg = v1 + (Vector3.Dot(Vector3.Dot((cPos - v1), dir) / Vector3.sqrMagnitude(dir), dir));
+                    projToSeg = v1 + Vector3.Dot((cPos - v1), dir) / dir.sqrMagnitude * dir;
                 Vector3 p = projToSeg;
 
                 //This Part needs Raytracing of some kind  
@@ -151,26 +151,26 @@ public class Attachment
                 int nj = (j + 1) % edges[i].Count;
 
                 distance[i] += (Vector3.Cross((mesh.vertices[edges[i][j]] - mesh.vertices[i]),
-                         (mesh.vertices[edges[i][nj]] - mesh.vertices[i]))).length();
+                         (mesh.vertices[edges[i][nj]] - mesh.vertices[i]))).magnitude;
             }
-            distance[i] = 1 / (1e-10 + D[i]);
+            distance[i] = 1 / (1e-10 + distance[i]);
 
             //get bones
             double minDist = 1e37;
             for (j = 0; j < bones; ++j)
             {
                 closest[i] = -1;
-                if (boneDists[i][j] < minDist)
+                if (boneDists[i,j] < minDist)
                 {
                     closest[i] = j;
-                    minDist = boneDists[i][j];
+                    minDist = boneDists[i,j];
                 }
             }
             for (j = 0; j < bones; ++j)
 
                 //Needs the Ray-Tracing Input
-                if (boneVis[i][j] && boneDists[i][j] <= minDist * 1.00001)
-                    heat[i] += initialHeatWeight / ((1e-8 + boneDists[i][closest[i]]) * (1e-8 + boneDists[i][closest[i]]));
+                if (boneVis[i,j] && boneDists[i,j] <= minDist * 1.00001)
+                    heat[i] += initialHeatWeight / ((1e-8 + boneDists[i,closest[i]]) * (1e-8 + boneDists[i,closest[i]]));
                 else
                     heat[i] = 0;
 
@@ -186,8 +186,8 @@ public class Attachment
                 Vector3 v3 = mesh.vertices[i] - mesh.vertices[edges[i][nj]];
                 Vector3 v4 = mesh.vertices[edges[i][j]] - mesh.vertices[edges[i][nj]];
 
-                double cot1 = (Vector3.Dot(v1,v2)) / (1e-6 + (Vector3.Cross(v1, v2)).length());
-                double cot2 = (Vector3.Dot(v3,v4)) / (1e-6 + (Vector3.Cross(v3, v4)).length());
+                double cot1 = (Vector3.Dot(v1,v2)) / (1e-6 + (Vector3.Cross(v1, v2)).magnitude);
+                double cot2 = (Vector3.Dot(v3,v4)) / (1e-6 + (Vector3.Cross(v3, v4)).magnitude);
                 sum += (cot1 + cot2);
 
                 if (edges[i][j] > i)
@@ -195,9 +195,9 @@ public class Attachment
                 valueList.Add(new Tuple<int, double>(edges[i][j], -cot1 - cot2));
             }
             valueList.Add(new Tuple<int, double>(i, sum + heat[i] / distance[i]));
-            valueList.Sort(delegate (Tuple x, Tuple y)
+            valueList.Sort(delegate (Tuple<int, double> x, Tuple< int, double > y)
             {
-                return x.Item2 - y.Item2;
+                return x.Item2.CompareTo(y.Item2);
             });
             
 
@@ -213,7 +213,7 @@ public class Attachment
             List<double> rhs = new List<double>(); ;
         for (i = 0; i < nv; ++i)
         {
-            if (boneVis[i][j] && boneDists[i][j] <= boneDists[i][closest[i]] * 1.00001)
+            if (boneVis[i,j] && boneDists[i,j] <= boneDists[i,closest[i]] * 1.00001)
                 rhs[i] = heat[i] / distance[i];
         }
 
@@ -225,7 +225,7 @@ public class Attachment
                 rhs[i] = 1; //clip just in case
             if (rhs[i] > 1e-8)
             
-                nzweights[i].Add(new Tupel<int, double>(j, rhs[i]));
+                nzweights[i].Add(new Tuple<int, double>(j, rhs[i]));
         }
     }
 
@@ -235,7 +235,8 @@ public class Attachment
                 sum += nzweights[i][j].Item2;
 
             for(j = 0; j<nzweights[i].Count; ++j) {
-                nzweights[i][j].Item2 /= sum;
+                double helper = nzweights[i][j].Item2 / sum;
+                nzweights[i][j] = new Tuple<int, double>(nzweights[i][j].Item1, helper);
                 weights[i][nzweights[i][j].Item1] = nzweights[i][j].Item2;
             }
         }

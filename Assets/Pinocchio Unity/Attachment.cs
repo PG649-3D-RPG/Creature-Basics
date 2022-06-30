@@ -71,7 +71,7 @@ public class Attachment
                 int nj = (j + 1) % edges[i].Count;
                 Vector3 v1 = mesh.vertices[edges[i][j]] - cPos;
                 Vector3 v2 = mesh.vertices[edges[i][nj]] - cPos;
-                normals.Add(Vector3.Normalize(Vector3.Cross((v1,v2))));
+                normals.Add(Vector3.Normalize(Vector3.Cross(v1, v2)));
             }
 
             double minDist = 1e37;

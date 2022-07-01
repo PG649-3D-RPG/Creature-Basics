@@ -38,6 +38,8 @@ namespace MarchingCubesProject
 
         private NormalRenderer normalRenderer;
 
+        private IBoneWeightCalculator boneWeightCalculator = new BoneHeatMethodCalculator();
+
         void Start() 
         {
         }
@@ -180,7 +182,7 @@ namespace MarchingCubesProject
             }
             mesh.bindposes = bindPoses.ToArray();
 
-            mesh.boneWeights = BoneUtil.CalcBoneWeightsTheStupidWay(mesh, bones, transform);
+            mesh.boneWeights = boneWeightCalculator.CalcBoneWeights(mesh, bones, transform);
 
             go.AddComponent<MeshFilter>();
             go.AddComponent<MeshRenderer>();

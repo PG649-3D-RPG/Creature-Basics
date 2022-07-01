@@ -29,34 +29,57 @@ public class BoneHeatMethodCalculator :IBoneWeightCalculator
         //compute edges of adjacent triangles
         //first index: vertex i
         //second index: jth edge adjacent to vertex i
-        //TODO: is this producing duplicate edges????
         List<List<int>> edges = new List<List<int>>(nv);
         for (int i = 0; i < nv; ++i)
         {
-            List<int> edge = new List<int>(10);
-            for (int j = 0; j < mesh.triangles.Length; ++j)
-            {
-                if(mesh.triangles[j] == i)
-                {
-                    if(j % 3 == 0)
-                    {
-                        edge.Add(mesh.triangles[j + 1]);
-                        edge.Add(mesh.triangles[j + 2]);
-                    }
-                    else if (j % 3 == 1)
-                    {
-                        edge.Add(mesh.triangles[j - 1]);
-                        edge.Add(mesh.triangles[j + 1]);
-                    }
-                    else
-                    {
-                        edge.Add(mesh.triangles[j - 2]);
-                        edge.Add(mesh.triangles[j - 1]);
-                    }
-                }
-            }
-            edges.Add(edge);
+            edges.Add(new List<int>());
         }
+        for (int j = 0; j < mesh.triangles.Length; ++j)
+        {
+            if (j % 3 == 0)
+            {
+                edges[mesh.triangles[j]].Add(mesh.triangles[j + 1]);
+                edges[mesh.triangles[j]].Add(mesh.triangles[j + 2]);
+            }
+            else if (j % 3 == 1)
+            {
+                edges[mesh.triangles[j]].Add(mesh.triangles[j - 1]);
+                edges[mesh.triangles[j]].Add(mesh.triangles[j + 1]);
+            }
+            else
+            {
+                edges[mesh.triangles[j]].Add(mesh.triangles[j - 2]);
+                edges[mesh.triangles[j]].Add(mesh.triangles[j - 1]);
+            }
+        }
+        //
+
+        //for (int i = 0; i < nv; ++i)
+        //{
+        //    List<int> edge = new List<int>();
+        //    for (int j = 0; j < mesh.triangles.Length; ++j)
+        //    {
+        //        if(mesh.triangles[j] == i)
+        //        {
+        //            if(j % 3 == 0)
+        //            {
+        //                edge.Add(mesh.triangles[j + 1]);
+        //                edge.Add(mesh.triangles[j + 2]);
+        //            }
+        //            else if (j % 3 == 1)
+        //            {
+        //                edge.Add(mesh.triangles[j - 1]);
+        //                edge.Add(mesh.triangles[j + 1]);
+        //            }
+        //            else
+        //            {
+        //                edge.Add(mesh.triangles[j - 2]);
+        //                edge.Add(mesh.triangles[j - 1]);
+        //            }
+        //        }
+        //    }
+        //    edges.Add(edge);
+        //}
 
         double[,] boneDists = new double[nv, bones.Length];
         bool[,] boneVis = new bool[nv, bones.Length];

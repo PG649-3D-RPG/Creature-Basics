@@ -30,10 +30,10 @@ public class BoneHeatMethodCalculator :IBoneWeightCalculator
         //first index: vertex i
         //second index: jth edge adjacent to vertex i
         //TODO: is this producing duplicate edges????
-        List<List<int>> edges = new List<List<int>>();
+        List<List<int>> edges = new List<List<int>>(nv);
         for (int i = 0; i < nv; ++i)
         {
-            List<int> edge = new List<int>();
+            List<int> edge = new List<int>(10);
             for (int j = 0; j < mesh.triangles.Length; ++j)
             {
                 if(mesh.triangles[j] == i)
@@ -69,7 +69,7 @@ public class BoneHeatMethodCalculator :IBoneWeightCalculator
             //nzweights.Add(new List<Tuple<int, double>>());
 
             // calculate normal vectors of all adjacent triangles
-            List<Vector3> normals = new List<Vector3>(); ;
+            List<Vector3> normals = new List<Vector3>(edges[i].Count);
             for (int j = 0; j < edges[i].Count; ++j)
             {
                 int nj = (j + 1) % edges[i].Count;

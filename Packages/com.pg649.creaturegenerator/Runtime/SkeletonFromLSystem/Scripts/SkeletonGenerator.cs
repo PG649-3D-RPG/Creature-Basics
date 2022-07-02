@@ -5,6 +5,10 @@ using System;
 using System.Linq;
 using LSystem;
 
+public static class BoneJointSettings{
+    
+}
+
 
 public static class BoneAdd{
     public static readonly Dictionary<char, BoneCategory> literalCategoryMap = new Dictionary<char, BoneCategory>{
@@ -26,11 +30,11 @@ public static class BoneAdd{
         {BoneCategory.Head,'C'},
         {BoneCategory.Hand,'H'},
         {BoneCategory.Foot,'V'},
-        {BoneCategory.Shoulder,'U'},
+        {BoneCategory.Shoulder,'U'}, 
         {BoneCategory.Hip,'G'},
         {BoneCategory.Other,'S'}
     };
-
+    
     public static readonly Dictionary<char, string> literalStringMap = new Dictionary<char, string>{
         {'A',"arm"},
         {'L',"leg"},
@@ -42,9 +46,13 @@ public static class BoneAdd{
         {'G',"hip"},
         {'S',"other"}
     };
+
     public static readonly Dictionary<BoneCategory, SoftJointLimit> defaultLowXLimit = new Dictionary<BoneCategory, SoftJointLimit>{
-        {BoneCategory.Arm, new SoftJointLimit() {limit = -45}},
-        {BoneCategory.Leg, new SoftJointLimit() {limit = 0}},
+        {BoneCategory.Arm, new SoftJointLimit() {limit = -75}},
+        {BoneCategory.LowerArm, new SoftJointLimit() {limit = 0}},
+        {BoneCategory.Leg, new SoftJointLimit() {limit = -15}},
+        {BoneCategory.LowerLeg1,new SoftJointLimit() {limit = -90}},
+        {BoneCategory.LowerLeg2, new SoftJointLimit() {limit = 0}},
         {BoneCategory.Torso, new SoftJointLimit() {limit = -15}},
         {BoneCategory.Head, new SoftJointLimit() {limit = -45}},
         {BoneCategory.Hand, new SoftJointLimit() {limit = -45}},
@@ -55,8 +63,11 @@ public static class BoneAdd{
     };
 
     public static readonly Dictionary<BoneCategory, SoftJointLimit> defaultHighXLimit = new Dictionary<BoneCategory, SoftJointLimit>{
-        {BoneCategory.Arm, new SoftJointLimit() {limit = 45}},
+        {BoneCategory.Arm, new SoftJointLimit() {limit = 75}},
+        {BoneCategory.LowerArm, new SoftJointLimit() {limit = 90}},
         {BoneCategory.Leg, new SoftJointLimit() {limit = 145}},
+        {BoneCategory.LowerLeg1,new SoftJointLimit() {limit = 0}},
+        {BoneCategory.LowerLeg2, new SoftJointLimit() {limit = 90}},
         {BoneCategory.Torso, new SoftJointLimit() {limit = 15}},
         {BoneCategory.Head, new SoftJointLimit() {limit = 45}},
         {BoneCategory.Hand, new SoftJointLimit() {limit = 45}},
@@ -67,28 +78,49 @@ public static class BoneAdd{
     };
 
     public static readonly Dictionary<BoneCategory, SoftJointLimit> defaultYLimit = new Dictionary<BoneCategory, SoftJointLimit>{
-        {BoneCategory.Arm, new SoftJointLimit() {limit = 45}},
-        {BoneCategory.Leg, new SoftJointLimit() {limit = 15}},
-        {BoneCategory.Torso, new SoftJointLimit() {limit = 45}},
-        {BoneCategory.Head, new SoftJointLimit() {limit = 45}},
-        {BoneCategory.Hand, new SoftJointLimit() {limit = 45}},
-        {BoneCategory.Foot, new SoftJointLimit() {limit = 5}},
-        {BoneCategory.Shoulder, new SoftJointLimit() {limit = 5}},
-        {BoneCategory.Hip, new SoftJointLimit() {limit = 5}},
+        {BoneCategory.Arm, new SoftJointLimit() {limit = 0}},
+        {BoneCategory.LowerArm, new SoftJointLimit() {limit = 0}},
+        {BoneCategory.Leg, new SoftJointLimit() {limit = 0}}, //10
+        {BoneCategory.LowerLeg1,new SoftJointLimit() {limit = 0}},
+        {BoneCategory.LowerLeg2, new SoftJointLimit() {limit = 0}},
+        {BoneCategory.Torso, new SoftJointLimit() {limit = 0}},
+        {BoneCategory.Head, new SoftJointLimit() {limit = 90}},
+        {BoneCategory.Hand, new SoftJointLimit() {limit = 0}},
+        {BoneCategory.Foot, new SoftJointLimit() {limit = 0}},
+        {BoneCategory.Shoulder, new SoftJointLimit() {limit = 0}},
+        {BoneCategory.Hip, new SoftJointLimit() {limit = 0}},
         {BoneCategory.Other, new SoftJointLimit() {limit = 0}}
     };
     public static readonly Dictionary<BoneCategory, SoftJointLimit> defaultZLimit = new Dictionary<BoneCategory, SoftJointLimit>{
-        {BoneCategory.Arm, new SoftJointLimit() {limit = 45}},
-        {BoneCategory.Leg, new SoftJointLimit() {limit = 15}},
-        {BoneCategory.Torso, new SoftJointLimit() {limit = 45}},
-        {BoneCategory.Head, new SoftJointLimit() {limit = 45}},
-        {BoneCategory.Hand, new SoftJointLimit() {limit = 45}},
-        {BoneCategory.Foot, new SoftJointLimit() {limit = 5}},
-        {BoneCategory.Shoulder, new SoftJointLimit() {limit = 5}},
-        {BoneCategory.Hip, new SoftJointLimit() {limit = 5}},
+        {BoneCategory.Arm, new SoftJointLimit() {limit = 0}}, //45
+        {BoneCategory.LowerArm, new SoftJointLimit() {limit = 0}},
+        {BoneCategory.Leg, new SoftJointLimit() {limit = 0}}, //15
+        {BoneCategory.LowerLeg1,new SoftJointLimit() {limit = 0}},
+        {BoneCategory.LowerLeg2, new SoftJointLimit() {limit = 0}},
+        {BoneCategory.Torso, new SoftJointLimit() {limit = 0}}, //45
+        {BoneCategory.Head, new SoftJointLimit() {limit = 0}}, //45
+        {BoneCategory.Hand, new SoftJointLimit() {limit = 0}}, //45
+        {BoneCategory.Foot, new SoftJointLimit() {limit = 0}},
+        {BoneCategory.Shoulder, new SoftJointLimit() {limit = 0}}, //5
+        {BoneCategory.Hip, new SoftJointLimit() {limit = 0}}, //5
         {BoneCategory.Other, new SoftJointLimit() {limit = 0}}
     };
 
+}
+
+public enum BoneCategory{
+    Leg,
+    LowerLeg1,
+    LowerLeg2,
+    Arm,
+    LowerArm,
+    Torso,
+    Head,
+    Hand,
+    Foot,
+    Shoulder,
+    Hip,
+    Other
 }
 
 public class SkeletonGenerator
@@ -106,6 +138,7 @@ public class SkeletonGenerator
 
         public List<BoneTree> children;
         public int limbIndex;
+        public int sJointAngMot;
 
         public int boneIndex;
 
@@ -116,6 +149,8 @@ public class SkeletonGenerator
         private Tuple<int,char> t;
 
         public BoneCategory boneCategory;
+
+        public BoneCategory subBoneCategory;
 
         public BoneTree(Tuple<Vector3, Vector3> segment, BoneTree root, BoneTree parent, Tuple<int,char> t, bool primitive_mesh = false) {
             this.segment = segment;
@@ -155,6 +190,12 @@ public class SkeletonGenerator
             }
             return null;
         }
+        public List<BoneTree> NodeList(){
+            List<BoneTree> l = new List<BoneTree>();
+            l.Add(this);
+            foreach(var child in this.children) l.AddRange(child.NodeList());
+            return l;
+        }
 
         private GameObject ToGameObject() {
             Vector3 start = segment.Item1;
@@ -163,9 +204,9 @@ public class SkeletonGenerator
             bool isRoot = root == null;
 
             GameObject result = new GameObject(Name());
-            result.transform.rotation = Quaternion.LookRotation(end-start) * Quaternion.FromToRotation(Vector3.forward, Vector3.down);//Quaternion.FromToRotation(start,end);
+            result.transform.rotation = Quaternion.LookRotation(end-start) * Quaternion.FromToRotation(-Vector3.forward, Vector3.up);//Quaternion.FromToRotation(start,end);
             result.transform.position = start + ((end-start).normalized*(length/2));  
-            //result.transform.localPosition = result.transform.localRotation * Vector3.forward * length * 1.5f; 
+            //result.transform.localPosition = result.transform.localRotation * Vector3.forward * length * 1.5f;
 
             Rigidbody rb = result.AddComponent<Rigidbody>();
             rb.useGravity = false;
@@ -173,16 +214,20 @@ public class SkeletonGenerator
             Bone bone = result.AddComponent<Bone>();
             bone.category = boneCategory;
             bone.limbIndex = limbIndex;
-            bone.boneIndex = boneIndex;
-            
+            bone.boneIndex = boneIndex; 
+            bone.isRoot = false;
+
             if (isRoot) {
                 Skeleton skeleton = result.AddComponent<Skeleton>();
-
+                skeleton.nBones += 1;
             } else {
                 GameObject parentGo = parent.go;
                 result.transform.parent = parentGo.transform;
 
                 ConfigurableJoint joint = result.AddComponent<ConfigurableJoint>();
+                joint.rotationDriveMode = RotationDriveMode.Slerp;
+                if(subBoneCategory == BoneCategory.LowerArm) joint.axis = Vector3.forward;
+                joint.secondaryAxis = Vector3.forward;
                 //joint.transform.rotation = result.transform.rotation;
                 //joint.targetRotation = Quaternion.LookRotation(end-start);
                 joint.anchor = new Vector3(0,-length/2,0);
@@ -193,19 +238,46 @@ public class SkeletonGenerator
                 joint.xMotion = ConfigurableJointMotion.Locked;
                 joint.yMotion = ConfigurableJointMotion.Locked;
                 joint.zMotion = ConfigurableJointMotion.Locked;
-                joint.angularXMotion = ConfigurableJointMotion.Limited;
-                joint.angularYMotion = ConfigurableJointMotion.Limited;
-                joint.angularZMotion = ConfigurableJointMotion.Limited;
 
-                joint.lowAngularXLimit = BoneAdd.defaultLowXLimit[boneCategory];
-                joint.highAngularXLimit = BoneAdd.defaultHighXLimit[boneCategory];
-                joint.angularYLimit = BoneAdd.defaultYLimit[boneCategory];
-                joint.angularZLimit = BoneAdd.defaultZLimit[boneCategory];
+                SoftJointLimit alx = BoneAdd.defaultLowXLimit[subBoneCategory];
+                SoftJointLimit ahx = BoneAdd.defaultHighXLimit[subBoneCategory];
+                SoftJointLimit ay = BoneAdd.defaultYLimit[subBoneCategory];
+                SoftJointLimit az = BoneAdd.defaultZLimit[subBoneCategory];
 
                 GameObject rootGo = root.go;
                 Skeleton skeleton = rootGo.GetComponent<Skeleton>();
+
+                if(alx.limit == 0 && ahx.limit == 0){
+                    joint.angularXMotion = ConfigurableJointMotion.Locked;
+                }
+                else{
+                    joint.angularXMotion = ConfigurableJointMotion.Limited;
+                    joint.lowAngularXLimit = alx;
+                    joint.highAngularXLimit = ahx;
+                    skeleton.nAngXMotLimited += 1;
+                }
+
+                if(ay.limit == 0){
+                    joint.angularYMotion = ConfigurableJointMotion.Locked;
+                }
+                else{
+                    joint.angularYMotion = ConfigurableJointMotion.Limited;
+                    joint.angularYLimit = ay;
+                   skeleton.nAngYMotLimited += 1;
+                }
+
+                if(az.limit == 0){
+                    joint.angularZMotion = ConfigurableJointMotion.Locked;
+                }
+                else{
+                    joint.angularZMotion = ConfigurableJointMotion.Limited;
+                    joint.angularZLimit = az;
+                    skeleton.nAngZMotLimited += 1;
+                }
+
+                skeleton.nBones+=1;
                 skeleton.bonesByCategory[boneCategory].Add(result);
-            
+
                 if(start != end){
                     GameObject meshObject;
                     if(boneCategory == BoneCategory.Hand){
@@ -213,10 +285,9 @@ public class SkeletonGenerator
                         if(primitive_mesh){
                             meshObject = GameObject.CreatePrimitive(PrimitiveType.Sphere);
                             meshObject.transform.localScale = new Vector3(0.1f, 0.1f ,0.1f);
-
                             meshObject.transform.parent = result.transform;
                             meshObject.transform.position = result.transform.position;
-                            meshObject.transform.rotation = result.transform.rotation; 
+                            meshObject.transform.rotation = result.transform.rotation;
                         }
 
                         SphereCollider collider = result.AddComponent<SphereCollider>();                        
@@ -292,6 +363,17 @@ public class SkeletonGenerator
 
                 limbIndices[child.boneCategory]++;
             }
+        }
+
+        //set sub categories for legs and arms, subcategories for other parts are the same as categories, assuming root is no leg or arm
+        foreach(var node in root.NodeList()){
+            if(node.boneCategory == BoneCategory.Leg && node.boneIndex != 0){
+                if(node.boneIndex % 2 == 1) node.subBoneCategory = BoneCategory.LowerLeg1;
+                else node.subBoneCategory = BoneCategory.LowerLeg2;
+            }
+            else if(node.boneCategory == BoneCategory.Arm && node.boneIndex != 0) node.subBoneCategory = BoneCategory.LowerArm;
+            else node.subBoneCategory = node.boneCategory;
+            Debug.Log(node.subBoneCategory);
         }
         return root;
     }
@@ -386,18 +468,61 @@ public class SkeletonGenerator
         GameObject rootGo = root.toGameObjectTree();
         GameObject rootParent = root.findParent(root.segment, inverse: true, excludeThis : true).go;
         ConfigurableJoint joint = rootGo.AddComponent<ConfigurableJoint>();
-        joint.anchor = new Vector3(0,-Vector3.Distance(root.segment.Item1, root.segment.Item2)/2,0);
+        float length = Vector3.Distance(root.segment.Item1, root.segment.Item2)/2;
+        joint.anchor = new Vector3(0,-length,0);
         joint.connectedBody = rootParent.GetComponent<Rigidbody>();
-        //joint.connectedAnchor = parentGo.transform.position;
+        joint.secondaryAxis = Vector3.forward;
+        joint.xMotion = ConfigurableJointMotion.Locked;
+        joint.yMotion = ConfigurableJointMotion.Locked;
+        joint.zMotion = ConfigurableJointMotion.Locked;
+
+        SoftJointLimit alx = BoneAdd.defaultLowXLimit[root.subBoneCategory];
+        SoftJointLimit ahx = BoneAdd.defaultHighXLimit[root.subBoneCategory];
+        SoftJointLimit ay = BoneAdd.defaultYLimit[root.subBoneCategory];
+        SoftJointLimit az = BoneAdd.defaultZLimit[root.subBoneCategory];
+
+        if(alx.limit == 0 && ay.limit == 0){
+            joint.xMotion = ConfigurableJointMotion.Locked;
+        }
+        else{
+            joint.angularXMotion = ConfigurableJointMotion.Limited;
+            joint.lowAngularXLimit = alx;
+            joint.highAngularXLimit = ahx;
+            root.go.GetComponent<Skeleton>().nAngXMotLimited += 1;
+        }
+
+        if(ay.limit == 0){
+            joint.angularYMotion = ConfigurableJointMotion.Locked;
+        }
+        else{
+            joint.angularYMotion = ConfigurableJointMotion.Limited;
+            joint.angularYLimit = ay;
+            root.go.GetComponent<Skeleton>().nAngYMotLimited += 1;
+        }
+
+        if(az.limit == 0){
+            joint.angularZMotion = ConfigurableJointMotion.Locked;
+        }
+        else{
+            joint.angularZMotion = ConfigurableJointMotion.Limited;
+            joint.angularZLimit = az;
+            root.go.GetComponent<Skeleton>().nAngZMotLimited += 1;
+        }
+
+        //GameObject rootGo = root.go;
+        Skeleton skeleton = rootGo.GetComponent<Skeleton>();
+        skeleton.bonesByCategory[root.boneCategory].Add(rootGo);
+        rootGo.GetComponent<Bone>().isRoot = true;
+        if(primitive_mesh){
+            GameObject meshObject = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+            meshObject.transform.localScale = new Vector3(0.1f,length*0.45f,0.1f);
+            meshObject.transform.parent = rootGo.transform;
+            meshObject.transform.position = rootGo.transform.position;
+            meshObject.transform.rotation = rootGo.transform.rotation; 
+        }
+//joint.connectedAnchor = parentGo.transform.position;
 
         return rootGo;
+        
     }
-
-    public static GameObject Generate(ParametricCreature c, bool primitive_mesh = false)
-    {
-        BoneTree root = GenerateBoneTree(c, primitive_mesh);
-        GameObject rootGo = root.toGameObjectTree();
-        return rootGo;
-    }
-
 }

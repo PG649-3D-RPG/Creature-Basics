@@ -15,4 +15,7 @@ public class Bone : MonoBehaviour
     /// The index number of the bone within its limb.
     /// Taking an arm as an example, the bone connected to the torso has boneIndex 0, the bone below that has boneIndex 1, and so on.
     public int boneIndex;
+
+
+    public bool isRoot;
 }

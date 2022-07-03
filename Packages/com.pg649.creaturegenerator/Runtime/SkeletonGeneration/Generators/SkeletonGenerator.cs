@@ -412,6 +412,8 @@ public class SkeletonGenerator
         limbs.Add(new(BoneCategory.Torso, c.torso));
         foreach (var leg in c.legs)
             limbs.Add(new(BoneCategory.Leg, leg));
+        foreach (var foot in c.feet)
+            limbs.Add(new(BoneCategory.Foot, new List<Segment> { foot }));
         limbs.Add(new(BoneCategory.Head, c.neck));
 
         // initialize all limb indices with 0

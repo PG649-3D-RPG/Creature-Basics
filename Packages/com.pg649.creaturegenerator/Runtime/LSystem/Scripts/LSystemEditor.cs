@@ -1,8 +1,5 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-//using MarchingCubesProject;
 using UnityEngine;
 
 namespace LSystem
@@ -37,23 +34,25 @@ namespace LSystem
         [Tooltip("Replacement rules")]
         public string[] m_Rules = { "A=[+F(1.5)]", "B=[-F(1.5)]", "C=[+(30)F(1.5)C]", "D=[-(30)F(1.5)D]" };
 
-        private Dictionary<char, string> ParseRuleInput(string[] rules)
+        private Dictionary<char, List<string>> ParseRuleInput(string[] rules)
         {
-            var nt = new Dictionary<char, string>();
+            var nt = new Dictionary<char, List<string>>();
             foreach (var r in rules)
             {
                 //check syntax
                 if (r.Length < 3) throw new ArgumentException("Rule is in a wrong format");
                 if (!r.Contains('=')) throw new ArgumentException("Rule needs to include an =");
                 // search index of '='
-                var end = r.IndexOf('=');
-                var non_terminal = r[..end];
+                int end = r.IndexOf('=');
+                string non_terminal = r[..end];
                 //TODO not necessarily: non terminals may only be one character
                 if (non_terminal.Length > 1) throw new ArgumentException("Non Terminals may only be exactly one character.");
-                var replacement = r[(end + 1)..];
+                string replacement = r[(end + 1)..];
                 // check if non_terminal is already contained or a terminal has the same symbol
-                if (nt.ContainsKey(non_terminal[0]) || LSystem.TERMINALS.Contains(non_terminal[0])) throw new ArgumentException("Cannot add a rule with a symbol that is already in use: " + non_terminal[0]);
-                else nt.Add(non_terminal[0], replacement);
+                if (LSystem.TERMINALS.Contains(non_terminal[0])) throw new ArgumentException("Cannot add a rule with a symbol that is a terminal: " + non_terminal[0]);
+                // add to list for stochastic l-system if there are multiple rules with same non-terminal; otherwise create new list
+                if (nt.ContainsKey(non_terminal[0])) nt[non_terminal[0]].Add(replacement);
+                else nt.Add(non_terminal[0], new List<string> { replacement });
             }
             return nt;
         }

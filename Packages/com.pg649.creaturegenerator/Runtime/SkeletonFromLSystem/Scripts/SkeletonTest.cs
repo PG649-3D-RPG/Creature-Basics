@@ -43,6 +43,8 @@ public class SkeletonTest : MonoBehaviour
             MeshGenerator mg = gameObject.GetComponent<MeshGenerator>();
             mg.Generate(m);
         }
+
+        Physics.autoSimulation = false;
     }
 
     // Update is called once per frame

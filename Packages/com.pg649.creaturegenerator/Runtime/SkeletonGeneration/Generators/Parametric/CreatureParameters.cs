@@ -13,6 +13,11 @@ public class CreatureParameters : MonoBehaviour
     public float minLegSize = 2f;
     public float maxLegSize = 6f;
 
+    public float minArmThickness = 0.1f;
+    public float maxArmThickness = 0.5f;
+    public float minArmSize = 2f;
+    public float maxArmSize = 6f;
+
     public float minTorsoSize = 4f;
     public float maxTorsoSize = 8f;
     public float minTorsoThickness = 0.4f;

@@ -91,18 +91,6 @@ public static class BoneAdd{
 
 }
 
-public enum BoneCategory{
-    Leg,
-    Arm,
-    Torso,
-    Head,
-    Hand,
-    Foot,
-    Shoulder,
-    Hip,
-    Other
-}
-
 public class SkeletonGenerator
 {
     static float BoneTreeRadius = 0.025f;
@@ -180,6 +168,7 @@ public class SkeletonGenerator
             //result.transform.localPosition = result.transform.localRotation * Vector3.forward * length * 1.5f; 
 
             Rigidbody rb = result.AddComponent<Rigidbody>();
+            rb.useGravity = false;
 
             Bone bone = result.AddComponent<Bone>();
             bone.category = boneCategory;
@@ -307,6 +296,7 @@ public class SkeletonGenerator
 
     private static BoneTree GenerateBoneTree(ParametricCreature c, bool primitive_mesh = false)
     {
+        Debug.Log(c);
         // place root at torso end point, facing forward
         Tuple<Vector3, Vector3> rootSegment = new(c.torso[0].startPoint, c.torso[0].startPoint + Vector3.forward);
         BoneTree root = new BoneTree(rootSegment, null, null, new(0, BoneAdd.categoryLiteralMap[BoneCategory.Other]), primitive_mesh);

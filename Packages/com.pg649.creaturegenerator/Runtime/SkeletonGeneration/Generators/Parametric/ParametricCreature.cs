@@ -84,7 +84,6 @@ public class ParametricCreature
             float frontLegHeight = Random.Range(p.minLegSize, p.maxLegSize);
             float hindLegHeight = Random.Range(p.minLegSize, p.maxLegSize);
             legHeights = new List<float>() { hindLegHeight, frontLegHeight };
-            bool simpleFrontLegs = false;
 
             for (int i=0; i<2; i++)
             {
@@ -108,23 +107,22 @@ public class ParametricCreature
                 for (int j=0; j<2; j++)
                 {
                     List<Segment> leg = new List<Segment>();
-                    Vector3 startPoint = Vector3.zero;
-                    Vector3 endPoint = new Vector3(0, Mathf.Cos(footAngle) * lowerLegSplit, -Mathf.Sin(footAngle) * lowerLegSplit);
+                    Vector3 startPoint = new Vector3(0, 0, Mathf.Sin(footAngle) * lowerLegSplit);
+                    //Vector3 endPoint = new Vector3(0, Mathf.Cos(footAngle) * lowerLegSplit, -Mathf.Sin(footAngle) * lowerLegSplit);
+                    Vector3 endPoint = new Vector3(0, lowerLegSplit, 0);
                     leg.Add(new Segment(startPoint, endPoint, thickness[0]));
                     startPoint = endPoint;
-                    endPoint = new Vector3(0, legSplit, -Mathf.Tan(legAngle) * legSplit);
+                    //endPoint = new Vector3(0, legSplit, -Mathf.Tan(legAngle) * legSplit);
+                    endPoint = new Vector3(0, legSplit, 0);
                     leg.Add(new Segment(startPoint, endPoint, thickness[1]));
                     startPoint = endPoint;
-                    endPoint = new Vector3(0, upperLegSplit, startPoint.z + Mathf.Tan(legAngle) * (upperLegSplit - legSplit));
+                    //endPoint = new Vector3(0, upperLegSplit, startPoint.z + Mathf.Tan(legAngle) * (upperLegSplit - legSplit));
+                    endPoint = new Vector3(0, upperLegSplit, 0);
                     leg.Add(new Segment(startPoint, endPoint, thickness[2]));
                     startPoint = endPoint;
                     endPoint = new Vector3(0, height, 0);
                     leg.Add(new Segment(startPoint, endPoint, thickness[2]));
                     legs.Add(leg);
-                }
-                if (simpleFrontLegs)
-                {
-                    break;
                 }
             }
         }

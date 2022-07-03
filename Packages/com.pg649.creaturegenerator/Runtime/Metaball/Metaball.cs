@@ -74,6 +74,7 @@ public class Metaball
                         RandomGaussian(-toMidPoint.magnitude, toMidPoint.magnitude),
                         RandomGaussian(-toMidPoint.magnitude, toMidPoint.magnitude)) * variation;
                     metaball.AddBall(Mathf.Abs(RandomGaussian(0.5f, 1.5f) * variation) * segment.thickness, position + randomDirection, function);
+                    metaball.AddBall(segment.thickness, position, function);
                 }
             }
         }

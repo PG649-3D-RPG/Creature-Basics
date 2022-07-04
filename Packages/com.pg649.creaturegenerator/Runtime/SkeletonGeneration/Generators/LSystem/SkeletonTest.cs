@@ -47,7 +47,7 @@ public class SkeletonTest : MonoBehaviour
             mg.Generate(m);
         }
 
-        Physics.autoSimulation = false;
+        Physics.autoSimulation = true;
     }
 
     // Update is called once per frame

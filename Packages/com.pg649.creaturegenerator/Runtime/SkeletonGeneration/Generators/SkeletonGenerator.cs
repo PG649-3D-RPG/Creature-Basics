@@ -207,7 +207,7 @@ public class SkeletonGenerator
             //result.transform.localPosition = result.transform.localRotation * Vector3.forward * length * 1.5f;
 
             Rigidbody rb = result.AddComponent<Rigidbody>();
-            rb.useGravity = false;
+            rb.useGravity = true;
 
             Bone bone = result.AddComponent<Bone>();
             bone.category = boneCategory;

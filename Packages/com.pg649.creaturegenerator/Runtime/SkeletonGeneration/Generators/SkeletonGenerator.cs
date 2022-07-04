@@ -1,16 +1,18 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using System;
 using System.Linq;
 using LSystem;
+using UnityEngine;
 
-public static class BoneJointSettings{
-    
+public static class BoneJointSettings
+{
+
 }
 
 
-public static class BoneAdd{
+public static class BoneAdd
+{
     public static readonly Dictionary<char, BoneCategory> literalCategoryMap = new Dictionary<char, BoneCategory>{
         {'A',BoneCategory.Arm},
         {'L',BoneCategory.Leg},
@@ -23,18 +25,18 @@ public static class BoneAdd{
         {'S',BoneCategory.Other}
     };
 
-        public static readonly Dictionary<BoneCategory, char> categoryLiteralMap = new Dictionary<BoneCategory, char>{
+    public static readonly Dictionary<BoneCategory, char> categoryLiteralMap = new Dictionary<BoneCategory, char>{
         {BoneCategory.Arm,'A'},
         {BoneCategory.Leg,'L'},
         {BoneCategory.Torso,'T'},
         {BoneCategory.Head,'C'},
         {BoneCategory.Hand,'H'},
         {BoneCategory.Foot,'V'},
-        {BoneCategory.Shoulder,'U'}, 
+        {BoneCategory.Shoulder,'U'},
         {BoneCategory.Hip,'G'},
         {BoneCategory.Other,'S'}
     };
-    
+
     public static readonly Dictionary<char, string> literalStringMap = new Dictionary<char, string>{
         {'A',"arm"},
         {'L',"leg"},
@@ -107,29 +109,14 @@ public static class BoneAdd{
     };
 
 }
-
-public enum BoneCategory{
-    Leg,
-    LowerLeg1,
-    LowerLeg2,
-    Arm,
-    LowerArm,
-    Torso,
-    Head,
-    Hand,
-    Foot,
-    Shoulder,
-    Hip,
-    Other
-}
-
 public class SkeletonGenerator
 {
     static float BoneTreeRadius = 0.025f;
     // Human density if apparently about 1000kg/m^3
     static float BodyDensity = 1000.0f;
 
-    class BoneTree{
+    class BoneTree
+    {
         public Tuple<Vector3, Vector3> segment;
 
         public BoneTree root;
@@ -146,13 +133,14 @@ public class SkeletonGenerator
 
         public GameObject go;
 
-        private Tuple<int,char> t;
+        private Tuple<int, char> t;
 
         public BoneCategory boneCategory;
 
         public BoneCategory subBoneCategory;
 
-        public BoneTree(Tuple<Vector3, Vector3> segment, BoneTree root, BoneTree parent, Tuple<int,char> t, bool primitive_mesh = false) {
+        public BoneTree(Tuple<Vector3, Vector3> segment, BoneTree root, BoneTree parent, Tuple<int, char> t, bool primitive_mesh = false)
+        {
             this.segment = segment;
             this.root = root;
             this.parent = parent;
@@ -163,49 +151,59 @@ public class SkeletonGenerator
             children = new List<BoneTree>();
         }
 
-        public String Name() {
+        public String Name()
+        {
             return BoneAdd.literalStringMap[BoneAdd.categoryLiteralMap[this.boneCategory]] + "_" + this.limbIndex + "_" + this.boneIndex;
         }
 
-        public GameObject toGameObjectTree() {
+        public GameObject toGameObjectTree()
+        {
             go = this.ToGameObject();
-            foreach (BoneTree child in children) {
+            foreach (BoneTree child in children)
+            {
                 child.toGameObjectTree();
             }
             return go;
         }
 
-        public BoneTree findParent(Tuple<Vector3, Vector3> segment, bool inverse = false, bool excludeThis = false) {
-            if (!excludeThis && !inverse && this.segment.Item2 == segment.Item1) {
+        public BoneTree findParent(Tuple<Vector3, Vector3> segment, bool inverse = false, bool excludeThis = false)
+        {
+            if (!excludeThis && !inverse && this.segment.Item2 == segment.Item1)
+            {
                 return this;
             }
-            else if(!excludeThis && inverse && this.segment.Item1 == segment.Item1){
+            else if (!excludeThis && inverse && this.segment.Item1 == segment.Item1)
+            {
                 return this;
             }
-            foreach (BoneTree child in children) {
+            foreach (BoneTree child in children)
+            {
                 var res = child.findParent(segment, inverse);
-                if (res != null) {
+                if (res != null)
+                {
                     return res;
                 }
             }
             return null;
         }
-        public List<BoneTree> NodeList(){
+        public List<BoneTree> NodeList()
+        {
             List<BoneTree> l = new List<BoneTree>();
             l.Add(this);
-            foreach(var child in this.children) l.AddRange(child.NodeList());
+            foreach (var child in this.children) l.AddRange(child.NodeList());
             return l;
         }
 
-        private GameObject ToGameObject() {
+        private GameObject ToGameObject()
+        {
             Vector3 start = segment.Item1;
             Vector3 end = segment.Item2;
             float length = Vector3.Distance(start, end);
             bool isRoot = root == null;
 
             GameObject result = new GameObject(Name());
-            result.transform.rotation = Quaternion.LookRotation(end-start) * Quaternion.FromToRotation(-Vector3.forward, Vector3.up);//Quaternion.FromToRotation(start,end);
-            result.transform.position = start + ((end-start).normalized*(length/2));  
+            result.transform.rotation = Quaternion.LookRotation(end - start) * Quaternion.FromToRotation(-Vector3.forward, Vector3.up);//Quaternion.FromToRotation(start,end);
+            result.transform.position = start + ((end - start).normalized * (length / 2));
             //result.transform.localPosition = result.transform.localRotation * Vector3.forward * length * 1.5f;
 
             Rigidbody rb = result.AddComponent<Rigidbody>();
@@ -214,23 +212,26 @@ public class SkeletonGenerator
             Bone bone = result.AddComponent<Bone>();
             bone.category = boneCategory;
             bone.limbIndex = limbIndex;
-            bone.boneIndex = boneIndex; 
+            bone.boneIndex = boneIndex;
             bone.isRoot = false;
 
-            if (isRoot) {
+            if (isRoot)
+            {
                 Skeleton skeleton = result.AddComponent<Skeleton>();
                 skeleton.nBones += 1;
-            } else {
+            }
+            else
+            {
                 GameObject parentGo = parent.go;
                 result.transform.parent = parentGo.transform;
 
                 ConfigurableJoint joint = result.AddComponent<ConfigurableJoint>();
                 joint.rotationDriveMode = RotationDriveMode.Slerp;
-                if(subBoneCategory == BoneCategory.LowerArm) joint.axis = Vector3.forward;
+                if (subBoneCategory == BoneCategory.LowerArm) joint.axis = Vector3.forward;
                 joint.secondaryAxis = Vector3.forward;
                 //joint.transform.rotation = result.transform.rotation;
                 //joint.targetRotation = Quaternion.LookRotation(end-start);
-                joint.anchor = new Vector3(0,-length/2,0);
+                joint.anchor = new Vector3(0, -length / 2, 0);
 
                 joint.connectedBody = parentGo.GetComponent<Rigidbody>();
                 joint.connectedAnchor = parentGo.transform.position;
@@ -247,76 +248,90 @@ public class SkeletonGenerator
                 GameObject rootGo = root.go;
                 Skeleton skeleton = rootGo.GetComponent<Skeleton>();
 
-                if(alx.limit == 0 && ahx.limit == 0){
+                if (alx.limit == 0 && ahx.limit == 0)
+                {
                     joint.angularXMotion = ConfigurableJointMotion.Locked;
                 }
-                else{
+                else
+                {
                     joint.angularXMotion = ConfigurableJointMotion.Limited;
                     joint.lowAngularXLimit = alx;
                     joint.highAngularXLimit = ahx;
                     skeleton.nAngXMotLimited += 1;
                 }
 
-                if(ay.limit == 0){
+                if (ay.limit == 0)
+                {
                     joint.angularYMotion = ConfigurableJointMotion.Locked;
                 }
-                else{
+                else
+                {
                     joint.angularYMotion = ConfigurableJointMotion.Limited;
                     joint.angularYLimit = ay;
-                   skeleton.nAngYMotLimited += 1;
+                    skeleton.nAngYMotLimited += 1;
                 }
 
-                if(az.limit == 0){
+                if (az.limit == 0)
+                {
                     joint.angularZMotion = ConfigurableJointMotion.Locked;
                 }
-                else{
+                else
+                {
                     joint.angularZMotion = ConfigurableJointMotion.Limited;
                     joint.angularZLimit = az;
                     skeleton.nAngZMotLimited += 1;
                 }
 
-                skeleton.nBones+=1;
+                skeleton.nBones += 1;
                 skeleton.bonesByCategory[boneCategory].Add(result);
 
-                if(start != end){
+                if (start != end)
+                {
                     GameObject meshObject;
-                    if(boneCategory == BoneCategory.Hand){
+                    if (boneCategory == BoneCategory.Hand)
+                    {
                         float r = 0.1f;
-                        if(primitive_mesh){
+                        if (primitive_mesh)
+                        {
                             meshObject = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                            meshObject.transform.localScale = new Vector3(0.1f, 0.1f ,0.1f);
+                            meshObject.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
                             meshObject.transform.parent = result.transform;
                             meshObject.transform.position = result.transform.position;
                             meshObject.transform.rotation = result.transform.rotation;
                         }
 
-                        SphereCollider collider = result.AddComponent<SphereCollider>();                        
+                        SphereCollider collider = result.AddComponent<SphereCollider>();
                         // NOTE(markus): Needs to be scaled by anther factor of 0.1, not quite sure why
                         collider.radius = 0.1f * r;
                         rb.mass = BodyDensity * (3.0f * (float)Math.PI * r * r * r) / 4.0f;
                     }
-                    else if (boneCategory == BoneCategory.Foot) {
+                    else if (boneCategory == BoneCategory.Foot)
+                    {
                         Vector3 size = new Vector3(0.1f, length * 0.9f, 0.05f);
-                        if(primitive_mesh){
-                            meshObject = GameObject.CreatePrimitive(PrimitiveType.Cube);                        
+                        if (primitive_mesh)
+                        {
+                            meshObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
                             meshObject.transform.localScale = size;
 
                             meshObject.transform.parent = result.transform;
                             meshObject.transform.position = result.transform.position;
-                            meshObject.transform.rotation = result.transform.rotation; 
+                            meshObject.transform.rotation = result.transform.rotation;
                         }
 
                         BoxCollider collider = result.AddComponent<BoxCollider>();
                         collider.size = size;
                         rb.mass = BodyDensity * (size.x * size.y * size.z);
-                    } else {
-                        if(primitive_mesh){
+                    }
+                    else
+                    {
+                        if (primitive_mesh)
+                        {
                             meshObject = GameObject.CreatePrimitive(PrimitiveType.Capsule);
-                            meshObject.transform.localScale = new Vector3(0.1f,length*0.45f,0.1f);
+                            meshObject.transform.localScale = new Vector3(0.1f, length * 0.45f, 0.1f);
 
                             meshObject.transform.parent = result.transform;
                             meshObject.transform.position = result.transform.position;
-                            meshObject.transform.rotation = result.transform.rotation; 
+                            meshObject.transform.rotation = result.transform.rotation;
                         }
 
                         CapsuleCollider collider = result.AddComponent<CapsuleCollider>();
@@ -335,25 +350,30 @@ public class SkeletonGenerator
             return result;
         }
     }
-    
-    private static BoneTree GenerateBoneTree(LSystem.LSystem l, bool primitive_mesh = false) {
+
+    private static BoneTree GenerateBoneTree(LSystem.LSystem l, bool primitive_mesh = false)
+    {
         var segments = l.segments;
         if (segments.Count == 0) return null;
 
         Dictionary<BoneCategory, int> limbIndices = new();
         BoneTree root = new BoneTree(l.segments[0], null, null, l.fromRule[0], primitive_mesh);
 
-        foreach (var (segment, rule) in segments.Zip(l.fromRule, (a, b) => (a, b)).Skip(1)) {
+        foreach (var (segment, rule) in segments.Zip(l.fromRule, (a, b) => (a, b)).Skip(1))
+        {
             BoneTree parent = root.findParent(segment);
-            if(parent == null) parent = root.findParent(segment,inverse:true);
+            if (parent == null) parent = root.findParent(segment, inverse: true);
             BoneTree child = new BoneTree(segment, root, parent, rule, primitive_mesh);
             parent.children.Add(child);
 
-            if (child.boneCategory == parent.boneCategory) {
+            if (child.boneCategory == parent.boneCategory)
+            {
                 // Same Limb, keep limb index from parent, increment bone index
                 child.limbIndex = parent.limbIndex;
                 child.boneIndex = parent.boneIndex + 1;
-            } else {
+            }
+            else
+            {
                 // Start of new Limb, grab next limbIndex, increment dictionary for next limb
                 int limbIndex;
                 limbIndices.TryGetValue(child.boneCategory, out limbIndex);
@@ -366,12 +386,14 @@ public class SkeletonGenerator
         }
 
         //set sub categories for legs and arms, subcategories for other parts are the same as categories, assuming root is no leg or arm
-        foreach(var node in root.NodeList()){
-            if(node.boneCategory == BoneCategory.Leg && node.boneIndex != 0){
-                if(node.boneIndex % 2 == 1) node.subBoneCategory = BoneCategory.LowerLeg1;
+        foreach (var node in root.NodeList())
+        {
+            if (node.boneCategory == BoneCategory.Leg && node.boneIndex != 0)
+            {
+                if (node.boneIndex % 2 == 1) node.subBoneCategory = BoneCategory.LowerLeg1;
                 else node.subBoneCategory = BoneCategory.LowerLeg2;
             }
-            else if(node.boneCategory == BoneCategory.Arm && node.boneIndex != 0) node.subBoneCategory = BoneCategory.LowerArm;
+            else if (node.boneCategory == BoneCategory.Arm && node.boneIndex != 0) node.subBoneCategory = BoneCategory.LowerArm;
             else node.subBoneCategory = node.boneCategory;
             Debug.Log(node.subBoneCategory);
         }
@@ -443,11 +465,11 @@ public class SkeletonGenerator
             foreach (Segment s in limb)
             {
                 Tuple<Vector3, Vector3> segment = new(s.startPoint, s.endPoint);
-                
+
                 BoneTree parent = root.findParent(segment, true);
                 if (parent == null)
                     parent = root.findParent(segment, false);
-                Debug.Log(segment.Item1.ToString("F8") + "  " +  segment.Item2.ToString("F8"));
+                Debug.Log(segment.Item1.ToString("F8") + "  " + segment.Item2.ToString("F8"));
                 Debug.Log(root.children.Count);
                 BoneTree child = new BoneTree(segment, root, parent, new(limbIndices[category], BoneAdd.categoryLiteralMap[category]), primitive_mesh);
                 parent.children.Add(child);
@@ -463,13 +485,14 @@ public class SkeletonGenerator
         return root;
     }
 
-    public static GameObject Generate(LSystem.LSystem l, bool primitive_mesh = false) {
+    public static GameObject Generate(LSystem.LSystem l, bool primitive_mesh = false)
+    {
         BoneTree root = GenerateBoneTree(l, primitive_mesh);
         GameObject rootGo = root.toGameObjectTree();
-        GameObject rootParent = root.findParent(root.segment, inverse: true, excludeThis : true).go;
+        GameObject rootParent = root.findParent(root.segment, inverse: true, excludeThis: true).go;
         ConfigurableJoint joint = rootGo.AddComponent<ConfigurableJoint>();
-        float length = Vector3.Distance(root.segment.Item1, root.segment.Item2)/2;
-        joint.anchor = new Vector3(0,-length,0);
+        float length = Vector3.Distance(root.segment.Item1, root.segment.Item2) / 2;
+        joint.anchor = new Vector3(0, -length, 0);
         joint.connectedBody = rootParent.GetComponent<Rigidbody>();
         joint.secondaryAxis = Vector3.forward;
         joint.xMotion = ConfigurableJointMotion.Locked;
@@ -481,29 +504,35 @@ public class SkeletonGenerator
         SoftJointLimit ay = BoneAdd.defaultYLimit[root.subBoneCategory];
         SoftJointLimit az = BoneAdd.defaultZLimit[root.subBoneCategory];
 
-        if(alx.limit == 0 && ay.limit == 0){
+        if (alx.limit == 0 && ay.limit == 0)
+        {
             joint.xMotion = ConfigurableJointMotion.Locked;
         }
-        else{
+        else
+        {
             joint.angularXMotion = ConfigurableJointMotion.Limited;
             joint.lowAngularXLimit = alx;
             joint.highAngularXLimit = ahx;
             root.go.GetComponent<Skeleton>().nAngXMotLimited += 1;
         }
 
-        if(ay.limit == 0){
+        if (ay.limit == 0)
+        {
             joint.angularYMotion = ConfigurableJointMotion.Locked;
         }
-        else{
+        else
+        {
             joint.angularYMotion = ConfigurableJointMotion.Limited;
             joint.angularYLimit = ay;
             root.go.GetComponent<Skeleton>().nAngYMotLimited += 1;
         }
 
-        if(az.limit == 0){
+        if (az.limit == 0)
+        {
             joint.angularZMotion = ConfigurableJointMotion.Locked;
         }
-        else{
+        else
+        {
             joint.angularZMotion = ConfigurableJointMotion.Limited;
             joint.angularZLimit = az;
             root.go.GetComponent<Skeleton>().nAngZMotLimited += 1;
@@ -513,16 +542,17 @@ public class SkeletonGenerator
         Skeleton skeleton = rootGo.GetComponent<Skeleton>();
         skeleton.bonesByCategory[root.boneCategory].Add(rootGo);
         rootGo.GetComponent<Bone>().isRoot = true;
-        if(primitive_mesh){
+        if (primitive_mesh)
+        {
             GameObject meshObject = GameObject.CreatePrimitive(PrimitiveType.Capsule);
-            meshObject.transform.localScale = new Vector3(0.1f,length*0.45f,0.1f);
+            meshObject.transform.localScale = new Vector3(0.1f, length * 0.45f, 0.1f);
             meshObject.transform.parent = rootGo.transform;
             meshObject.transform.position = rootGo.transform.position;
-            meshObject.transform.rotation = rootGo.transform.rotation; 
+            meshObject.transform.rotation = rootGo.transform.rotation;
         }
-//joint.connectedAnchor = parentGo.transform.position;
+        //joint.connectedAnchor = parentGo.transform.position;
 
         return rootGo;
-        
+
     }
 }

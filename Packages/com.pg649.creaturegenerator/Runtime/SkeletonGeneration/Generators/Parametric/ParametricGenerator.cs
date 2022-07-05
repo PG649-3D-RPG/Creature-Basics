@@ -50,10 +50,10 @@ public class ParametricGenerator {
         BoneDefinition neck = buildNeck(neckAttachmentBone);
         buildHead(neck);
 
-        attachLegs(ref legs, ref root);
+        attachLegs(legs, root);
 
-        //armAttachmentBone.LinkChild(arms[0]);
-        //armAttachmentBone.LinkChild(arms[1]);
+        foreach (var arm in arms)
+            armAttachmentBone.LinkChild(arm);
 
         return new SkeletonDefinition(root, new LimitTable(humanoidJointLimits));
     }
@@ -167,7 +167,6 @@ public class ParametricGenerator {
                 for (int j = -1; j < 2; j+=2)
                 {
                     BoneDefinition leg = buildLeg(heights, thicknesses);
-                    leg.AttachmentHint.AttachmentPoint = AttachmentPoint.ProximalPoint;
                     legs.Add(leg);
                 }
             }
@@ -220,9 +219,9 @@ public class ParametricGenerator {
         torsoSplits.Sort();
 
         if(mode == Mode.Biped || mode == Mode.Quadruped) {
-            float thicknessBottom = Random.Range(parameters.minTorsoThickness, parameters.maxTorsoSize);
-            float thicknessMiddle = Random.Range(parameters.minTorsoThickness, parameters.maxTorsoSize);
-            float thicknessTop = Random.Range(parameters.minTorsoThickness, parameters.maxTorsoSize);
+            float thicknessBottom = Random.Range(parameters.minTorsoThickness, parameters.maxTorsoThickness);
+            float thicknessMiddle = Random.Range(parameters.minTorsoThickness, parameters.maxTorsoThickness);
+            float thicknessTop = Random.Range(parameters.minTorsoThickness, parameters.maxTorsoThickness);
             BoneDefinition bottom = buildTorsoPart(torsoSplits[0], thicknessBottom);
             BoneDefinition middle = buildTorsoPart(torsoSplits[1] - torsoSplits[0], thicknessMiddle);
             BoneDefinition top = buildTorsoPart(torsoSize - torsoSplits[1], thicknessTop);
@@ -308,20 +307,29 @@ public class ParametricGenerator {
         return head;
     }
 
-    private void attachLegs(ref List<BoneDefinition> legs, ref BoneDefinition torso)
+    private void attachLegs(List<BoneDefinition> legs, BoneDefinition torso)
     {
-        legs[0].AttachmentHint.Offset = new(-torso.Thickness, 0, 0);
-        torso.LinkChild(legs[0]);
-        torso.
-        legs[1].AttachmentHint.Offset = new(torso.Thickness, 0, 0);
-        torso.LinkChild(legs[1]);
+        buildHip(torso, legs[0], Vector3.left);
+        buildHip(torso, legs[1], Vector3.right);
 
         if (mode == Mode.Quadruped)
         {
-            legs[2].AttachmentHint.Offset = new(-armAttachmentBone.Thickness, 0, 0);
-            torso.LinkChild(legs[2]);
-            legs[3].AttachmentHint.Offset = new(armAttachmentBone.Thickness, 0, 0);
-            torso.LinkChild(legs[3]);
+            buildHip(neckAttachmentBone, legs[2], Vector3.left, AttachmentPoint.DistalPoint);
+            buildHip(neckAttachmentBone, legs[3], Vector3.right, AttachmentPoint.DistalPoint);
         }
+    }
+    
+    private BoneDefinition buildHip(BoneDefinition attachTo, BoneDefinition leg, Vector3 proximalAxis, AttachmentPoint attachmentPoint = AttachmentPoint.ProximalPoint)
+    {
+        BoneDefinition hip = new();
+        hip.Length = attachTo.Thickness;
+        hip.ProximalAxis = proximalAxis;
+        hip.VentralAxis = Vector3.forward;
+        hip.Category = BoneCategory.Hip;
+        hip.Thickness = 0f; // For now to avoid metaball generation around hip
+        hip.AttachmentHint.AttachmentPoint = attachmentPoint;
+        attachTo.LinkChild(hip);
+        hip.LinkChild(leg);
+        return hip;
     }
 }

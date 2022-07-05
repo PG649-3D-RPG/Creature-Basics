@@ -14,6 +14,7 @@ public class SkeletonTest : MonoBehaviour
     [Tooltip("Generate metaball mesh")]
     public bool metaball_mesh = true;
     // Start is called before the first frame update
+    private GameObject orientationCube;
     void Start()
     {
         LSystemEditor ed = gameObject.GetComponent<LSystemEditor>();
@@ -23,17 +24,12 @@ public class SkeletonTest : MonoBehaviour
             GameObject boneTree = SkeletonGenerator.Generate(l,primitive_mesh);
             boneTree.transform.parent = gameObject.transform;
             gameObject.transform.Translate(new Vector3(0,0.025f,0));
-            /*GameObject meshObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            meshObject.transform.parent = boneTree.transform;
-            float min_z = 0;
-            foreach(var segment in l.segments){
-            min_z = segment.Item1.x < min_z ? segment.Item1.x : min_z;
-            min_z = segment.Item1.x < min_z ? segment.Item2.x : min_z;
-            }
-            meshObject.transform.Translate(new Vector3(0,.05f,1.1f*min_z));
-            meshObject.transform.localScale = new Vector3(0.1f,0.1f,0.1f);
-            meshObject.name = "orientation cube";*/
+            
         }
+        Transform oc = transform.Find("orientation cube");
+
+        orientationCube = oc == null ? CreateOrientationCube(gameObject) : oc.gameObject;
+        
         if(metaball_mesh){
             Segment[] segments_ = new Segment[segments.Count];
             for (int i = 0; i < segments.Count; i++){
@@ -51,6 +47,21 @@ public class SkeletonTest : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        Transform t = GetComponentsInChildren<Transform>()[1];
+        Vector3 pos = t.position;
+        pos.y = 0;
+        orientationCube.transform.position = pos; 
+        orientationCube.transform.rotation = t.rotation;
+    }
+
+    GameObject CreateOrientationCube(GameObject parent){
+        GameObject orientationCube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        Destroy(orientationCube.GetComponent<Collider>());
+        orientationCube.transform.parent = parent.transform;
+        orientationCube.transform.localScale = new Vector3(0.1f,0.1f,0.1f);
+        orientationCube.name = "orientation cube";
+        return orientationCube;
     }
 }
+
+

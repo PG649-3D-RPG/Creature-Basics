@@ -41,7 +41,7 @@ public class ParametricGenerator {
             mode = Mode.Quadruped;
         }
         // Force biped until other code path is implemented
-        mode = Mode.Quadruped;
+        mode = Mode.Biped;
 
         List<BoneDefinition> legs = buildLegs();
         List<BoneDefinition> arms = buildArms();
@@ -109,7 +109,6 @@ public class ParametricGenerator {
         part.ProximalAxis = Vector3.up;
         part.VentralAxis = Vector3.forward;
         part.Category = BoneCategory.Arm;
-        part.AttachmentHint = new();
         part.Thickness = thickness;
 
         return part;
@@ -132,8 +131,6 @@ public class ParametricGenerator {
             BoneDefinition leftLeg = buildLeg(heights, thicknesses);
             BoneDefinition rightLeg = buildLeg(heights, thicknesses);
 
-            leftLeg.AttachmentHint.AttachmentPoint = AttachmentPoint.ProximalPoint;
-            rightLeg.AttachmentHint.AttachmentPoint = AttachmentPoint.ProximalPoint;
             legs.Add(leftLeg);
             legs.Add(rightLeg);
         }

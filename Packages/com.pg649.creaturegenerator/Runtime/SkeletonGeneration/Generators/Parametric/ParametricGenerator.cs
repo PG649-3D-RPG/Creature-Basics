@@ -40,8 +40,6 @@ public class ParametricGenerator {
         } else {
             mode = Mode.Quadruped;
         }
-        // Force biped until other code path is implemented
-        mode = Mode.Biped;
 
         List<BoneDefinition> legs = buildLegs();
         List<BoneDefinition> arms = buildArms();

@@ -52,11 +52,11 @@ public class GenerateParametric : MonoBehaviour
             Physics.autoSimulation = false;
         }
 
-        /*if (metaball_mesh)
+        if (metaball_mesh)
         {
             MeshGenerator meshGen = GetComponent<MeshGenerator>();
-            meshGen.Generate(c.makeMetaball());
-        }*/
+            meshGen.Generate(Metaball.BuildFromSkeleton(skeletonDefinition));
+        }
     }
 
     // Update is called once per frame

@@ -11,22 +11,38 @@ public class SkeletonAssembler {
 
     public static bool attachPrimitiveMesh = false;
 
-    public static  GameObject Assemble(SkeletonDefinition def) {
-        Queue<BoneDefinition> todo = new();
+    public static  GameObject Assemble(SkeletonDefinition skeleton) {
         Dictionary<BoneDefinition, GameObject> objects = new();
-        objects.Add(def.RootBone, toGameObject(def.RootBone, null, null, def.JointLimits));
-        foreach (var bone in def.RootBone.ChildBones) {
-            todo.Enqueue(bone);
-        }
+        // Walk over SkeletonDefinition to create gameobjects.
+        pass(skeleton.RootBone, def => {
+            GameObject parent = (def.ParentBone != null && objects.ContainsKey(def.ParentBone)) ? objects[def.ParentBone] : null;
+            GameObject root = objects.ContainsKey(skeleton.RootBone) ? objects[skeleton.RootBone] : null;
+            objects.Add(def, toGameObject(def, parent, root, skeleton.JointLimits));
+        });
+
+        // Walk over SkeletonDefinition to rotate limbs into default positions.
+        // Has to be done in a separate pass, so that rotation is not undone by
+        // rotating bones towards their prescribed ventral axis.
+        pass(skeleton.RootBone, def => {
+            GameObject current = objects[def];
+            current.transform.Rotate(def.AttachmentHint.Rotation.GetValueOrDefault().eulerAngles);
+        });
+
+        return objects[skeleton.RootBone];
+    }
+
+    private static void pass(BoneDefinition root, Action<BoneDefinition> f) {
+        Queue<BoneDefinition> todo = new();
+        todo.Enqueue(root);
         while (todo.Count > 0) {
             BoneDefinition current = todo.Dequeue();
-            objects.Add(current, toGameObject(current, objects[current.ParentBone], objects[def.RootBone], def.JointLimits));
+
+            f(current);
 
             foreach (var child in current.ChildBones) {
                 todo.Enqueue(child);
             }
         }
-        return objects[def.RootBone];
     }
 
 

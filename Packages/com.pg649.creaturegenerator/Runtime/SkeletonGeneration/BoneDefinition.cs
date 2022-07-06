@@ -50,9 +50,12 @@ public class AttachmentHint {
     public Vector3? VentralDirection;
     public Vector3? Offset;
 
+    public Quaternion? Rotation;
+
     public AttachmentHint() {
         AttachmentPoint =  AttachmentPoint.DistalPoint;
         VentralDirection = null;
         Offset = null;
+        Rotation = null;
     }
 }

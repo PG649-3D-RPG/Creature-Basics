@@ -49,7 +49,6 @@ public class AttachmentHint {
     public AttachmentPoint AttachmentPoint;
     public Vector3? VentralDirection;
     public Vector3? Offset;
-
     public Quaternion? Rotation;
 
     public AttachmentHint() {

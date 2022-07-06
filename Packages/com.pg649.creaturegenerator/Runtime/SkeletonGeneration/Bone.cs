@@ -18,6 +18,8 @@ public class Bone : MonoBehaviour
     /// Taking an arm as an example, the bone connected to the torso has boneIndex 0, the bone below that has boneIndex 1, and so on.
     public int boneIndex;
 
+    public bool isRoot;
+
     public Vector3 WorldProximalPoint() {
         return gameObject.transform.position;
     }

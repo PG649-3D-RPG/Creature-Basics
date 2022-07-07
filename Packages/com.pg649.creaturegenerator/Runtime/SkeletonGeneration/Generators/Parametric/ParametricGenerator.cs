@@ -75,9 +75,11 @@ public class ParametricGenerator {
 
             leftRoot.AttachmentHint.VentralDirection = Vector3.right;
             leftRoot.AttachmentHint.Offset = new Vector3(-0.75f, 0.0f, 0.0f);
+            leftRoot.AttachmentHint.Rotation = Quaternion.Euler(-90.0f, 0.0f, 0.0f);
 
             rightRoot.AttachmentHint.VentralDirection = Vector3.left;
             rightRoot.AttachmentHint.Offset = new Vector3(0.75f, 0.0f, 0.0f);
+            rightRoot.AttachmentHint.Rotation = Quaternion.Euler(90.0f, 0.0f, 0.0f);
 
             arms.Add(leftRoot);
             arms.Add(rightRoot);

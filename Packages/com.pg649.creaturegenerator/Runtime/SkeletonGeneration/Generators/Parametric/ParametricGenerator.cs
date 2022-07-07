@@ -244,6 +244,7 @@ public class ParametricGenerator {
             part.ProximalAxis = Vector3.down;
             part.VentralAxis = Vector3.forward;
         }
+        // Construct Torso pointing forward, with front side facing down.
         else if (mode == Mode.Quadruped)
         {
             part.ProximalAxis = Vector3.back;

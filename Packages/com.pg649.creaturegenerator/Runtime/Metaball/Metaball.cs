@@ -81,7 +81,7 @@ public class Metaball
         return metaball;
     }
 
-    public static Metaball BuildFromSkeleton(SkeletonDefinition skeletonDefinition, MetaballFunction function = MetaballFunction.Polynomial2)
+    public static Metaball BuildFromSkeleton(SkeletonDefinition skeletonDefinition, MetaballFunction function = MetaballFunction.Exponential)
     {
         Metaball metaball = new Metaball();
 
@@ -95,17 +95,18 @@ public class Metaball
         {
             BoneDefinition bone = boneStk.Pop();
             Vector3 proximalPos = proximalPositions.Pop();
-            Vector3 distalPos = proximalPos + bone.Length * bone.VentralAxis;
+            Vector3 distalPos = proximalPos - bone.Length * bone.ProximalAxis;
             foreach(var child in bone.ChildBones)
             {
                 boneStk.Push(child);
-                if (bone.AttachmentHint.AttachmentPoint == AttachmentPoint.ProximalPoint)
+                if (child.AttachmentHint.AttachmentPoint == AttachmentPoint.ProximalPoint)
                     proximalPositions.Push(proximalPos);
                 else
                     proximalPositions.Push(distalPos);
             }
 
             metaball.AddCapsule(new(proximalPos, distalPos, bone.Thickness));
+            Debug.DrawRay(proximalPos, 0.9f*(distalPos-proximalPos), Color.red, 999999f, false);
         }
         return metaball;
     }

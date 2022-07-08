@@ -28,8 +28,8 @@ public class PrefabCreator : MonoBehaviour
             }
 
             // set default values if custom values were not set
-            path = path != "" ? path : "Packages/com.pg649.creaturegenerator/Runtime/SkeletonFromLSystem/Prefabs/";
-            name = name != "" ? name : gameObject.name;
+            if (path == "") path = "Packages/com.pg649.creaturegenerator/Runtime/SkeletonFromLSystem/Prefabs/";
+            if (name == "") name = gameObject.name;
 
             // Create folder if it does not exist and set path for exported prefab.
             if (!Directory.Exists(path)) CreateFoldersRecursively(path);
@@ -70,14 +70,18 @@ public class PrefabCreator : MonoBehaviour
     /// </summary>
     /// <param name="path">Path alongside which the folders will be created. Separated by /</param>
     /// <returns></returns>
-    private static string CreateFoldersRecursively(string path)
+    private static void CreateFoldersRecursively(string path)
     {
+        path = path.Trim();
+        if (path.EndsWith('/')) path = path[..^1]; // remove trailing /
         string[] folders = path.Split('/');
-        string last = "";
+
         for (int i = 1; i < folders.Length; i++)
         {
-            last = AssetDatabase.CreateFolder(folders[i - 1], folders[i]);
+            // create parent folder path
+            string parent = folders[0];
+            for (int j = 1; j < i; j++) parent += "/" + folders[j];
+            if (!Directory.Exists(parent + "/" + folders[i])) AssetDatabase.CreateFolder(parent, folders[i]);
         }
-        return last;
     }
 }

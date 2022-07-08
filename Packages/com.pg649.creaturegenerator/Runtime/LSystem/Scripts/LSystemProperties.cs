@@ -5,18 +5,18 @@
     /// </summary>
     public struct LSystemProperties
     {
-        public readonly float distance;
-        public readonly short angle;
-        public readonly INITIAL_DIRECTION initialDirection;
-        public readonly float thickness;
-        public readonly uint crossSections;
-        public readonly uint crossSectionDivisions;
+        public float distance;
+        public short angle;
+        public INITIAL_DIRECTION initialDirection;
+        public float thickness;
+        public uint crossSections;
+        public uint crossSectionDivisions;
 
-        public readonly bool translatePoints;
-        public readonly string startString;
-        public readonly uint iterations;
+        public bool translatePoints;
+        public string startString;
+        public uint iterations;
 
-        public readonly string[] rules;
+        public string[] rules;
 
         public LSystemProperties(float distance, short angle, INITIAL_DIRECTION initialDirection, float thickness, uint crossSections, uint crossSectionDivisions, bool translatePoints, string startString, uint iterations, string[] rules)
         {

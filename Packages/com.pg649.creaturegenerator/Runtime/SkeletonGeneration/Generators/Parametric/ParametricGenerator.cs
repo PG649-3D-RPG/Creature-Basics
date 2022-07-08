@@ -40,8 +40,6 @@ public class ParametricGenerator {
         } else {
             mode = Mode.Quadruped;
         }
-        // Force biped until other code path is implemented
-        mode = Mode.Biped;
 
         List<BoneDefinition> legs = buildLegs();
         List<BoneDefinition> arms = buildArms();
@@ -50,11 +48,10 @@ public class ParametricGenerator {
         BoneDefinition neck = buildNeck(neckAttachmentBone);
         buildHead(neck);
 
-        root.LinkChild(legs[0]);
-        root.LinkChild(legs[1]);
+        attachLegs(legs, root);
 
-        armAttachmentBone.LinkChild(arms[0]);
-        armAttachmentBone.LinkChild(arms[1]);
+        foreach (var arm in arms)
+            armAttachmentBone.LinkChild(arm);
 
         return new SkeletonDefinition(root, new LimitTable(humanoidJointLimits));
     }
@@ -78,9 +75,11 @@ public class ParametricGenerator {
 
             leftRoot.AttachmentHint.VentralDirection = Vector3.right;
             leftRoot.AttachmentHint.Offset = new Vector3(-0.75f, 0.0f, 0.0f);
+            leftRoot.AttachmentHint.Rotation = Quaternion.Euler(-90.0f, 0.0f, 0.0f);
 
             rightRoot.AttachmentHint.VentralDirection = Vector3.left;
             rightRoot.AttachmentHint.Offset = new Vector3(0.75f, 0.0f, 0.0f);
+            rightRoot.AttachmentHint.Rotation = Quaternion.Euler(90.0f, 0.0f, 0.0f);
 
             arms.Add(leftRoot);
             arms.Add(rightRoot);
@@ -110,7 +109,6 @@ public class ParametricGenerator {
         part.ProximalAxis = Vector3.up;
         part.VentralAxis = Vector3.forward;
         part.Category = BoneCategory.Arm;
-        part.AttachmentHint = new();
         part.Thickness = thickness;
 
         return part;
@@ -133,14 +131,43 @@ public class ParametricGenerator {
             BoneDefinition leftLeg = buildLeg(heights, thicknesses);
             BoneDefinition rightLeg = buildLeg(heights, thicknesses);
 
-            leftLeg.AttachmentHint.Offset = new Vector3(-0.5f, 0.0f, 0.0f);
-            leftLeg.AttachmentHint.AttachmentPoint = AttachmentPoint.ProximalPoint;
-            rightLeg.AttachmentHint.Offset = new Vector3(0.5f, 0.0f, 0.0f);
-            rightLeg.AttachmentHint.AttachmentPoint = AttachmentPoint.ProximalPoint;
             legs.Add(leftLeg);
             legs.Add(rightLeg);
         }
         // TODO: Port quadruped code
+        else if (mode == Mode.Quadruped)
+        {
+            // quadruped
+            float frontLegHeight = Random.Range(parameters.minLegSize, parameters.maxLegSize);
+            float hindLegHeight = Random.Range(parameters.minLegSize, parameters.maxLegSize);
+            //legHeights = new List<float>() { hindLegHeight, frontLegHeight };
+
+            for (int i = 0; i < 2; i++)
+            {
+                float height = hindLegHeight;
+                if (i == 1)
+                    height = frontLegHeight;
+                float legSplit = Random.Range(0.1f * height, 0.5f * height);
+                float lowerLegSplit = Random.Range(legSplit + 0.25f * (height - legSplit), legSplit + 0.75f * (height - legSplit));
+                float upperLegSplit = Random.Range(0.25f * legSplit, 0.75f * legSplit);
+
+                List<float> heights = new() {upperLegSplit, legSplit-upperLegSplit, lowerLegSplit-legSplit, height-lowerLegSplit};
+
+                List<float> thicknesses = new();
+
+                thicknesses.Add(Random.Range(parameters.minLegThickness, parameters.maxLegThickness));
+                thicknesses.Add(Random.Range(parameters.minLegThickness, parameters.maxLegThickness));
+                thicknesses.Add(Random.Range(parameters.minLegThickness, parameters.maxLegThickness));
+                thicknesses.Add(Random.Range(parameters.minLegThickness, parameters.maxLegThickness));
+                thicknesses.Sort();
+
+                for (int j = -1; j < 2; j+=2)
+                {
+                    BoneDefinition leg = buildLeg(heights, thicknesses);
+                    legs.Add(leg);
+                }
+            }
+        }
         return legs;
     }
 
@@ -188,10 +215,10 @@ public class ParametricGenerator {
         } while (torsoSplits.Count < 2);
         torsoSplits.Sort();
 
-        if(mode == Mode.Biped) {
-            float thicknessBottom = Random.Range(parameters.minTorsoThickness, parameters.maxTorsoSize);
-            float thicknessMiddle = Random.Range(parameters.minTorsoThickness, parameters.maxTorsoSize);
-            float thicknessTop = Random.Range(parameters.minTorsoThickness, parameters.maxTorsoSize);
+        if(mode == Mode.Biped || mode == Mode.Quadruped) {
+            float thicknessBottom = Random.Range(parameters.minTorsoThickness, parameters.maxTorsoThickness);
+            float thicknessMiddle = Random.Range(parameters.minTorsoThickness, parameters.maxTorsoThickness);
+            float thicknessTop = Random.Range(parameters.minTorsoThickness, parameters.maxTorsoThickness);
             BoneDefinition bottom = buildTorsoPart(torsoSplits[0], thicknessBottom);
             BoneDefinition middle = buildTorsoPart(torsoSplits[1] - torsoSplits[0], thicknessMiddle);
             BoneDefinition top = buildTorsoPart(torsoSize - torsoSplits[1], thicknessTop);
@@ -204,7 +231,6 @@ public class ParametricGenerator {
 
             return bottom;
         }
-        // Unreachable, as long as mode is forced to biped.
         return null;
     }
 
@@ -213,8 +239,16 @@ public class ParametricGenerator {
 
         part.Length = length;
         // Construct Torso pointing down, with front side facing forward.
-        part.ProximalAxis = Vector3.down;
-        part.VentralAxis = Vector3.forward;
+        if (mode == Mode.Biped)
+        {
+            part.ProximalAxis = Vector3.down;
+            part.VentralAxis = Vector3.forward;
+        }
+        else if (mode == Mode.Quadruped)
+        {
+            part.ProximalAxis = Vector3.back;
+            part.VentralAxis = Vector3.down;
+        }
         part.Category = BoneCategory.Torso;
         part.AttachmentHint = new();
         part.Thickness = thickness;
@@ -268,5 +302,31 @@ public class ParametricGenerator {
         head.Thickness = headSize;
 
         return head;
+    }
+
+    private void attachLegs(List<BoneDefinition> legs, BoneDefinition torso)
+    {
+        buildHip(torso, legs[0], Vector3.left);
+        buildHip(torso, legs[1], Vector3.right);
+
+        if (mode == Mode.Quadruped)
+        {
+            buildHip(neckAttachmentBone, legs[2], Vector3.left, AttachmentPoint.DistalPoint);
+            buildHip(neckAttachmentBone, legs[3], Vector3.right, AttachmentPoint.DistalPoint);
+        }
+    }
+    
+    private BoneDefinition buildHip(BoneDefinition attachTo, BoneDefinition leg, Vector3 proximalAxis, AttachmentPoint attachmentPoint = AttachmentPoint.ProximalPoint)
+    {
+        BoneDefinition hip = new();
+        hip.Length = attachTo.Thickness;
+        hip.ProximalAxis = proximalAxis;
+        hip.VentralAxis = Vector3.forward;
+        hip.Category = BoneCategory.Hip;
+        hip.Thickness = 0f; // For now to avoid metaball generation around hip
+        hip.AttachmentHint.AttachmentPoint = attachmentPoint;
+        attachTo.LinkChild(hip);
+        hip.LinkChild(leg);
+        return hip;
     }
 }

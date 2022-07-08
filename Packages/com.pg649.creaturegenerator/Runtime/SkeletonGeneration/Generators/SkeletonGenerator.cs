@@ -67,7 +67,7 @@ public static class BoneAdd
     public static readonly Dictionary<BoneCategory, SoftJointLimit> defaultHighXLimit = new Dictionary<BoneCategory, SoftJointLimit>{
         {BoneCategory.Arm, new SoftJointLimit() {limit = 75}},
         {BoneCategory.LowerArm, new SoftJointLimit() {limit = 90}},
-        {BoneCategory.Leg, new SoftJointLimit() {limit = 145}},
+        {BoneCategory.Leg, new SoftJointLimit() {limit = 115}},
         {BoneCategory.LowerLeg1,new SoftJointLimit() {limit = 0}},
         {BoneCategory.LowerLeg2, new SoftJointLimit() {limit = 90}},
         {BoneCategory.Torso, new SoftJointLimit() {limit = 15}},
@@ -80,7 +80,7 @@ public static class BoneAdd
     };
 
     public static readonly Dictionary<BoneCategory, SoftJointLimit> defaultYLimit = new Dictionary<BoneCategory, SoftJointLimit>{
-        {BoneCategory.Arm, new SoftJointLimit() {limit = 0}},
+        {BoneCategory.Arm, new SoftJointLimit() {limit =45}},
         {BoneCategory.LowerArm, new SoftJointLimit() {limit = 0}},
         {BoneCategory.Leg, new SoftJointLimit() {limit = 0}}, //10
         {BoneCategory.LowerLeg1,new SoftJointLimit() {limit = 0}},
@@ -96,18 +96,17 @@ public static class BoneAdd
     public static readonly Dictionary<BoneCategory, SoftJointLimit> defaultZLimit = new Dictionary<BoneCategory, SoftJointLimit>{
         {BoneCategory.Arm, new SoftJointLimit() {limit = 0}}, //45
         {BoneCategory.LowerArm, new SoftJointLimit() {limit = 0}},
-        {BoneCategory.Leg, new SoftJointLimit() {limit = 0}}, //15
+        {BoneCategory.Leg, new SoftJointLimit() {limit = 15}}, //15
         {BoneCategory.LowerLeg1,new SoftJointLimit() {limit = 0}},
         {BoneCategory.LowerLeg2, new SoftJointLimit() {limit = 0}},
         {BoneCategory.Torso, new SoftJointLimit() {limit = 0}}, //45
         {BoneCategory.Head, new SoftJointLimit() {limit = 0}}, //45
-        {BoneCategory.Hand, new SoftJointLimit() {limit = 0}}, //45
+        {BoneCategory.Hand, new SoftJointLimit() {limit = 45}}, //45
         {BoneCategory.Foot, new SoftJointLimit() {limit = 0}},
         {BoneCategory.Shoulder, new SoftJointLimit() {limit = 0}}, //5
         {BoneCategory.Hip, new SoftJointLimit() {limit = 0}}, //5
         {BoneCategory.Other, new SoftJointLimit() {limit = 0}}
     };
-
 }
 public class SkeletonGenerator
 {
@@ -412,6 +411,8 @@ public class SkeletonGenerator
         limbs.Add(new(BoneCategory.Torso, c.torso));
         foreach (var leg in c.legs)
             limbs.Add(new(BoneCategory.Leg, leg));
+        foreach (var foot in c.feet)
+            limbs.Add(new(BoneCategory.Foot, new List<Segment> { foot }));
         limbs.Add(new(BoneCategory.Head, c.neck));
 
         // initialize all limb indices with 0

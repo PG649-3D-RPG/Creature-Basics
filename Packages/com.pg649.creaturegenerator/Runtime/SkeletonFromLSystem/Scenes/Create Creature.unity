@@ -327,6 +327,7 @@ GameObject:
   - component: {fileID: 1734616960}
   - component: {fileID: 1734616959}
   - component: {fileID: 1734616962}
+  - component: {fileID: 1734616963}
   m_Layer: 0
   m_Name: Create Creature
   m_TagString: Untagged
@@ -412,6 +413,18 @@ MonoBehaviour:
   enableDQSkinner: 1
   gridResolution: 64
   size: 4
+--- !u!114 &1734616963
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1734616957}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1290768e921aa433b904e35211ad4d76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1816960699
 GameObject:
   m_ObjectHideFlags: 0

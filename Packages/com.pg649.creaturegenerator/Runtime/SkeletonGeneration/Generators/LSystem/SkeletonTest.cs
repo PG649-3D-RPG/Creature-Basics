@@ -1,13 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using LSystem;
 using System.Linq;
 using System;
-using System.Collections.Generic;
 using LSystem;
 using MarchingCubesProject;
-using UnityEngine;
 
 public class SkeletonTest : MonoBehaviour
 {

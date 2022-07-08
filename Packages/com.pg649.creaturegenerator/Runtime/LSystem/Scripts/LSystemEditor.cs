@@ -104,7 +104,7 @@ namespace LSystem
 
             string path = EditorUtility.SaveFilePanel(
             "Save texture as JSON",
-            "Packages" + Path.DirectorySeparatorChar + "com.pg649.creaturegenerator",
+            "Packages/com.pg649.creaturegenerator",
             go.name + " lsystem",
             "json");// absolute path
 
@@ -116,7 +116,7 @@ namespace LSystem
                 writer.WriteLine(jsonData);
                 writer.Close();
                 Debug.Log("JSON was saved successfully at: " + path);
-                var projectpath = Application.dataPath[..Application.dataPath.LastIndexOf(Path.DirectorySeparatorChar)];
+                var projectpath = Application.dataPath[..Application.dataPath.LastIndexOf("/")];
                 // Re-import the file to update the reference in the editor
                 if (path.StartsWith(projectpath)) // if path is under project make path relative to project to import into assetDatabase
                 {
@@ -152,7 +152,7 @@ namespace LSystem
 
             string path = EditorUtility.OpenFilePanel(
             "Load L-System settings JSON",
-            "Packages" + Path.DirectorySeparatorChar + "com.pg649.creaturegenerator",
+            "Packages/com.pg649.creaturegenerator",
             "json");// absolute path
 
             if (path.Length != 0)

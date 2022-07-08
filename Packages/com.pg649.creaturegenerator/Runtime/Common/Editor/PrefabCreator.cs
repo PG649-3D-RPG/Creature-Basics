@@ -26,12 +26,12 @@ public class PrefabCreator : MonoBehaviour
 
         string path = EditorUtility.SaveFilePanel(
                     "Save Prefab",
-                    "Packages" + Path.DirectorySeparatorChar + "com.pg649.creaturegenerator",
+                    "Packages/com.pg649.creaturegenerator",
                     gameObject.name,
                     "prefab");// absolute path
 
 
-        var projectpath = Application.dataPath[..Application.dataPath.LastIndexOf(Path.DirectorySeparatorChar)];
+        var projectpath = Application.dataPath[..Application.dataPath.LastIndexOf("/")];
         if (!path.StartsWith(projectpath))
         {
             EditorUtility.DisplayDialog(
@@ -77,15 +77,15 @@ public class PrefabCreator : MonoBehaviour
     private static void CreateFoldersRecursively(string path)
     {
         path = path.Trim();
-        if (path.EndsWith(Path.DirectorySeparatorChar)) path = path[..^1]; // remove trailing /
-        string[] folders = path.Split(Path.DirectorySeparatorChar);
+        if (path.EndsWith("/")) path = path[..^1]; // remove trailing /
+        string[] folders = path.Split("/");
 
         for (int i = 1; i < folders.Length; i++)
         {
             // create parent folder path
             string parent = folders[0];
-            for (int j = 1; j < i; j++) parent += Path.DirectorySeparatorChar + folders[j];
-            if (!Directory.Exists(parent + Path.DirectorySeparatorChar + folders[i])) AssetDatabase.CreateFolder(parent, folders[i]);
+            for (int j = 1; j < i; j++) parent += "/" + folders[j];
+            if (!Directory.Exists(parent + "/" + folders[i])) AssetDatabase.CreateFolder(parent, folders[i]);
         }
     }
 }

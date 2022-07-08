@@ -105,7 +105,7 @@ namespace LSystem
             string path = EditorUtility.SaveFilePanel(
             "Save texture as JSON",
             "Packages" + Path.DirectorySeparatorChar + "com.pg649.creaturegenerator",
-            go.name + " lsystem.json",
+            go.name + " lsystem",
             "json");// absolute path
 
             if (path.Length != 0)

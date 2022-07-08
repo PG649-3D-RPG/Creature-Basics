@@ -13,11 +13,6 @@ public class SkeletonTest : MonoBehaviour
     [Tooltip("Generate metaball mesh")]
     public bool metaballMesh = true;
 
-    [Tooltip("Exported prefab filename. Defaults to GameObject's name.")]
-    public string creatureExportName = "";
-    [Tooltip("Path where the prefab will be saved. Must end with a \"/\". Defaults to \"Packages/com.pg649.creaturegenerator/Runtime/SkeletonFromLSystem/Prefabs/\".")]
-    public string creatureExportPath = "";
-
     // Start is called before the first frame update
     private GameObject orientationCube;
     void Start()

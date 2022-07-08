@@ -13,50 +13,54 @@ public class PrefabCreator : MonoBehaviour
     [MenuItem("PG649/Create Prefab")]
     private static void CreatePrefab()
     {
-        // Keep track of the currently selected GameObject(s)
-        GameObject[] objectArray = Selection.gameObjects;
-
-        // Loop through every GameObject in the array above
-        foreach (GameObject gameObject in objectArray)
+        // Keep track of the currently selected GameObject
+        GameObject gameObject = Selection.activeObject as GameObject;
+        if (gameObject == null)
         {
-            string path = "";
-            string name = "";
-            if (gameObject.TryGetComponent(out SkeletonTest skeleton))
-            {
-                path = skeleton.creatureExportPath;
-                name = skeleton.creatureExportName;
-            }
-
-            // set default values if custom values were not set
-            if (path == "") path = "Packages/com.pg649.creaturegenerator/Runtime/SkeletonFromLSystem/Prefabs/";
-            if (name == "") name = gameObject.name;
-
-            // Create folder if it does not exist and set path for exported prefab.
-            if (!Directory.Exists(path)) CreateFoldersRecursively(path);
-            string localPath = path + name + ".prefab";
-
-            // Make sure the file name is unique, in case an existing Prefab has the same name.
-            localPath = AssetDatabase.GenerateUniqueAssetPath(localPath);
-
-            // remove unneeded components and lock lsystem
-            if (gameObject.TryGetComponent(out SkeletonTest skeletonTest)) DestroyImmediate(skeletonTest);
-            // if (gameObject.TryGetComponent(out MarchingCubesProject.MeshGenerator meshGen)) DestroyImmediate(meshGen);
-            if (gameObject.TryGetComponent(out PrefabCreator prefabCreator)) DestroyImmediate(prefabCreator);
-            if (gameObject.TryGetComponent(out LSystem.LSystemEditor editor))
-            {
-                var prop = editor.GenerateProperties();
-                gameObject.AddComponent<LSystem.LSystemPropertyViewer>();
-                gameObject.GetComponent<LSystem.LSystemPropertyViewer>().Populate(prop);
-                DestroyImmediate(editor);
-            }
-
-            // Create the new Prefab and log whether Prefab was saved successfully.
-            PrefabUtility.SaveAsPrefabAsset(gameObject, localPath, out bool prefabSuccess);
-            if (prefabSuccess == true)
-                Debug.Log("Prefab was saved successfully");
-            else
-                Debug.Log("Prefab failed to save" + prefabSuccess);
+            EditorUtility.DisplayDialog(
+                            "Select GameObject",
+                            "Thou shalt select a gameobject!",
+                            "Sure thing!");
+            return;
         }
+
+        string path = EditorUtility.SaveFilePanel(
+                    "Save Prefab",
+                    "Packages" + Path.DirectorySeparatorChar + "com.pg649.creaturegenerator",
+                    gameObject.name,
+                    "prefab");// absolute path
+
+
+        var projectpath = Application.dataPath[..Application.dataPath.LastIndexOf(Path.DirectorySeparatorChar)];
+        if (!path.StartsWith(projectpath))
+        {
+            EditorUtility.DisplayDialog(
+                        "Wrong Prefab path",
+                        "Thou shalt select a path below the project root!",
+                        "Sure thing!");
+            return;
+        }
+        var localPath = path[(projectpath.Length + 1)..];
+
+        // remove unneeded components and lock lsystem
+        if (gameObject.TryGetComponent(out SkeletonTest skeletonTest)) DestroyImmediate(skeletonTest);
+        // if (gameObject.TryGetComponent(out MarchingCubesProject.MeshGenerator meshGen)) DestroyImmediate(meshGen);
+        if (gameObject.TryGetComponent(out PrefabCreator prefabCreator)) DestroyImmediate(prefabCreator);
+        if (gameObject.TryGetComponent(out LSystem.LSystemEditor editor))
+        {
+            var prop = editor.GenerateProperties();
+            gameObject.AddComponent<LSystem.LSystemPropertyViewer>();
+            gameObject.GetComponent<LSystem.LSystemPropertyViewer>().Populate(prop);
+            DestroyImmediate(editor);
+        }
+
+        // Create the new Prefab and log whether Prefab was saved successfully.
+        PrefabUtility.SaveAsPrefabAsset(gameObject, localPath, out bool prefabSuccess);
+        if (prefabSuccess == true)
+            Debug.Log("Prefab was saved successfully");
+        else
+            Debug.Log("Prefab failed to save" + prefabSuccess);
+
     }
     // Disable the menu item if no selection is in place or editor is not in play mode.
     [MenuItem("PG649/Create Prefab", true)]
@@ -73,15 +77,15 @@ public class PrefabCreator : MonoBehaviour
     private static void CreateFoldersRecursively(string path)
     {
         path = path.Trim();
-        if (path.EndsWith('/')) path = path[..^1]; // remove trailing /
-        string[] folders = path.Split('/');
+        if (path.EndsWith(Path.DirectorySeparatorChar)) path = path[..^1]; // remove trailing /
+        string[] folders = path.Split(Path.DirectorySeparatorChar);
 
         for (int i = 1; i < folders.Length; i++)
         {
             // create parent folder path
             string parent = folders[0];
-            for (int j = 1; j < i; j++) parent += "/" + folders[j];
-            if (!Directory.Exists(parent + "/" + folders[i])) AssetDatabase.CreateFolder(parent, folders[i]);
+            for (int j = 1; j < i; j++) parent += Path.DirectorySeparatorChar + folders[j];
+            if (!Directory.Exists(parent + Path.DirectorySeparatorChar + folders[i])) AssetDatabase.CreateFolder(parent, folders[i]);
         }
     }
 }

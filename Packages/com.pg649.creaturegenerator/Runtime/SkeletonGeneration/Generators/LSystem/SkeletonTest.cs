@@ -7,11 +7,16 @@ using UnityEngine;
 public class SkeletonTest : MonoBehaviour
 {
     [Tooltip("Generate skeleton")]
-    public bool generate_skeleton = true;
+    public bool generateSkeleton = true;
     [Tooltip("Generate primitive mesh")]
-    public bool primitive_mesh = false;
+    public bool primitiveMesh = false;
     [Tooltip("Generate metaball mesh")]
-    public bool metaball_mesh = true;
+    public bool metaballMesh = true;
+
+    [Tooltip("Exported prefab filename. Defaults to GameObject's name.")]
+    public string creatureExportName = "";
+    [Tooltip("Path where the prefab will be saved. Must end with a \"/\". Defaults to \"Packages/com.pg649.creaturegenerator/Runtime/SkeletonFromLSystem/Prefabs/\".")]
+    public string creatureExportPath = "";
 
     // Start is called before the first frame update
     void Start()
@@ -19,9 +24,9 @@ public class SkeletonTest : MonoBehaviour
         LSystemEditor ed = gameObject.GetComponent<LSystemEditor>();
         LSystem.LSystem l = ed.BuildLSystem();
         List<Tuple<Vector3, Vector3>> segments = l.segments;
-        if (generate_skeleton)
+        if (generateSkeleton)
         {
-            GameObject boneTree = SkeletonGenerator.Generate(l, primitive_mesh);
+            GameObject boneTree = SkeletonGenerator.Generate(l, primitiveMesh);
             boneTree.transform.parent = gameObject.transform;
             gameObject.transform.Translate(new Vector3(0, 0.025f, 0));
             /*GameObject meshObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -35,7 +40,7 @@ public class SkeletonTest : MonoBehaviour
             meshObject.transform.localScale = new Vector3(0.1f,0.1f,0.1f);
             meshObject.name = "orientation cube";*/
         }
-        if (metaball_mesh)
+        if (metaballMesh)
         {
             Segment[] segments_ = new Segment[segments.Count];
             for (int i = 0; i < segments.Count; i++)

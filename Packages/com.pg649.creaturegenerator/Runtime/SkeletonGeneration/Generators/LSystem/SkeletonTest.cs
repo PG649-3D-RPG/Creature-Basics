@@ -1,8 +1,10 @@
-using System;
+using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
+using System.Linq;
+using System;
 using LSystem;
 using MarchingCubesProject;
-using UnityEngine;
 
 public class SkeletonTest : MonoBehaviour
 {
@@ -28,8 +30,7 @@ public class SkeletonTest : MonoBehaviour
             
         }
         Transform oc = transform.Find("orientation cube");
-
-        orientationCube = oc == null ? CreateOrientationCube(gameObject) : oc.gameObject;
+        orientationCube = oc == null ? CreateOrientationCube(gameObject,segments.Sum( x => x.Item1.y + x.Item2.y)/(2*segments.Count())) : oc.gameObject;
         
         if(metaballMesh){
             Segment[] segments_ = new Segment[segments.Count];
@@ -53,16 +54,18 @@ public class SkeletonTest : MonoBehaviour
     {
         Transform t = GetComponentsInChildren<Transform>()[1];
         Vector3 pos = t.position;
-        pos.y = 0;
+        pos.y = orientationCube.transform.position.y;
         orientationCube.transform.position = pos; 
         orientationCube.transform.rotation = t.rotation;
     }
 
-    GameObject CreateOrientationCube(GameObject parent){
+    GameObject CreateOrientationCube(GameObject parent,float y){
         GameObject orientationCube = GameObject.CreatePrimitive(PrimitiveType.Cube);
         Destroy(orientationCube.GetComponent<Collider>());
-        orientationCube.transform.parent = parent.transform;
+        Destroy(orientationCube.GetComponent<MeshRenderer>());
+        orientationCube.transform.parent = parent.transform;        
         orientationCube.transform.localScale = new Vector3(0.1f,0.1f,0.1f);
+        //orientationCube.transform.position += new Vector3(0,y,0);
         orientationCube.name = "orientation cube";
         return orientationCube;
     }

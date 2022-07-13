@@ -201,12 +201,25 @@ public class SkeletonAssembler {
 
             }
             CapsuleCollider collider = result.AddComponent<CapsuleCollider>();
-            collider.height = self.Length;
-            collider.radius = self.Thickness;
+            // Shorten collider to avoid constant collision
+            float colliderLength = self.Length * 0.8f;
+            //rotate collider if diameter is greater than length
+            if (2f * self.Thickness > colliderLength)
+            {
+                collider.height = 2f * self.Thickness;
+                collider.radius = colliderLength / 2f;
+                // Colliders point along Lateral (X) Axis
+                collider.direction = 0;
+            }
+            else
+            {
+                collider.height = colliderLength;
+                collider.radius = self.Thickness;
+                // Colliders point along Proximal (Z) Axis
+                collider.direction = 2;
+            }
             //collider.radius = 0.25f;
             collider.center = bone.LocalMidpoint();
-            // Colliders point along Proximal (Z) Axis
-            collider.direction = 2;
             // Ellipsoid Volume is 3/4 PI abc, with radii a, b, c
             rb.mass = BodyDensity * (3.0f * (float)Math.PI * 0.1f * self.Length * 0.45f * 0.1f) / 4;
         }

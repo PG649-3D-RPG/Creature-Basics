@@ -99,7 +99,7 @@ public class Metaball
             foreach(var child in bone.ChildBones)
             {
                 boneStk.Push(child);
-                if (bone.AttachmentHint.AttachmentPoint == AttachmentPoint.ProximalPoint)
+                if (bone.AttachmentHint.AttachmentPoint == AttachmentPoints.ProximalPoint)
                     proximalPositions.Push(proximalPos);
                 else
                     proximalPositions.Push(distalPos);

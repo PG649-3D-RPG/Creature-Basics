@@ -84,10 +84,12 @@ public class ParametricGenerator {
             BoneDefinition leftRoot = buildArm(heights, thicknesses);
             BoneDefinition rightRoot = buildArm(heights, thicknesses);
 
+            leftRoot.AttachmentHint.AttachmentPoint = AttachmentPoints.MidPoint;
             leftRoot.AttachmentHint.VentralDirection = Vector3.right;
             leftRoot.AttachmentHint.Offset = new Vector3(-0.75f, 0.0f, 0.0f);
             leftRoot.AttachmentHint.Rotation = Quaternion.Euler(-90.0f, 0.0f, 0.0f);
 
+            rightRoot.AttachmentHint.AttachmentPoint = AttachmentPoints.MidPoint;
             rightRoot.AttachmentHint.VentralDirection = Vector3.left;
             rightRoot.AttachmentHint.Offset = new Vector3(0.75f, 0.0f, 0.0f);
             rightRoot.AttachmentHint.Rotation = Quaternion.Euler(90.0f, 0.0f, 0.0f);
@@ -361,12 +363,12 @@ public class ParametricGenerator {
             //make separate hip rotation for front legs
             upDownAngle = Random.Range(-40f, 40f);
             lrAngle = Random.Range(-30, 30);
-            buildHip(neckAttachmentBone, legs[2], Vector3.left, AttachmentPoint.DistalPoint, Quaternion.Euler(lrAngle, upDownAngle, 0f));
-            buildHip(neckAttachmentBone, legs[3], Vector3.right, AttachmentPoint.DistalPoint, Quaternion.Euler(lrAngle, -upDownAngle, 0f));
+            buildHip(neckAttachmentBone, legs[2], Vector3.left, AttachmentPoints.DistalPoint, Quaternion.Euler(lrAngle, upDownAngle, 0f));
+            buildHip(neckAttachmentBone, legs[3], Vector3.right, AttachmentPoints.DistalPoint, Quaternion.Euler(lrAngle, -upDownAngle, 0f));
         }
     }
     
-    private BoneDefinition buildHip(BoneDefinition attachTo, BoneDefinition leg, Vector3 proximalAxis, AttachmentPoint attachmentPoint = AttachmentPoint.ProximalPoint, Quaternion? rotation = null)
+    private BoneDefinition buildHip(BoneDefinition attachTo, BoneDefinition leg, Vector3 proximalAxis, float attachmentPoint = AttachmentPoints.ProximalPoint, Quaternion? rotation = null)
     {
         BoneDefinition hip = new();
         hip.Length = attachTo.Thickness;

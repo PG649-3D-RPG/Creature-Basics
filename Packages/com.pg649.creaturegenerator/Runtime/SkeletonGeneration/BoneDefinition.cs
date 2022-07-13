@@ -38,21 +38,22 @@ public class BoneDefinition {
     }
 }
 
-public enum AttachmentPoint {
-    ProximalPoint,
-    DistalPoint,
+public static class AttachmentPoints {
+    public const float ProximalPoint = 0.0f;
+    public const float MidPoint = 0.5f;
+    public const float DistalPoint = 1.0f;
 }
 /// Provides a hint for how a bone should be attached to its parent.
 /// The world-space VentralAxis of the bone should point towards the VentralDirection
 /// after attachment.
 public class AttachmentHint {
-    public AttachmentPoint AttachmentPoint;
+    public float AttachmentPoint;
     public Vector3? VentralDirection;
     public Vector3? Offset;
     public Quaternion? Rotation;
 
     public AttachmentHint() {
-        AttachmentPoint =  AttachmentPoint.DistalPoint;
+        AttachmentPoint =  AttachmentPoints.DistalPoint;
         VentralDirection = null;
         Offset = null;
         Rotation = null;

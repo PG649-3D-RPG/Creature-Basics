@@ -109,15 +109,9 @@ public class SkeletonAssembler {
         } else {
             // Does reparenting change a transform? Maybe realign coordinate system
             // aftwards again, if axis are not correct.
-            result.transform.parent = parentGo.transform;
-
             Bone parentBone = parentGo.GetComponent<Bone>();
-            if (self.AttachmentHint.AttachmentPoint == AttachmentPoint.DistalPoint) {
-                result.transform.localPosition = parentBone.LocalDistalPoint() - 0.1f * parentBone.LocalProximalAxis();
-            } else {
-                result.transform.localPosition = parentBone.LocalProximalPoint() + 0.1f * parentBone.LocalProximalAxis();
-            }
-
+            result.transform.parent = parentGo.transform;
+            result.transform.localPosition = Vector3.Lerp(parentBone.LocalProximalPoint(), parentBone.LocalDistalPoint(), self.AttachmentHint.AttachmentPoint);
 
             if (self.AttachmentHint.Offset != null) {
                 // Apply offset prescribed in AttachmentHint

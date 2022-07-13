@@ -11,13 +11,13 @@ public class SkeletonAssembler {
 
     public static bool attachPrimitiveMesh = true;
 
-    public static  GameObject Assemble(SkeletonDefinition skeleton) {
+    public static  GameObject Assemble(SkeletonDefinition skeleton, SkeletonAssemblerSettings settings) {
         Dictionary<BoneDefinition, GameObject> objects = new();
         // Walk over SkeletonDefinition to create gameobjects.
         pass(skeleton.RootBone, def => {
             GameObject parent = (def.ParentBone != null && objects.ContainsKey(def.ParentBone)) ? objects[def.ParentBone] : null;
             GameObject root = objects.ContainsKey(skeleton.RootBone) ? objects[skeleton.RootBone] : null;
-            objects.Add(def, toGameObject(def, parent, root, skeleton.JointLimits));
+            objects.Add(def, toGameObject(def, parent, root, skeleton.JointLimits, settings));
         });
 
         // Walk over SkeletonDefinition to rotate limbs into default positions.
@@ -46,7 +46,7 @@ public class SkeletonAssembler {
     }
 
 
-    private static GameObject toGameObject(BoneDefinition self, GameObject parentGo, GameObject rootGo, LimitTable jointLimits) {
+    private static GameObject toGameObject(BoneDefinition self, GameObject parentGo, GameObject rootGo, LimitTable jointLimits, SkeletonAssemblerSettings settings) {
         bool isRoot = parentGo == null;
 
         // TOOD(markus): Name
@@ -136,7 +136,7 @@ public class SkeletonAssembler {
             collider.radius = 0.1f * self.Thickness;
             rb.mass = BodyDensity * (3.0f * (float)Math.PI * r * r * r) / 4.0f;
 
-            if(attachPrimitiveMesh){
+            if(settings.AttachPrimitiveMesh){
                 meshObject = GameObject.CreatePrimitive(PrimitiveType.Sphere);
 
                 meshObject.transform.parent = result.transform;
@@ -151,7 +151,7 @@ public class SkeletonAssembler {
             collider.size = size;
             rb.mass = BodyDensity * (size.x * size.y * size.z);
 
-            if(attachPrimitiveMesh){
+            if(settings.AttachPrimitiveMesh){
                 meshObject = GameObject.CreatePrimitive(PrimitiveType.Cube);                        
 
                 meshObject.transform.parent = result.transform;
@@ -170,7 +170,7 @@ public class SkeletonAssembler {
             // Ellipsoid Volume is 3/4 PI abc, with radii a, b, c
             rb.mass = BodyDensity * (3.0f * (float)Math.PI * 0.1f * self.Length * 0.45f * 0.1f) / 4;
 
-            if(attachPrimitiveMesh){
+            if(settings.AttachPrimitiveMesh){
                 meshObject = GameObject.CreatePrimitive(PrimitiveType.Capsule);
 
                 meshObject.transform.parent = result.transform;

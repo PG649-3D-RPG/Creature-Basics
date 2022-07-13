@@ -109,10 +109,7 @@ public class Metaball
             foreach(var child in bone.ChildBones)
             {
                 boneStk.Push(child);
-                if (child.AttachmentHint.AttachmentPoint == AttachmentPoints.ProximalPoint)
-                    proximalPositions.Push(proximalPos);
-                else
-                    proximalPositions.Push(distalPos);
+                proximalPositions.Push(Vector3.Lerp(proximalPos, distalPos, child.AttachmentHint.AttachmentPoint));
                 rotations.Push(rotation);
             }
 

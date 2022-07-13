@@ -9,7 +9,7 @@ public class SkeletonAssembler {
     // Human density if apparently about 1000kg/m^3
     static float BodyDensity = 1000.0f;
 
-    public static bool attachPrimitiveMesh = false;
+    public static bool attachPrimitiveMesh = true;
 
     public static  GameObject Assemble(SkeletonDefinition skeleton) {
         Dictionary<BoneDefinition, GameObject> objects = new();
@@ -131,44 +131,35 @@ public class SkeletonAssembler {
         GameObject meshObject;
         if(self.Category == BoneCategory.Hand){
             float r = 0.1f;
-            if(attachPrimitiveMesh){
-                meshObject = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                meshObject.transform.localScale = new Vector3(0.1f, 0.1f ,0.1f);
-
-                meshObject.transform.parent = result.transform;
-                meshObject.transform.position = bone.LocalMidpoint();
-                meshObject.transform.rotation = result.transform.rotation; 
-
-            }
             SphereCollider collider = result.AddComponent<SphereCollider>();                        
             // NOTE(markus): Needs to be scaled by anther factor of 0.1, not quite sure why
             collider.radius = 0.1f * self.Thickness;
             rb.mass = BodyDensity * (3.0f * (float)Math.PI * r * r * r) / 4.0f;
+
+            if(attachPrimitiveMesh){
+                meshObject = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+
+                meshObject.transform.parent = result.transform;
+                meshObject.transform.localPosition = bone.LocalMidpoint();
+                meshObject.transform.localScale = new Vector3(0.1f, 0.1f ,0.1f);
+            }
         }
         else if (self.Category == BoneCategory.Foot) {
             Vector3 size = new Vector3(0.1f, self.Length * 0.9f, 0.05f);
-            if(attachPrimitiveMesh){
-                meshObject = GameObject.CreatePrimitive(PrimitiveType.Cube);                        
-                meshObject.transform.localScale = size;
 
-                meshObject.transform.parent = result.transform;
-                meshObject.transform.position = bone.LocalMidpoint();
-                meshObject.transform.rotation = result.transform.rotation; 
-
-            }
             BoxCollider collider = result.AddComponent<BoxCollider>();
             collider.size = size;
             rb.mass = BodyDensity * (size.x * size.y * size.z);
-        } else {
+
             if(attachPrimitiveMesh){
-                meshObject = GameObject.CreatePrimitive(PrimitiveType.Capsule);
-                meshObject.transform.localScale = new Vector3(0.1f,self.Length*0.45f,0.1f);
+                meshObject = GameObject.CreatePrimitive(PrimitiveType.Cube);                        
 
                 meshObject.transform.parent = result.transform;
-                meshObject.transform.position = bone.LocalMidpoint();
-                meshObject.transform.rotation = result.transform.rotation; 
-
+                meshObject.transform.localPosition = bone.LocalMidpoint();
+                meshObject.transform.localScale = size;
+                meshObject.transform.rotation = Quaternion.LookRotation(bone.WorldProximalAxis(), bone.WorldVentralAxis());
             }
+        } else {
             CapsuleCollider collider = result.AddComponent<CapsuleCollider>();
             collider.height = self.Length;
             //collider.radius = self.Thickness;
@@ -178,6 +169,17 @@ public class SkeletonAssembler {
             collider.direction = 2;
             // Ellipsoid Volume is 3/4 PI abc, with radii a, b, c
             rb.mass = BodyDensity * (3.0f * (float)Math.PI * 0.1f * self.Length * 0.45f * 0.1f) / 4;
+
+            if(attachPrimitiveMesh){
+                meshObject = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+
+                meshObject.transform.parent = result.transform;
+                meshObject.transform.localPosition = bone.LocalMidpoint();
+                meshObject.transform.localScale = new Vector3(0.5f ,self.Length*0.45f, 0.5f);
+                // Rotate capsule so that y-axis points along ProximalAxis of parent, i.e. in the direction
+                // of the bone
+                meshObject.transform.rotation = Quaternion.LookRotation(bone.WorldVentralAxis(), bone.WorldProximalAxis());
+            }
         }
         return result;
     }

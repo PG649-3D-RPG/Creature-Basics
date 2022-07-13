@@ -76,9 +76,9 @@ public class SkeletonAssembler {
 
             Bone parentBone = parentGo.GetComponent<Bone>();
             if (self.AttachmentHint.AttachmentPoint == AttachmentPoint.DistalPoint) {
-                result.transform.localPosition = parentBone.LocalDistalPoint() - 0.1f * parentBone.LocalProximalAxis();
+                result.transform.localPosition = parentBone.LocalDistalPoint();
             } else {
-                result.transform.localPosition = parentBone.LocalProximalPoint() + 0.1f * parentBone.LocalProximalAxis();
+                result.transform.localPosition = parentBone.LocalProximalPoint();
             }
 
 
@@ -162,7 +162,7 @@ public class SkeletonAssembler {
         } else {
             if(attachPrimitiveMesh){
                 meshObject = GameObject.CreatePrimitive(PrimitiveType.Capsule);
-                meshObject.transform.localScale = new Vector3(0.1f,self.Length*0.45f,0.1f);
+                meshObject.transform.localScale = new Vector3(self.Thickness,self.Length*0.45f,self.Thickness);
 
                 meshObject.transform.parent = result.transform;
                 meshObject.transform.position = bone.LocalMidpoint();
@@ -171,8 +171,8 @@ public class SkeletonAssembler {
             }
             CapsuleCollider collider = result.AddComponent<CapsuleCollider>();
             collider.height = self.Length;
-            //collider.radius = self.Thickness;
-            collider.radius = 0.25f;
+            collider.radius = self.Thickness;
+            //collider.radius = 0.25f;
             collider.center = bone.LocalMidpoint();
             // Colliders point along Proximal (Z) Axis
             collider.direction = 2;

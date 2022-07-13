@@ -81,7 +81,7 @@ public class Metaball
         return metaball;
     }
 
-    public static Metaball BuildFromSkeleton(SkeletonDefinition skeletonDefinition, MetaballFunction function = MetaballFunction.Exponential)
+    public static Metaball BuildFromSkeleton(SkeletonDefinition skeletonDefinition, MetaballFunction function = MetaballFunction.ExponentialThin)
     {
         Metaball metaball = new Metaball();
 
@@ -91,11 +91,21 @@ public class Metaball
         Stack<Vector3> proximalPositions = new();
         proximalPositions.Push(Vector3.zero);
 
+        Stack<Quaternion> rotations = new();
+        rotations.Push(Quaternion.identity);
+
         while (boneStk.Count > 0)
         {
             BoneDefinition bone = boneStk.Pop();
             Vector3 proximalPos = proximalPositions.Pop();
-            Vector3 distalPos = proximalPos - bone.Length * bone.ProximalAxis;
+            Vector3 proximalAxis = bone.ProximalAxis;
+            if (bone.AttachmentHint.Offset != null)
+                proximalPos += bone.AttachmentHint.Offset.Value;
+            Quaternion rotation = rotations.Pop();
+            if (bone.AttachmentHint.Rotation != null)
+                rotation *= Quaternion.LookRotation(proximalAxis, bone.VentralAxis) * bone.AttachmentHint.Rotation.Value * Quaternion.Inverse(Quaternion.LookRotation(proximalAxis, bone.VentralAxis));
+            proximalAxis = rotation * proximalAxis;
+            Vector3 distalPos = proximalPos - bone.Length * proximalAxis;
             foreach(var child in bone.ChildBones)
             {
                 boneStk.Push(child);
@@ -103,10 +113,10 @@ public class Metaball
                     proximalPositions.Push(proximalPos);
                 else
                     proximalPositions.Push(distalPos);
+                rotations.Push(rotation);
             }
 
-            metaball.AddCapsule(new(proximalPos, distalPos, bone.Thickness));
-            Debug.DrawRay(proximalPos, 0.9f*(distalPos-proximalPos), Color.red, 999999f, false);
+            metaball.AddCapsule(new(proximalPos, distalPos, bone.Thickness), function);
         }
         return metaball;
     }

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 
@@ -15,6 +14,8 @@ namespace LSystem
         private readonly uint default_cross_section_divisions;
 
         private readonly Vector3 initial_direction;
+
+        private readonly System.Random rand;
 
         /// <summary>
         /// An example for the output of the L-System.
@@ -55,8 +56,9 @@ namespace LSystem
         //     };
         // }
 
-        public LSystem(float d, short a, uint cs, uint csd, INITIAL_DIRECTION init_dir, string start, uint iterations, Dictionary<char, string> rules, bool translatePointsOfList, bool printResult = false)
+        public LSystem(float d, short a, uint cs, uint csd, INITIAL_DIRECTION init_dir, string start, uint iterations, Dictionary<char, List<string>> rules, bool translatePointsOfList, bool printResult = false)
         {
+            rand = new System.Random();
             default_dist = d;
             default_angle = a;
             default_cross_sections = cs;
@@ -225,8 +227,9 @@ namespace LSystem
             return tuples;
         }
 
-        private string Parse(string s, uint it, Dictionary<char, string> rules)
-        {   
+        //TODO stochastic replacement via multiple rules with same non-terminal
+        private string Parse(string s, uint it, Dictionary<char, List<string>> rules)
+        {
             string a = "";
             string w = s;
             for (int i = 0; i < it; i++)
@@ -239,17 +242,19 @@ namespace LSystem
                     if (rules.ContainsKey(c))
                     {
                         // NT
-                        var replacement = rules[c];
-                        temp += replacement;
+                        List<string> replacement = rules[c];
+                        //randomly select one replacement from the replacement list
+                        int choice = this.rand.Next(0, replacement.Count);
+                        temp += replacement[choice];
                         //foreach (var n in replacement) if (n == 'F') fromRule.Add(new(i, c));
-                        foreach(var n in replacement) at += c.ToString();
+                        foreach (var n in replacement[choice]) at += c.ToString();
                     }
                     else
                     {
                         // Terminal
                         temp += c;
                         //if (i == 0 && c == 'F') fromRule.Add(new(0, 'S')); // for F's in the start string
-                        if(i == 0) at += "S";
+                        if (i == 0) at += "S";
                         else at += a[j];
                     }
                     j += 1;
@@ -257,8 +262,9 @@ namespace LSystem
                 w = temp;
                 a = at;
             }
-            for(int i = 0; i<w.Length; i++){
-                if(w[i] == 'F') fromRule.Add(new Tuple<int,char>(0,a[i]));
+            for (int i = 0; i < w.Length; i++)
+            {
+                if (w[i] == 'F') fromRule.Add(new Tuple<int, char>(0, a[i]));
             }
             return w;
         }
@@ -289,7 +295,7 @@ namespace LSystem
         /// <param name="rules">The replacement rules.</param>
         /// <param name="printResult">If set to true, will print the list of <start,end> points to the console. Default: false</param>
         /// <returns>The list of <start,end> 3D-points the turtle has drawn.</returns>
-        public List<Tuple<Vector3, Vector3>> Evaluate(string start, uint iterations, Dictionary<char, string> rules, bool translatePointsOfList, bool printResult = false)
+        public List<Tuple<Vector3, Vector3>> Evaluate(string start, uint iterations, Dictionary<char, List<string>> rules, bool translatePointsOfList, bool printResult = false)
         {
             var expanded = Parse(start, iterations, rules);
             if (printResult) Debug.Log(expanded);

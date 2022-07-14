@@ -81,6 +81,35 @@ public class Metaball
         return metaball;
     }
 
+    public static Metaball BuildFromSkeleton(SkeletonDefinition skeletonDefinition, MetaballFunction function = MetaballFunction.Polynomial2)
+    {
+        Metaball metaball = new Metaball();
+
+        Stack<BoneDefinition> boneStk = new();
+        boneStk.Push(skeletonDefinition.RootBone);
+
+        Stack<Vector3> proximalPositions = new();
+        proximalPositions.Push(Vector3.zero);
+
+        while (boneStk.Count > 0)
+        {
+            BoneDefinition bone = boneStk.Pop();
+            Vector3 proximalPos = proximalPositions.Pop();
+            Vector3 distalPos = proximalPos + bone.Length * bone.VentralAxis;
+            foreach(var child in bone.ChildBones)
+            {
+                boneStk.Push(child);
+                if (bone.AttachmentHint.AttachmentPoint == AttachmentPoints.ProximalPoint)
+                    proximalPositions.Push(proximalPos);
+                else
+                    proximalPositions.Push(distalPos);
+            }
+
+            metaball.AddCapsule(new(proximalPos, distalPos, bone.Thickness));
+        }
+        return metaball;
+    }
+
     public static float RandomGaussian(float minValue = 0.0f, float maxValue = 1.0f)
     {
         float u, v, S;

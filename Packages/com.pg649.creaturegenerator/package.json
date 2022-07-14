@@ -21,6 +21,21 @@
           "displayName": "Generator Example",
           "description": "Example of how to generate creatures.",
           "path": "Samples~/GeneratorExample"
-      }
+      },
+      {
+        "displayName": "Human Creature 3",
+        "description": "Prefab of less old creature.",
+        "path": "Samples~/HumanCreature3"
+    },
+    {
+      "displayName": "Human Creature 2 Torso Segments",
+      "description": "Prefab HumanCreature with two torso segments.",
+      "path": "Samples~/HumanCreature2TorsoSegments"
+  },
+    {
+      "displayName": "Human Creature 4 Torso Segments",
+      "description": "Prefab HumanCreature with four torso segments.",
+      "path": "Samples~/HumanCreature4TorsoSegments"
+  }
   ]
 }

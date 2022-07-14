@@ -172,7 +172,7 @@ namespace MarchingCubesProject
             GameObject go = new GameObject("Mesh");
             go.transform.parent = transform;
 
-            Transform[] bones = BoneUtil.FindBones(transform.Find("head_0_0").gameObject);
+            Transform[] bones = BoneUtil.FindBones(transform.gameObject);
             Debug.Log("Found " + bones.Length + " Bones in the hierarchy");
 
             // bind poses must be generated relative to the meshes transform

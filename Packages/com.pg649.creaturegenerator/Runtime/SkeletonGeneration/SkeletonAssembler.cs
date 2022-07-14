@@ -13,16 +13,26 @@ public class SkeletonAssembler {
 
     public static  GameObject Assemble(SkeletonDefinition skeleton, SkeletonAssemblerSettings settings) {
         Dictionary<BoneDefinition, GameObject> objects = new();
+        Dictionary<BoneCategory, int> nextIndices = new();
         // Walk over SkeletonDefinition to create gameobjects.
         pass(skeleton.RootBone, def => {
             GameObject parent = (def.ParentBone != null && objects.ContainsKey(def.ParentBone)) ? objects[def.ParentBone] : null;
             GameObject root = objects.ContainsKey(skeleton.RootBone) ? objects[skeleton.RootBone] : null;
-            objects.Add(def, toGameObject(def, parent, root, skeleton.JointLimits, settings));
+            GameObject current = toGameObject(def, parent, root, skeleton.JointLimits, settings);
+
+            Bone currentBone = current.GetComponent<Bone>();
+            Bone parentBone = parent != null ? parent.GetComponent<Bone>() : null;
+
+            objects.Add(def, current);
+
+            setBoneIndices(nextIndices, currentBone, parentBone);
+            current.name = name(currentBone);
         });
 
         // Walk over SkeletonDefinition to rotate limbs into default positions.
         // Has to be done in a separate pass, so that rotation is not undone by
         // rotating bones towards their prescribed ventral axis.
+
         pass(skeleton.RootBone, def => {
             GameObject current = objects[def];
             current.transform.Rotate(def.AttachmentHint.Rotation.GetValueOrDefault().eulerAngles);
@@ -43,6 +53,33 @@ public class SkeletonAssembler {
                 todo.Enqueue(child);
             }
         }
+    }
+
+    private static void setBoneIndices(Dictionary<BoneCategory, int> nextLimbIndices, Bone current, Bone parent) {
+        int nextIndex(Dictionary<BoneCategory, int> nextLimbIndices, BoneCategory category) {
+            if (nextLimbIndices.ContainsKey(category)) {
+                nextLimbIndices[category] += 1;
+                return nextLimbIndices[category] - 1;
+            } else {
+                nextLimbIndices[category] = 1;
+                return 0;
+            }
+        }
+
+        if (parent != null && current.category == parent.category) {
+            // Not Root and same category as parent. Keep limb index and increment bone index.
+            current.limbIndex = parent.limbIndex;
+            current.boneIndex = parent.boneIndex + 1;
+        } else {
+            // Root or start of new limb. Grab next limb index from dictionary.
+            current.limbIndex = nextIndex(nextLimbIndices, current.category);
+            current.boneIndex = 0;
+        }
+    }
+
+    private static String name(Bone bone)
+    {
+        return Enum.GetName(typeof(BoneCategory), bone.category).ToLower() + "_" + bone.limbIndex + "_" + bone.boneIndex;
     }
 
 
@@ -72,15 +109,9 @@ public class SkeletonAssembler {
         } else {
             // Does reparenting change a transform? Maybe realign coordinate system
             // aftwards again, if axis are not correct.
-            result.transform.parent = parentGo.transform;
-
             Bone parentBone = parentGo.GetComponent<Bone>();
-            if (self.AttachmentHint.AttachmentPoint == AttachmentPoint.DistalPoint) {
-                result.transform.localPosition = parentBone.LocalDistalPoint() - 0.1f * parentBone.LocalProximalAxis();
-            } else {
-                result.transform.localPosition = parentBone.LocalProximalPoint() + 0.1f * parentBone.LocalProximalAxis();
-            }
-
+            result.transform.parent = parentGo.transform;
+            result.transform.localPosition = Vector3.Lerp(parentBone.LocalProximalPoint(), parentBone.LocalDistalPoint(), self.AttachmentHint.AttachmentPoint);
 
             if (self.AttachmentHint.Offset != null) {
                 // Apply offset prescribed in AttachmentHint

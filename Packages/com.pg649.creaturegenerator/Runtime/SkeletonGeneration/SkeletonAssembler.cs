@@ -88,6 +88,7 @@ public class SkeletonAssembler {
 
         // TOOD(markus): Name
         GameObject result = new GameObject("");
+        result.tag = "Agent";
 
 
 
@@ -164,6 +165,7 @@ public class SkeletonAssembler {
             float r = 0.1f;
             if(attachPrimitiveMesh){
                 meshObject = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                meshObject.tag = "Agent";
                 meshObject.transform.localScale = new Vector3(0.1f, 0.1f ,0.1f);
 
                 meshObject.transform.parent = result.transform;
@@ -180,6 +182,7 @@ public class SkeletonAssembler {
             Vector3 size = new Vector3(0.1f, self.Length * 0.9f, 0.05f);
             if(attachPrimitiveMesh){
                 meshObject = GameObject.CreatePrimitive(PrimitiveType.Cube);                        
+                meshObject.tag = "Agent";
                 meshObject.transform.localScale = size;
 
                 meshObject.transform.parent = result.transform;
@@ -193,7 +196,8 @@ public class SkeletonAssembler {
         } else {
             if(attachPrimitiveMesh){
                 meshObject = GameObject.CreatePrimitive(PrimitiveType.Capsule);
-                meshObject.transform.localScale = new Vector3(self.Thickness,self.Length*0.45f,self.Thickness);
+                meshObject.tag = "Agent";
+                meshObject.transform.localScale = new Vector3(self.Thickness, self.Length*0.45f, self.Thickness);
 
                 meshObject.transform.parent = result.transform;
                 meshObject.transform.position = bone.LocalMidpoint();

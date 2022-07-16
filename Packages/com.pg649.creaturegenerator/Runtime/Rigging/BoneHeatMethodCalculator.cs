@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-//using System.Numerics;
 using UnityEngine;
 using System;
 
@@ -22,6 +21,8 @@ public class BoneHeatMethodCalculator :IBoneWeightCalculator
         double initialHeatWeight = 1;
         //List<List<double>> weights = new List<List<double>>();
         //List<List<Tuple<int, double>>> nzweights = new List<List<Tuple<int, double>>>();
+
+        VisibilityTester tester = new VisibilityTester(mesh);
 
         // nv = numVertices
         int nv = mesh.vertices.Length;
@@ -52,34 +53,6 @@ public class BoneHeatMethodCalculator :IBoneWeightCalculator
                 edges[mesh.triangles[j]].Add(mesh.triangles[j - 1]);
             }
         }
-        //
-
-        //for (int i = 0; i < nv; ++i)
-        //{
-        //    List<int> edge = new List<int>();
-        //    for (int j = 0; j < mesh.triangles.Length; ++j)
-        //    {
-        //        if(mesh.triangles[j] == i)
-        //        {
-        //            if(j % 3 == 0)
-        //            {
-        //                edge.Add(mesh.triangles[j + 1]);
-        //                edge.Add(mesh.triangles[j + 2]);
-        //            }
-        //            else if (j % 3 == 1)
-        //            {
-        //                edge.Add(mesh.triangles[j - 1]);
-        //                edge.Add(mesh.triangles[j + 1]);
-        //            }
-        //            else
-        //            {
-        //                edge.Add(mesh.triangles[j - 2]);
-        //                edge.Add(mesh.triangles[j - 1]);
-        //            }
-        //        }
-        //    }
-        //    edges.Add(edge);
-        //}
 
         double[,] boneDists = new double[nv, bones.Length];
         bool[,] boneVis = new bool[nv, bones.Length];
@@ -152,10 +125,7 @@ public class BoneHeatMethodCalculator :IBoneWeightCalculator
                 else
                     projToSeg = v1 + Vector3.Dot((cPos - v1), dir) / dir.sqrMagnitude * dir;
 
-                // The unity raycasts only work with a MeshCollider. Maybe we have to test each triangle manually for now?
-                //This Part needs Raytracing of some kind  
-                //boneVis[i][j] = tester->canSee(cPos, projToSeg) && vectorInCone(cPos - projToSeg, normals);
-                boneVis[i,j] = true && vectorInCone(cPos - projToSeg , normals);
+                boneVis[i,j] = tester.CanSee(cPos, projToSeg) && vectorInCone(cPos - projToSeg , normals);
             }
         }
 

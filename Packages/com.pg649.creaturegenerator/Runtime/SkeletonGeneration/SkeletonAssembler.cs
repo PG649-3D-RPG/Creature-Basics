@@ -93,7 +93,11 @@ public class SkeletonAssembler {
 
 
         Rigidbody rb = result.AddComponent<Rigidbody>();
-        rb.useGravity = false;
+
+        if (settings.DebugDisableBoneGravity)
+        {
+            rb.useGravity = false;
+        }
 
         Bone bone = result.AddComponent<Bone>();
         bone.category = self.Category;

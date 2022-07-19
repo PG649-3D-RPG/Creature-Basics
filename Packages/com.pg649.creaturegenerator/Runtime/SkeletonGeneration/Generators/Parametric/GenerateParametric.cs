@@ -7,10 +7,10 @@ public class GenerateParametric : MonoBehaviour
 {
     [Tooltip("Generate skeleton")]
     public bool generate_skeleton = true;
-    [Tooltip("Generate primitive mesh")]
-    public bool primitive_mesh = false;
     [Tooltip("Generate metaball mesh")]
     public bool metaball_mesh = true;
+    [Tooltip("Disable Physics after generation to better see generated creature.")]
+    public bool disablePhysics = false;
 
     // Start is called before the first frame update
     void Start()
@@ -28,7 +28,11 @@ public class GenerateParametric : MonoBehaviour
 
 
             rootGo.transform.parent = gameObject.transform;
-            Physics.autoSimulation = false;
+
+            if (disablePhysics)
+            {
+                Physics.autoSimulation = false;
+            }
 
             if (metaball_mesh)
             {

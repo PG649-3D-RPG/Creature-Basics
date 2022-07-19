@@ -29,13 +29,14 @@ public class GenerateParametric : MonoBehaviour
 
             rootGo.transform.parent = gameObject.transform;
             Physics.autoSimulation = false;
+
+            if (metaball_mesh)
+            {
+                MeshGenerator meshGen = GetComponent<MeshGenerator>();
+                meshGen.Generate(Metaball.BuildFromSkeleton(rootGo.GetComponent<Skeleton>()));
+            }
         }
 
-        if (metaball_mesh)
-        {
-            MeshGenerator meshGen = GetComponent<MeshGenerator>();
-            meshGen.Generate(Metaball.BuildFromSkeleton(skeletonDefinition));
-        }
     }
 
     // Update is called once per frame

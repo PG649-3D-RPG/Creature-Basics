@@ -99,6 +99,17 @@ public class ParametricGenerator {
             prev.LinkChild(part);
             prev = part;
         }
+
+        BoneDefinition hand = new();
+        hand.ProximalAxis = Vector3.up;
+        hand.VentralAxis = Vector3.forward;
+        hand.Length = 0.5f;
+        hand.Thickness = 0.5f;
+        hand.Category = BoneCategory.Hand;
+        hand.AttachmentHint = new();
+
+        prev.LinkChild(hand);
+
         return root;
     }
 
@@ -182,6 +193,20 @@ public class ParametricGenerator {
             BoneDefinition part = buildLegPart(length, thickness);
             prev.LinkChild(part);
             prev = part;
+        }
+
+        if (mode == Mode.Biped)
+        {
+            BoneDefinition foot = new();
+            foot.ProximalAxis = Vector3.back;
+            foot.VentralAxis = Vector3.up;
+            foot.Length = 2.0f;
+            foot.Thickness = 0.5f;
+            foot.Category = BoneCategory.Foot;
+            foot.AttachmentHint = new();
+            foot.AttachmentHint.Offset = new Vector3(0.0f, 0.0f, -0.5f);
+
+            prev.LinkChild(foot);
         }
         return root;
     }

@@ -10,7 +10,7 @@ public static class BoneJointSettings
 {
     //don't define for Other
     public static readonly Dictionary<BoneCategory, Vector3> axisAdjust = new Dictionary<BoneCategory, Vector3>{
-        {BoneCategory.LowerArm,-Vector3.forward}
+        {BoneCategory.LowerArm,Vector3.forward}
     };
     public static readonly Dictionary<BoneCategory, Vector3> secondaryAxisAdjust = new Dictionary<BoneCategory, Vector3>{
         
@@ -52,6 +52,10 @@ public static class BoneJointSettings
             skeleton.nAngZMotLimited += 1;
         }
         
+    }
+
+    public static Vector3 Abs(this Vector3 v){
+        return new Vector3(Math.Abs(v.x),Math.Abs(v.y),Math.Abs(v.z));
     }
 
 
@@ -98,7 +102,7 @@ public static class BoneAdd
     public static readonly Dictionary<BoneCategory, SoftJointLimit> defaultLowXLimit = new Dictionary<BoneCategory, SoftJointLimit>{
         {BoneCategory.Arm, new SoftJointLimit() {limit = -75}},
         {BoneCategory.LowerArm, new SoftJointLimit() {limit = -75}},
-        {BoneCategory.Leg, new SoftJointLimit() {limit = -105}},
+        {BoneCategory.Leg, new SoftJointLimit() {limit = -90}},
         {BoneCategory.LowerLeg1,new SoftJointLimit() {limit = 0}},
         {BoneCategory.LowerLeg2, new SoftJointLimit() {limit = -90}},
         {BoneCategory.Torso, new SoftJointLimit() {limit = -5}},
@@ -296,6 +300,7 @@ public class SkeletonGenerator
                             meshObject.transform.parent = result.transform;
                             meshObject.transform.position = result.transform.position;
                             meshObject.transform.rotation = result.transform.rotation;
+                            UnityEngine.Object.Destroy(meshObject.GetComponent<Collider>());
                         }
 
                         SphereCollider collider = result.AddComponent<SphereCollider>();
@@ -314,6 +319,7 @@ public class SkeletonGenerator
                             meshObject.transform.parent = result.transform;
                             meshObject.transform.position = result.transform.position;
                             meshObject.transform.rotation = result.transform.rotation;
+                            UnityEngine.Object.Destroy(meshObject.GetComponent<Collider>());
                         }
 
                         BoxCollider collider = result.AddComponent<BoxCollider>();
@@ -330,10 +336,11 @@ public class SkeletonGenerator
                             meshObject.transform.parent = result.transform;
                             meshObject.transform.position = result.transform.position;
                             meshObject.transform.rotation = result.transform.rotation;
+                            UnityEngine.Object.Destroy(meshObject.GetComponent<Collider>());
                         }
 
                         CapsuleCollider collider = result.AddComponent<CapsuleCollider>();
-                        collider.height = length;
+                        collider.height = length*0.9f;
                         collider.radius = BoneTreeRadius;
                         // Ellipsoid Volume is 3/4 PI abc, with radii a, b, c
                         rb.mass = BodyDensity * (3.0f * (float)Math.PI * 0.1f * length * 0.45f * 0.1f) / 4;
@@ -342,9 +349,37 @@ public class SkeletonGenerator
             }
             return result;
         }
+
+        //only works with certain hip configurations
+        public void ConnectHips(){
+            List<BoneTree> hips = new List<BoneTree>();
+            foreach(BoneTree child in children){
+                if(child.boneCategory == BoneCategory.Hip) hips.Add(child);
+            }
+            if(hips.Count > 0){
+                BoneTree hip = hips[0];
+                Vector3 hip_dir = (hip.segment.Item2-hip.segment.Item1).normalized;
+                foreach(BoneTree h in hips.Skip(1)){
+                    if((hip.segment.Item2-hip.segment.Item1).normalized.Abs() == (h.segment.Item2-h.segment.Item1).normalized.Abs()){
+                        float[] x = new float[] { hip.segment.Item1.x, hip.segment.Item2.x, h.segment.Item1.x, h.segment.Item2.x };
+                        float[] y = new float[] { hip.segment.Item1.y, hip.segment.Item2.y, h.segment.Item1.y, h.segment.Item2.y };
+                        float[] z = new float[] { hip.segment.Item1.z, hip.segment.Item2.z, h.segment.Item1.z, h.segment.Item2.z };
+                        hip.segment = new Tuple<Vector3, Vector3>(new Vector3(x.Min(), y.Min(), z.Min()), new Vector3(x.Max(),y.Max(), z.Max()));
+                    }
+                    foreach(BoneTree c in h.children){
+                        c.parent = hip;
+                        hip.children.Add(c);
+                    }
+                    children.Remove(h);
+                }
+            }
+            foreach(BoneTree child in children){
+                child.ConnectHips();
+            }
+        }
     }
 
-    private static BoneTree GenerateBoneTree(LSystem.LSystem l, bool primitive_mesh = false)
+    private static BoneTree GenerateBoneTree(LSystem.LSystem l, bool primitive_mesh = false, bool connectHips = false)
     {
         var segments = l.segments;
         if (segments.Count == 0) return null;
@@ -389,6 +424,7 @@ public class SkeletonGenerator
             else if (node.boneCategory == BoneCategory.Arm && node.boneIndex != 0) node.subBoneCategory = BoneCategory.LowerArm;
             else node.subBoneCategory = node.boneCategory;
         }
+        if(connectHips) root.ConnectHips();
         return root;
     }
 
@@ -479,9 +515,9 @@ public class SkeletonGenerator
         return root;
     }
 
-    public static GameObject Generate(LSystem.LSystem l, bool primitive_mesh = false)
+    public static GameObject Generate(LSystem.LSystem l, bool primitive_mesh = false, bool connectHips = false)
     {
-        BoneTree root = GenerateBoneTree(l, primitive_mesh);
+        BoneTree root = GenerateBoneTree(l, primitive_mesh, connectHips : connectHips);
         GameObject rootGo = root.toGameObjectTree();
         GameObject rootParent = root.findParent(root.segment, inverse: true, excludeThis: true).go;
         Skeleton skeleton = rootGo.GetComponent<Skeleton>();
@@ -501,6 +537,7 @@ public class SkeletonGenerator
             meshObject.transform.parent = rootGo.transform;
             meshObject.transform.position = rootGo.transform.position;
             meshObject.transform.rotation = rootGo.transform.rotation;
+            UnityEngine.Object.Destroy(meshObject.GetComponent<Collider>());
         }
         //joint.connectedAnchor = parentGo.transform.position;
 

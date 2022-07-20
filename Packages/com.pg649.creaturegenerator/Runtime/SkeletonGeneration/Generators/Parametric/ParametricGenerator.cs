@@ -200,11 +200,11 @@ public class ParametricGenerator {
         {
             BoneDefinition part = buildLegPart(lengths[i], thicknesses[i], i);
             prev.LinkChild(part);
-            if (mode == Mode.Quadruped && quadrupedJointLimits.ContainsKey((prev.Category, part.Category)))
+            /*if (mode == Mode.Quadruped && quadrupedJointLimits.ContainsKey((prev.Category, part.Category)))
             {
                 jointLimits = quadrupedJointLimits[(prev.Category, part.Category)];
                 part.AttachmentHint.Rotation = Quaternion.Euler(Random.Range(jointLimits.XAxisMin, jointLimits.XAxisMax), 0f, 0f);
-            }
+            }*/
             prev = part;
         }
         return root;

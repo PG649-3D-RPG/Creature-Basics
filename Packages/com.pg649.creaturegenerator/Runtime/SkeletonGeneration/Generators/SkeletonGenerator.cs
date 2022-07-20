@@ -101,7 +101,7 @@ public static class BoneAdd
 
     public static readonly Dictionary<BoneCategory, SoftJointLimit> defaultLowXLimit = new Dictionary<BoneCategory, SoftJointLimit>{
         {BoneCategory.Arm, new SoftJointLimit() {limit = -75}},
-        {BoneCategory.LowerArm, new SoftJointLimit() {limit = -75}},
+        {BoneCategory.LowerArm, new SoftJointLimit() {limit = 0}},
         {BoneCategory.Leg, new SoftJointLimit() {limit = -90}},
         {BoneCategory.LowerLeg1,new SoftJointLimit() {limit = 0}},
         {BoneCategory.LowerLeg2, new SoftJointLimit() {limit = -90}},
@@ -116,7 +116,7 @@ public static class BoneAdd
 
     public static readonly Dictionary<BoneCategory, SoftJointLimit> defaultHighXLimit = new Dictionary<BoneCategory, SoftJointLimit>{
         {BoneCategory.Arm, new SoftJointLimit() {limit = 75}},
-        {BoneCategory.LowerArm, new SoftJointLimit() {limit = 90}},
+        {BoneCategory.LowerArm, new SoftJointLimit() {limit = 165}},
         {BoneCategory.Leg, new SoftJointLimit() {limit = 15}},
         {BoneCategory.LowerLeg1,new SoftJointLimit() {limit = 90}},
         {BoneCategory.LowerLeg2, new SoftJointLimit() {limit = 0}},

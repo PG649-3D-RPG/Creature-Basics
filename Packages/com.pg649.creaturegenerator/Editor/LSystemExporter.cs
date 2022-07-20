@@ -1,10 +1,11 @@
+using System.IO;
 using UnityEditor;
 using UnityEngine;
 
-using System.IO;
-
-namespace LSystem {
-    public class LSystemExporter {
+namespace LSystem
+{
+    public class LSystemExporter
+    {
         // Creates a new menu item 'PG649 > Create Prefab' in the main menu.
         [MenuItem("PG649/Export LSystem Settings")]
         private static void ExportLSystem()
@@ -84,6 +85,8 @@ namespace LSystem {
                 skeleton.ApplyLSystemSettings(prop);
                 Debug.Log("L-System settings successfully imported");
             }
+            // now also marks the changed object as dirty to actually save the settings
+            EditorUtility.SetDirty(go);
         }
 
         // Disable the menu item if no selection is in place or editor is not in play mode.

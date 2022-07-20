@@ -356,6 +356,10 @@ MonoBehaviour:
   m_StartString: '[|C]+(90)[AH]-(180)[AH]+(90)T+(90)[G-(90)L]-(180)[G+(90)L]'
   m_Iterations: 2
   m_Rules:
+  - A=F(0.25)F(0.25)
+  - L=F(0.35)F(0.3)^V
+  - T=F(0.4)F(0.4)
+  - C=F(0.3)
   - G=F(0.2)
   - V=F(0.2)
   - H=F(0.15)
@@ -374,6 +378,7 @@ MonoBehaviour:
   generateSkeleton: 1
   primitiveMesh: 1
   metaballMesh: 0
+  connectHips: 0
 --- !u!4 &1734616961
 Transform:
   m_ObjectHideFlags: 0

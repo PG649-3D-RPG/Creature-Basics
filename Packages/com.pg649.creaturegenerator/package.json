@@ -51,6 +51,11 @@
   "displayName": "20-07-L-HumanOneHipOneShoulder",
   "description": "one hip, one shoulder, updated colliders",
   "path": "Samples~/20-07-L-HumanOneHipOneShoulder"
+},
+{
+  "displayName": "20-07-L-HumanOneHipOneShoulderShorterTorso",
+  "description": "one hip, one shoulder, shorter torso",
+  "path": "Samples~/20-07-L-HumanOneHipOneShoulderShorterTorso"
 }
   ]
 }

@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657844, g: 0.49641222, b: 0.57481694, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -327,7 +327,6 @@ GameObject:
   - component: {fileID: 1734616960}
   - component: {fileID: 1734616959}
   - component: {fileID: 1734616962}
-  - component: {fileID: 1734616963}
   m_Layer: 0
   m_Name: Create Creature
   m_TagString: Untagged
@@ -357,10 +356,6 @@ MonoBehaviour:
   m_StartString: '[|C]+(90)[AH]-(180)[AH]+(90)T+(90)[G-(90)L]-(180)[G+(90)L]'
   m_Iterations: 2
   m_Rules:
-  - A=F(0.25)F(0.25)
-  - L=F(0.35)F(0.3)^V
-  - T=F(0.4)F(0.4)
-  - C=F(0.3)
   - G=F(0.2)
   - V=F(0.2)
   - H=F(0.15)
@@ -413,18 +408,6 @@ MonoBehaviour:
   enableDQSkinner: 1
   gridResolution: 64
   size: 4
---- !u!114 &1734616963
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1734616957}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1290768e921aa433b904e35211ad4d76, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1816960699
 GameObject:
   m_ObjectHideFlags: 0

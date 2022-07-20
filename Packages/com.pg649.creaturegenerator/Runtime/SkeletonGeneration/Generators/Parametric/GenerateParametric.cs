@@ -16,6 +16,7 @@ public class GenerateParametric : MonoBehaviour
     void Start()
     {
         CreatureParameters p = GetComponent<CreatureParameters>();
+        SkeletonAssemblerSettings s = GetComponent<SkeletonAssemblerSettings>();
         ParametricCreature c = new ParametricCreature(p);
         ParametricGenerator g = new ParametricGenerator(p);
 
@@ -23,29 +24,7 @@ public class GenerateParametric : MonoBehaviour
 
         if (generate_skeleton)
         {
-            GameObject rootGo = SkeletonAssembler.Assemble(skeletonDefinition);
-            /*BoneDefinition test = new();
-            test.Length = 2.0f;
-            test.ProximalAxis = Vector3.down;
-            test.VentralAxis = Vector3.forward;
-            test.Category = BoneCategory.Torso;
-            test.AttachmentHint = new();
-            test.Thickness = 0.1f;
-
-            BoneDefinition test2 = new();
-            test2.Length = 2.0f;
-            test2.ProximalAxis = Vector3.down;
-            test2.VentralAxis = Vector3.forward;
-            test2.Category = BoneCategory.Torso;
-            test2.AttachmentHint = new();
-            test2.AttachmentHint.VentralDirection = Vector3.back;
-            test2.AttachmentHint.Offset = new Vector3(1.0f, 0.0f, 1.0f);
-            test2.Thickness = 0.1f;
-
-            test.childBones.Add(test2);
-            test2.ParentBone = test;
-
-            //GameObject rootGo = SkeletonAssembler.Assemble(test);*/
+            GameObject rootGo = SkeletonAssembler.Assemble(skeletonDefinition, s);
 
 
             rootGo.transform.parent = gameObject.transform;

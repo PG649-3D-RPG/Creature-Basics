@@ -36,7 +36,9 @@ public class GenerateParametric : MonoBehaviour
 
             if (metaball_mesh)
             {
-                MeshGenerator meshGen = GetComponent<MeshGenerator>();
+                MeshGenerator mg = GetComponent<MeshGenerator>();
+                mg.material = new Material(Shader.Find("MadCake/Material/Standard hacked for DQ skinning"));
+                mg.material.color = Color.white;
                 meshGen.Generate(Metaball.BuildFromSkeleton(rootGo.GetComponent<Skeleton>()));
             }
         }

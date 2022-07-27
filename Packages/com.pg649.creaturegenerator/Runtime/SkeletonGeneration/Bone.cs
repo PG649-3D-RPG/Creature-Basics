@@ -25,14 +25,14 @@ public class Bone : MonoBehaviour
     }
 
     public Vector3 WorldDistalPoint() {
-        return WorldProximalPoint() - WorldProximalAxis() * length;
+        return WorldProximalPoint() + WorldDistalAxis() * length;
     }
 
     public Vector3 WorldMidpoint() {
         return WorldProximalPoint() + WorldDistalPoint() / 2.0f;
     }
 
-    public Vector3 WorldProximalAxis() {
+    public Vector3 WorldDistalAxis() {
         return gameObject.transform.forward;
     }
 
@@ -50,14 +50,14 @@ public class Bone : MonoBehaviour
     }
 
     public Vector3 LocalDistalPoint() {
-        return LocalProximalPoint() - LocalProximalAxis() * length;
+        return LocalProximalPoint() + LocalDistalAxis() * length;
     }
 
     public Vector3 LocalMidpoint() {
         return LocalProximalPoint() + LocalDistalPoint() / 2.0f;
     }
 
-    public Vector3 LocalProximalAxis() {
+    public Vector3 LocalDistalAxis() {
         return Vector3.forward;
     }
 

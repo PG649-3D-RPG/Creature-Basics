@@ -103,7 +103,7 @@ public class SkeletonAssembler {
         //bone.boneIndex = boneIndex;
 
         // Align local coordinate system to chosen proximal and ventral axis.
-        result.transform.rotation = Quaternion.LookRotation(self.ProximalAxis, self.VentralAxis);
+        result.transform.rotation = Quaternion.LookRotation(self.DistalAxis, self.VentralAxis);
         
         if (isRoot) {
             result.AddComponent<Skeleton>();
@@ -120,18 +120,13 @@ public class SkeletonAssembler {
             }
 
             if (self.AttachmentHint.VentralDirection != null) {
-                // Rotate about proximal (z) Axis, so that the world-space ventral axis matches
+                // Rotate so that the world-space ventral axis matches
                 // the axis prescribed by the AttachmentHint
-                float angle = Vector3.Angle(bone.WorldVentralAxis(), self.AttachmentHint.VentralDirection.GetValueOrDefault());
-                Debug.Log(angle);
-                result.transform.Rotate(0.0f, 0.0f, angle);
-                self.PropagateAttachmentRotation(angle);
-            }
-
-            ConfigurableJoint joint = result.AddComponent<ConfigurableJoint>();
-            //joint.transform.rotation = result.transform.rotation;
-            //joint.targetRotation = Quaternion.LookRotation(end-start);
-            //joint.anchor = new Vector3(0,-length/2,0);
+                var target = Quaternion.LookRotation(self.DistalAxis, self.AttachmentHint.VentralDirection.GetValueOrDefault());
+                var current = result.transform.rotation;
+                result.transform.rotation = target;
+                var delta = target * Quaternion.Inverse(current);
+                self.PropagateAttachmentRotation(delta);
 
             joint.connectedBody = parentGo.GetComponent<Rigidbody>();
             joint.connectedAnchor = parentGo.transform.position;
@@ -190,7 +185,7 @@ public class SkeletonAssembler {
                 meshObject.transform.parent = result.transform;
                 meshObject.transform.localPosition = bone.LocalMidpoint();
                 meshObject.transform.localScale = size;
-                meshObject.transform.rotation = Quaternion.LookRotation(bone.WorldProximalAxis(), bone.WorldVentralAxis());
+                meshObject.transform.rotation = Quaternion.LookRotation(bone.WorldDistalAxis(), bone.WorldVentralAxis());
             }
         } else {
             CapsuleCollider collider = result.AddComponent<CapsuleCollider>();
@@ -211,7 +206,7 @@ public class SkeletonAssembler {
                 meshObject.transform.localScale = new Vector3(0.5f ,self.Length*0.45f, 0.5f);
                 // Rotate capsule so that y-axis points along ProximalAxis of parent, i.e. in the direction
                 // of the bone
-                meshObject.transform.rotation = Quaternion.LookRotation(bone.WorldVentralAxis(), bone.WorldProximalAxis());
+                meshObject.transform.rotation = Quaternion.LookRotation(bone.WorldVentralAxis(), bone.WorldDistalAxis());
             }
         }
         return result;

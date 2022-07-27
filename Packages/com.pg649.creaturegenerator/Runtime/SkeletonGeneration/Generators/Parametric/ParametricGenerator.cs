@@ -108,7 +108,7 @@ public class ParametricGenerator {
         BoneDefinition part = new();
 
         part.Length = length;
-        part.ProximalAxis = Vector3.up;
+        part.DistalAxis = Vector3.down;
         part.VentralAxis = Vector3.forward;
         part.Category = BoneCategory.Arm;
         part.Thickness = thickness;
@@ -193,7 +193,7 @@ public class ParametricGenerator {
 
         part.Length = length;
         // Construct Legs pointing down, with front side facing forward.
-        part.ProximalAxis = Vector3.up;
+        part.DistalAxis = Vector3.down;
         part.VentralAxis = Vector3.forward;
         part.Category = BoneCategory.Leg;
         part.AttachmentHint = new();
@@ -240,15 +240,15 @@ public class ParametricGenerator {
         BoneDefinition part = new();
 
         part.Length = length;
-        // Construct Torso pointing down, with front side facing forward.
+        // Construct Torso pointing up, with front side facing forward.
         if (mode == Mode.Biped)
         {
-            part.ProximalAxis = Vector3.down;
+            part.DistalAxis = Vector3.up;
             part.VentralAxis = Vector3.forward;
         }
         else if (mode == Mode.Quadruped)
         {
-            part.ProximalAxis = Vector3.back;
+            part.DistalAxis = Vector3.forward;
             part.VentralAxis = Vector3.down;
         }
         part.Category = BoneCategory.Torso;
@@ -280,8 +280,8 @@ public class ParametricGenerator {
         BoneDefinition part = new();
 
         part.Length = length;
-        // Construct Neck pointing down, with front side facing forward.
-        part.ProximalAxis = Vector3.down;
+        // Construct Neck pointing up, with front side facing forward.
+        part.DistalAxis = Vector3.up;
         part.VentralAxis = Vector3.forward;
         part.Category = BoneCategory.Torso;
         part.AttachmentHint = new();
@@ -297,7 +297,7 @@ public class ParametricGenerator {
         attachTo.LinkChild(head);
 
         head.Length = headSize;
-        head.ProximalAxis = Vector3.down;
+        head.DistalAxis = Vector3.up;
         head.VentralAxis = Vector3.forward;
         head.Category = BoneCategory.Head;
         head.AttachmentHint = new();
@@ -322,7 +322,7 @@ public class ParametricGenerator {
     {
         BoneDefinition hip = new();
         hip.Length = attachTo.Thickness;
-        hip.ProximalAxis = proximalAxis;
+        hip.DistalAxis = proximalAxis;
         hip.VentralAxis = Vector3.forward;
         hip.Category = BoneCategory.Hip;
         hip.Thickness = 0f; // For now to avoid metaball generation around hip

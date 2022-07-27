@@ -20,6 +20,10 @@ public class Bone : MonoBehaviour
 
     public bool isRoot;
 
+    /// <summary>
+    ///  True if this bone is a mirrored version of another bone
+    /// </summary>
+    public bool mirrored;
     public Vector3 WorldProximalPoint() {
         return gameObject.transform.position;
     }

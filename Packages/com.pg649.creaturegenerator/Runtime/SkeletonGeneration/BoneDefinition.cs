@@ -20,6 +20,8 @@ public class BoneDefinition {
 
     public float Thickness;
 
+    public bool Mirrored;
+
     public BoneDefinition() {
         ChildBones = new();
         AttachmentHint = new();

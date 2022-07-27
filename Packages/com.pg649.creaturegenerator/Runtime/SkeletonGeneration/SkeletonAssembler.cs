@@ -18,7 +18,7 @@ public class SkeletonAssembler {
         pass(skeleton.RootBone, def => {
             GameObject parent = (def.ParentBone != null && objects.ContainsKey(def.ParentBone)) ? objects[def.ParentBone] : null;
             GameObject root = objects.ContainsKey(skeleton.RootBone) ? objects[skeleton.RootBone] : null;
-            GameObject current = toGameObject(def, parent, root, skeleton.JointLimits, settings);
+            GameObject current = toGameObject(def, parent, root, settings);
 
             Bone currentBone = current.GetComponent<Bone>();
             Bone parentBone = parent != null ? parent.GetComponent<Bone>() : null;
@@ -36,6 +36,9 @@ public class SkeletonAssembler {
         pass(skeleton.RootBone, def => {
             GameObject current = objects[def];
             current.transform.Rotate(def.AttachmentHint.Rotation.GetValueOrDefault().eulerAngles);
+
+            if (def != skeleton.RootBone)
+                LinkWithJoint(objects[def.ParentBone], current, skeleton.JointLimits, settings);
         });
 
         return objects[skeleton.RootBone];
@@ -83,24 +86,73 @@ public class SkeletonAssembler {
     }
 
 
-    private static GameObject toGameObject(BoneDefinition self, GameObject parentGo, GameObject rootGo, LimitTable jointLimits, SkeletonAssemblerSettings settings) {
+    private static void LinkWithJoint(GameObject parent, GameObject child, LimitTable jointLimits, SkeletonAssemblerSettings settings)
+    {
+            var joint = child.AddComponent<ConfigurableJoint>();
+            
+            joint.connectedBody = parent.GetComponent<Rigidbody>();
+            joint.connectedAnchor = parent.transform.position;
+
+            joint.xMotion = ConfigurableJointMotion.Locked;
+            joint.yMotion = ConfigurableJointMotion.Locked;
+            joint.zMotion = ConfigurableJointMotion.Locked;
+            joint.angularXMotion = ConfigurableJointMotion.Locked;
+            joint.angularYMotion = ConfigurableJointMotion.Locked;
+            joint.angularZMotion = ConfigurableJointMotion.Locked;
+
+            var childCategory = child.GetComponent<Bone>().category;
+            var parentCategory = parent.GetComponent<Bone>().category;
+            var mirrored = child.GetComponent<Bone>().mirrored;
+            
+            if (jointLimits.HasLimits((parentCategory, childCategory))) {
+                var limits = jointLimits[(parentCategory, childCategory)];
+                if (limits.XAxisMin != 0.0f || limits.XAxisMax != 0.0f)
+                {
+                    joint.angularXMotion = ConfigurableJointMotion.Limited;
+                    joint.lowAngularXLimit = new SoftJointLimit() { limit = limits.XAxisMin};
+                    joint.highAngularXLimit = new SoftJointLimit() { limit = limits.XAxisMax};
+                }
+                if (limits.YAxisSymmetric != 0.0f)
+                {
+                    joint.angularYMotion = ConfigurableJointMotion.Limited;
+                    joint.angularYLimit = new SoftJointLimit() { limit = limits.YAxisSymmetric};
+                }
+                if (limits.ZAxisSymmetric != 0.0f)
+                {
+                    joint.angularZMotion = ConfigurableJointMotion.Limited;
+                    joint.angularZLimit = new SoftJointLimit() { limit = limits.ZAxisSymmetric};
+                }
+                if (limits.Axis != null)
+                {
+                    joint.axis = (mirrored ? -1.0f : 1.0f) * limits.Axis.GetValueOrDefault();
+                }
+                if (limits.SecondaryAxis != null)
+                {
+                    joint.secondaryAxis = (mirrored ? -1.0f : 1.0f) * limits.SecondaryAxis.GetValueOrDefault();
+                }
+            }
+
+            JointDrive slerp = new()
+            {
+                positionSpring = 10000.0f,
+                positionDamper = 500.0f,
+                maximumForce = float.MaxValue
+            };
+            joint.slerpDrive = slerp;
+            joint.rotationDriveMode = RotationDriveMode.Slerp;
+    }
+    private static GameObject toGameObject(BoneDefinition self, GameObject parentGo, GameObject rootGo, SkeletonAssemblerSettings settings) {
         bool isRoot = parentGo == null;
 
-        // TOOD(markus): Name
         GameObject result = new GameObject("");
         result.tag = "Agent";
 
-
-
         Rigidbody rb = result.AddComponent<Rigidbody>();
-        rb.useGravity = false;
 
         Bone bone = result.AddComponent<Bone>();
         bone.category = self.Category;
         bone.length = self.Length;
-        // TODO(markus): Limb indices
-        //bone.limbIndex = limbIndex;
-        //bone.boneIndex = boneIndex;
+        bone.mirrored = self.Mirrored;
 
         // Align local coordinate system to chosen proximal and ventral axis.
         result.transform.rotation = Quaternion.LookRotation(self.DistalAxis, self.VentralAxis);
@@ -128,29 +180,7 @@ public class SkeletonAssembler {
                 var delta = target * Quaternion.Inverse(current);
                 self.PropagateAttachmentRotation(delta);
 
-            joint.connectedBody = parentGo.GetComponent<Rigidbody>();
-            joint.connectedAnchor = parentGo.transform.position;
-
-            joint.xMotion = ConfigurableJointMotion.Locked;
-            joint.yMotion = ConfigurableJointMotion.Locked;
-            joint.zMotion = ConfigurableJointMotion.Locked;
-            joint.angularXMotion = ConfigurableJointMotion.Limited;
-            joint.angularYMotion = ConfigurableJointMotion.Limited;
-            joint.angularZMotion = ConfigurableJointMotion.Limited;
-
-            if (jointLimits.HasLimits((self.Category, self.ParentBone.Category))) {
-                JointLimits limits = jointLimits[(self.Category, self.ParentBone.Category)];
-                joint.lowAngularXLimit = new SoftJointLimit() { limit = limits.XAxisMin};
-                joint.highAngularXLimit = new SoftJointLimit() { limit = limits.XAxisMax};
-                joint.angularYLimit = new SoftJointLimit() { limit = limits.YAxisSymmetric};
-                joint.angularZLimit = new SoftJointLimit() { limit = limits.ZAxisSymmetric};
-            } else {
-                joint.lowAngularXLimit = BoneAdd.defaultLowXLimit[self.Category];
-                joint.highAngularXLimit = BoneAdd.defaultHighXLimit[self.Category];
-                joint.angularYLimit = BoneAdd.defaultYLimit[self.Category];
-                joint.angularZLimit = BoneAdd.defaultZLimit[self.Category];
             }
-
             Skeleton skeleton = rootGo.GetComponent<Skeleton>();
             skeleton.bonesByCategory[self.Category].Add(result);
         }

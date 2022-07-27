@@ -28,7 +28,6 @@ public class GenerateParametric : MonoBehaviour
 
 
             rootGo.transform.parent = gameObject.transform;
-            Physics.autoSimulation = false;
         }
 
         if (metaball_mesh)

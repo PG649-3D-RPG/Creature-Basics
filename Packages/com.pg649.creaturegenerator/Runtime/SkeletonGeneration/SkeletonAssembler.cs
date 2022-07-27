@@ -9,16 +9,16 @@ public class SkeletonAssembler {
     // Human density if apparently about 1000kg/m^3
     static float BodyDensity = 1000.0f;
 
-    public static bool attachPrimitiveMesh = false;
+    public static bool attachPrimitiveMesh = true;
 
-    public static  GameObject Assemble(SkeletonDefinition skeleton) {
+    public static  GameObject Assemble(SkeletonDefinition skeleton, SkeletonAssemblerSettings settings) {
         Dictionary<BoneDefinition, GameObject> objects = new();
         Dictionary<BoneCategory, int> nextIndices = new();
         // Walk over SkeletonDefinition to create gameobjects.
         pass(skeleton.RootBone, def => {
             GameObject parent = (def.ParentBone != null && objects.ContainsKey(def.ParentBone)) ? objects[def.ParentBone] : null;
             GameObject root = objects.ContainsKey(skeleton.RootBone) ? objects[skeleton.RootBone] : null;
-            GameObject current = toGameObject(def, parent, root, skeleton.JointLimits);
+            GameObject current = toGameObject(def, parent, root, skeleton.JointLimits, settings);
 
             Bone currentBone = current.GetComponent<Bone>();
             Bone parentBone = parent != null ? parent.GetComponent<Bone>() : null;
@@ -83,7 +83,7 @@ public class SkeletonAssembler {
     }
 
 
-    private static GameObject toGameObject(BoneDefinition self, GameObject parentGo, GameObject rootGo, LimitTable jointLimits) {
+    private static GameObject toGameObject(BoneDefinition self, GameObject parentGo, GameObject rootGo, LimitTable jointLimits, SkeletonAssemblerSettings settings) {
         bool isRoot = parentGo == null;
 
         // TOOD(markus): Name
@@ -93,11 +93,16 @@ public class SkeletonAssembler {
 
 
         Rigidbody rb = result.AddComponent<Rigidbody>();
-        rb.useGravity = false;
+
+        if (settings.DebugDisableBoneGravity)
+        {
+            rb.useGravity = false;
+        }
 
         Bone bone = result.AddComponent<Bone>();
         bone.category = self.Category;
         bone.length = self.Length;
+        bone.thickness = self.Thickness;
         // TODO(markus): Limb indices
         //bone.limbIndex = limbIndex;
         //bone.boneIndex = boneIndex;
@@ -112,7 +117,12 @@ public class SkeletonAssembler {
             // aftwards again, if axis are not correct.
             Bone parentBone = parentGo.GetComponent<Bone>();
             result.transform.parent = parentGo.transform;
-            result.transform.localPosition = Vector3.Lerp(parentBone.LocalProximalPoint(), parentBone.LocalDistalPoint(), self.AttachmentHint.AttachmentPoint);
+
+            Vector3 pos = parentBone.LocalProximalPoint() -
+                self.AttachmentHint.Position.Proximal * self.ParentBone.Length * parentBone.LocalProximalAxis() +
+                self.AttachmentHint.Position.Lateral * self.ParentBone.Thickness * parentBone.LocalLateralAxis() +
+                self.AttachmentHint.Position.Ventral * self.ParentBone.Thickness * parentBone.LocalVentralAxis();
+            result.transform.localPosition = pos;
 
             if (self.AttachmentHint.Offset != null) {
                 // Apply offset prescribed in AttachmentHint
@@ -162,57 +172,61 @@ public class SkeletonAssembler {
 
         GameObject meshObject;
         if(self.Category == BoneCategory.Hand){
-            float r = 0.1f;
-            if(attachPrimitiveMesh){
+            SphereCollider collider = result.AddComponent<SphereCollider>();
+            float radius = self.Thickness;
+            collider.radius = radius;
+            collider.center = bone.LocalMidpoint();
+            rb.mass = BodyDensity * (3.0f * (float)Math.PI * radius * radius * radius) / 4.0f;
+
+            if(settings.AttachPrimitiveMesh){
                 meshObject = GameObject.CreatePrimitive(PrimitiveType.Sphere);
                 meshObject.tag = "Agent";
-                meshObject.transform.localScale = new Vector3(0.1f, 0.1f ,0.1f);
 
                 meshObject.transform.parent = result.transform;
-                meshObject.transform.position = bone.LocalMidpoint();
-                meshObject.transform.rotation = result.transform.rotation; 
-
+                meshObject.transform.localPosition = bone.LocalMidpoint();
+                meshObject.transform.localScale = new Vector3(radius / 0.5f, radius / 0.5f , radius / 0.5f);
             }
-            SphereCollider collider = result.AddComponent<SphereCollider>();                        
-            // NOTE(markus): Needs to be scaled by anther factor of 0.1, not quite sure why
-            collider.radius = 0.1f * self.Thickness;
-            rb.mass = BodyDensity * (3.0f * (float)Math.PI * r * r * r) / 4.0f;
         }
         else if (self.Category == BoneCategory.Foot) {
-            Vector3 size = new Vector3(0.1f, self.Length * 0.9f, 0.05f);
-            if(attachPrimitiveMesh){
-                meshObject = GameObject.CreatePrimitive(PrimitiveType.Cube);                        
-                meshObject.tag = "Agent";
-                meshObject.transform.localScale = size;
+            Vector3 size = new Vector3(self.Thickness, 0.05f, self.Length * 0.9f);
 
-                meshObject.transform.parent = result.transform;
-                meshObject.transform.position = bone.LocalMidpoint();
-                meshObject.transform.rotation = result.transform.rotation; 
-
-            }
             BoxCollider collider = result.AddComponent<BoxCollider>();
             collider.size = size;
+            collider.center = bone.LocalMidpoint();
             rb.mass = BodyDensity * (size.x * size.y * size.z);
-        } else {
-            if(attachPrimitiveMesh){
-                meshObject = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+
+            if(settings.AttachPrimitiveMesh){
+                meshObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 meshObject.tag = "Agent";
-                meshObject.transform.localScale = new Vector3(0.1f,self.Length*0.45f,0.1f);
-
                 meshObject.transform.parent = result.transform;
-                meshObject.transform.position = bone.LocalMidpoint();
-                meshObject.transform.rotation = result.transform.rotation; 
-
+                meshObject.transform.localPosition = bone.LocalMidpoint();
+                meshObject.transform.localScale = size;
+                meshObject.transform.rotation = Quaternion.LookRotation(bone.WorldProximalAxis(), bone.WorldVentralAxis());
+                //meshObject.transform.rotation = Quaternion.LookRotation(bone.WorldVentralAxis(), bone.WorldProximalAxis());
             }
+        } else {
+            float height = self.Length;
+            float radius = Mathf.Clamp(self.Thickness, 0.0f, 0.5f * height);
             CapsuleCollider collider = result.AddComponent<CapsuleCollider>();
-            collider.height = self.Length;
-            //collider.radius = self.Thickness;
-            collider.radius = 0.25f;
+            collider.height = height;
+            collider.radius = radius;
+            //collider.radius = 0.25f;
             collider.center = bone.LocalMidpoint();
             // Colliders point along Proximal (Z) Axis
             collider.direction = 2;
             // Ellipsoid Volume is 3/4 PI abc, with radii a, b, c
             rb.mass = BodyDensity * (3.0f * (float)Math.PI * 0.1f * self.Length * 0.45f * 0.1f) / 4;
+
+            if(settings.AttachPrimitiveMesh){
+                meshObject = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+                meshObject.tag = "Agent";
+                meshObject.transform.parent = result.transform;
+                meshObject.transform.localPosition = bone.LocalMidpoint();
+                meshObject.transform.localScale = new Vector3(radius / 0.5f , height * 0.45f, radius / 0.5f);
+                // Rotate capsule so that y-axis points along ProximalAxis of parent, i.e. in the direction
+                // of the bone
+                meshObject.transform.rotation = Quaternion.LookRotation(bone.WorldVentralAxis(), bone.WorldProximalAxis());
+            }
         }
         return result;
     }

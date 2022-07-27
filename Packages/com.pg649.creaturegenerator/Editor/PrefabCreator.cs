@@ -32,17 +32,17 @@ public class PrefabCreator : MonoBehaviour
             return;
         }
 
-        string path = "";
-        string name = "";
-        if (gameObject.TryGetComponent(out PrefabCreator creator))
-        {
-            path = creator.creatureExportPath;
-            name = creator.creatureExportName;
-        }
+        string path = "Packages/com.pg649.creaturegenerator/Runtime/SkeletonFromLSystem/Prefabs/";
+        string name = gameObject.name;
+        // if (gameObject.TryGetComponent(out PrefabCreator creator))
+        // {
+        //     path = creator.creatureExportPath;
+        //     name = creator.creatureExportName;
+        // }
 
-        // set default values if custom values were not set
-        if (path == "") path = "Packages/com.pg649.creaturegenerator/Runtime/SkeletonFromLSystem/Prefabs/";
-        if (name == "") name = gameObject.name;
+        // // set default values if custom values were not set
+        // if (path == "") 
+        // if (name == "") 
 
         string localPathToPrefabFolder = Path.Combine(path, name);
         // Create folder if it does not exist and set path for exported prefab.
@@ -80,19 +80,19 @@ public class PrefabCreator : MonoBehaviour
             gameObject.GetComponent<LSystem.LSystemPropertyViewer>().Populate(prop);
 
             // export lsystem
-            if (creator.exportLSystemSettings)
-            {
-                var jsonData = JsonUtility.ToJson(prop);
-                StreamWriter writer = new(globalPathToLSystem, false);
-                writer.WriteLine(jsonData);
-                writer.Close();
-                Debug.Log("JSON was saved successfully at: " + globalPathToLSystem);
-                AssetDatabase.ImportAsset(localPathToLSystem);
-            }
+            // if (creator.exportLSystemSettings)
+            // {
+            var jsonData = JsonUtility.ToJson(prop);
+            StreamWriter writer = new(globalPathToLSystem, false);
+            writer.WriteLine(jsonData);
+            writer.Close();
+            Debug.Log("JSON was saved successfully at: " + globalPathToLSystem);
+            AssetDatabase.ImportAsset(localPathToLSystem);
+            // }
             // remove LSystemEditor component
             DestroyImmediate(editor);
         }
-        if (gameObject.TryGetComponent(out PrefabCreator prefabCreator)) DestroyImmediate(prefabCreator);
+        // if (gameObject.TryGetComponent(out PrefabCreator prefabCreator)) DestroyImmediate(prefabCreator);
 
         // Create the new Prefab and log whether Prefab was saved successfully.
         PrefabUtility.SaveAsPrefabAsset(gameObject, localPathToPrefab, out bool prefabSuccess);
@@ -154,28 +154,28 @@ public class PrefabCreator : MonoBehaviour
             gameObject.AddComponent<LSystem.LSystemPropertyViewer>();
             gameObject.GetComponent<LSystem.LSystemPropertyViewer>().Populate(prop);
 
-            if (gameObject.TryGetComponent(out PrefabCreator prefabCreator))
-            {
-                if (prefabCreator.exportLSystemSettings)
-                {
-                    var jsonData = JsonUtility.ToJson(prop);
-                    StreamWriter writer = new(globalPathToLSystem, false);
-                    writer.WriteLine(jsonData);
-                    writer.Close();
-                    Debug.Log("JSON was saved successfully at: " + globalPathToLSystem);
-                    AssetDatabase.ImportAsset(localPathToLSystem);
-                }
-                DestroyImmediate(prefabCreator);
-            }
-            DestroyImmediate(editor);
+            // if (gameObject.TryGetComponent(out PrefabCreator prefabCreator))
+            // {
+            //     if (prefabCreator.exportLSystemSettings)
+            //     {
+            var jsonData = JsonUtility.ToJson(prop);
+            StreamWriter writer = new(globalPathToLSystem, false);
+            writer.WriteLine(jsonData);
+            writer.Close();
+            Debug.Log("JSON was saved successfully at: " + globalPathToLSystem);
+            AssetDatabase.ImportAsset(localPathToLSystem);
+            // }
+            // DestroyImmediate(prefabCreator);
         }
+        DestroyImmediate(editor);
+        // }
         // remove prefabCreator if it has not been removed before
-        if (gameObject.TryGetComponent(out PrefabCreator creator)) DestroyImmediate(creator);
+        // if (gameObject.TryGetComponent(out PrefabCreator creator)) DestroyImmediate(creator);
 
         // Create the new Prefab and log whether Prefab was saved successfully.
         PrefabUtility.SaveAsPrefabAsset(gameObject, localPath, out bool prefabSuccess);
         if (prefabSuccess == true)
-            Debug.Log("Prefab was saved successfully at: "+ localPath);
+            Debug.Log("Prefab was saved successfully at: " + localPath);
         else
             Debug.Log("Prefab failed to save" + prefabSuccess);
 

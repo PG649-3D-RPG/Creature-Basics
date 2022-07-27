@@ -24,4 +24,26 @@ public class Skeleton : MonoBehaviour
         nAngYMotLimited = 0;
         nAngZMotLimited = 0;
     }
+
+    public IEnumerable<(GameObject, Bone, Rigidbody, ConfigurableJoint)> Iterator() {
+        Queue<GameObject> todo = new();
+        todo.Enqueue(gameObject);
+        while (todo.Count > 0) {
+            GameObject current = todo.Dequeue();
+
+            if (current.GetComponent<Bone>() != null) {
+                yield return (
+                    current,
+                    current.GetComponent<Bone>(),
+                    current.GetComponent<Rigidbody>(),
+                    current.GetComponent<ConfigurableJoint>()
+                );
+            }
+
+            foreach (Transform child in current.transform) {
+                todo.Enqueue(child.gameObject);
+            }
+        }
+    }
+
 }

@@ -185,6 +185,9 @@ public class SkeletonAssembler {
                 meshObject.transform.parent = result.transform;
                 meshObject.transform.localPosition = bone.LocalMidpoint();
                 meshObject.transform.localScale = new Vector3(radius / 0.5f, radius / 0.5f , radius / 0.5f);
+
+                // Delete Collider from primitive
+                UnityEngine.Object.Destroy(meshObject.GetComponent<Collider>());
             }
         }
         else if (self.Category == BoneCategory.Foot) {
@@ -203,6 +206,9 @@ public class SkeletonAssembler {
                 meshObject.transform.localScale = size;
                 meshObject.transform.rotation = Quaternion.LookRotation(bone.WorldProximalAxis(), bone.WorldVentralAxis());
                 //meshObject.transform.rotation = Quaternion.LookRotation(bone.WorldVentralAxis(), bone.WorldProximalAxis());
+
+                // Delete Collider from primitive
+                UnityEngine.Object.Destroy(meshObject.GetComponent<Collider>());
             }
         } else {
             float height = self.Length;
@@ -226,6 +232,9 @@ public class SkeletonAssembler {
                 // Rotate capsule so that y-axis points along ProximalAxis of parent, i.e. in the direction
                 // of the bone
                 meshObject.transform.rotation = Quaternion.LookRotation(bone.WorldVentralAxis(), bone.WorldProximalAxis());
+
+                // Delete Collider from primitive
+                UnityEngine.Object.Destroy(meshObject.GetComponent<Collider>());
             }
         }
         return result;

@@ -174,7 +174,7 @@ public class SkeletonAssembler {
                 meshObject.transform.position = bone.LocalMidpoint();
                 meshObject.transform.rotation = result.transform.rotation; 
 
-                meshObject.GetComponent<MeshRenderer>().shadowCastingMode = ShadowCastingMode.On;
+                meshObject.GetComponent<MeshRenderer>().shadowCastingMode = ShadowCastingMode.Off;
             }
             SphereCollider collider = result.AddComponent<SphereCollider>();                        
             // NOTE(markus): Needs to be scaled by anther factor of 0.1, not quite sure why
@@ -191,7 +191,7 @@ public class SkeletonAssembler {
                 meshObject.transform.position = bone.LocalMidpoint();
                 meshObject.transform.rotation = result.transform.rotation; 
 
-                meshObject.GetComponent<MeshRenderer>().shadowCastingMode = ShadowCastingMode.On;
+                meshObject.GetComponent<MeshRenderer>().shadowCastingMode = ShadowCastingMode.Off;
             }
             BoxCollider collider = result.AddComponent<BoxCollider>();
             collider.size = size;
@@ -205,7 +205,7 @@ public class SkeletonAssembler {
                 meshObject.transform.position = bone.LocalMidpoint();
                 meshObject.transform.rotation = result.transform.rotation; 
 
-                meshObject.GetComponent<MeshRenderer>().shadowCastingMode = ShadowCastingMode.On;
+                meshObject.GetComponent<MeshRenderer>().shadowCastingMode = ShadowCastingMode.Off;
             }
             CapsuleCollider collider = result.AddComponent<CapsuleCollider>();
             collider.height = self.Length;

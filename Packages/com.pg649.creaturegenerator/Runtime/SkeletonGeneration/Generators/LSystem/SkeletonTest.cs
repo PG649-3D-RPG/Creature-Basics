@@ -14,6 +14,8 @@ public class SkeletonTest : MonoBehaviour
     public bool primitiveMesh = false;
     [Tooltip("Generate metaball mesh")]
     public bool metaballMesh = true;
+    [Tooltip("Connect Hips")]
+    public bool connectHips = false;
 
     // Start is called before the first frame update
     private GameObject orientationCube;
@@ -24,7 +26,7 @@ public class SkeletonTest : MonoBehaviour
         List<Tuple<Vector3, Vector3>> segments = l.segments;
         if (generateSkeleton)
         {
-            GameObject boneTree = SkeletonGenerator.Generate(l, primitiveMesh);
+            GameObject boneTree = SkeletonGenerator.Generate(l, primitiveMesh, connectHips : connectHips);
             boneTree.transform.parent = gameObject.transform;
             gameObject.transform.Translate(new Vector3(0,0.025f,0));
             

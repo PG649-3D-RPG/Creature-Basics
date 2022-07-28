@@ -9,6 +9,8 @@ public class Bone : MonoBehaviour
 
     public float length;
 
+    public float thickness;
+
     /// The index number of the limb this bone belongs to, zero based. 
     /// A bone with category "Arm" and limbIndex 0 for example belong to the skeletons first arm.
     /// Bones with identical limb indices belong to the same limb.

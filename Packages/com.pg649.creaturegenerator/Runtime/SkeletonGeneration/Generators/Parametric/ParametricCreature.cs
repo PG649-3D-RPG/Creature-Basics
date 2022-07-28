@@ -103,7 +103,6 @@ public class ParametricCreature
                 thickness.Sort();
 
                 float footAngle = 1.2f;
-                float legAngle = 0.5f;
                 
                 for (int j=0; j<2; j++)
                 {

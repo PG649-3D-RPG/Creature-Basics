@@ -95,8 +95,8 @@ public class SkeletonAssembler {
 
 
         Rigidbody rb = result.AddComponent<Rigidbody>();
-        rb.drag = 0.05f;
-        rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+        rb.drag = settings.RigidbodyDrag;
+        rb.collisionDetectionMode = settings.CollisionDetectionMode;
         if (settings.DebugDisableBoneGravity)
         {
             rb.useGravity = false;
@@ -190,7 +190,7 @@ public class SkeletonAssembler {
                 meshObject.transform.localPosition = bone.LocalMidpoint();
                 meshObject.transform.localScale = new Vector3(radius / 0.5f, radius / 0.5f , radius / 0.5f);
 
-                meshObject.GetComponent<MeshRenderer>().shadowCastingMode = ShadowCastingMode.Off;
+                meshObject.GetComponent<MeshRenderer>().shadowCastingMode = settings.PrimitiveMeshShadows;
                 // Delete Collider from primitive
                 UnityEngine.Object.Destroy(meshObject.GetComponent<Collider>());
             }
@@ -211,7 +211,7 @@ public class SkeletonAssembler {
                 meshObject.transform.localScale = size;
                 meshObject.transform.rotation = Quaternion.LookRotation(bone.WorldProximalAxis(), bone.WorldVentralAxis());
                 //meshObject.transform.rotation = Quaternion.LookRotation(bone.WorldVentralAxis(), bone.WorldProximalAxis());
-                meshObject.GetComponent<MeshRenderer>().shadowCastingMode = ShadowCastingMode.Off;
+                meshObject.GetComponent<MeshRenderer>().shadowCastingMode = settings.PrimitiveMeshShadows;
                 // Delete Collider from primitive
                 UnityEngine.Object.Destroy(meshObject.GetComponent<Collider>());
             }
@@ -238,7 +238,7 @@ public class SkeletonAssembler {
                 // of the bone
                 meshObject.transform.rotation = Quaternion.LookRotation(bone.WorldVentralAxis(), bone.WorldProximalAxis());
 
-                meshObject.GetComponent<MeshRenderer>().shadowCastingMode = ShadowCastingMode.Off;
+                meshObject.GetComponent<MeshRenderer>().shadowCastingMode = settings.PrimitiveMeshShadows;
 
                 // Delete Collider from primitive
                 UnityEngine.Object.Destroy(meshObject.GetComponent<Collider>());

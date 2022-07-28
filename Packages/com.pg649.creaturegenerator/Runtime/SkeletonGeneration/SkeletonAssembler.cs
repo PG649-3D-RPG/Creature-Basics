@@ -1,9 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 using System;
 using System.Linq;
 using LSystem;
+using UnityEditor.PackageManager.UI;
 
 public class SkeletonAssembler {
     // Human density if apparently about 1000kg/m^3
@@ -93,7 +95,8 @@ public class SkeletonAssembler {
 
 
         Rigidbody rb = result.AddComponent<Rigidbody>();
-
+        rb.drag = settings.RigidbodyDrag;
+        rb.collisionDetectionMode = settings.CollisionDetectionMode;
         if (settings.DebugDisableBoneGravity)
         {
             rb.useGravity = false;
@@ -145,6 +148,7 @@ public class SkeletonAssembler {
 
             joint.connectedBody = parentGo.GetComponent<Rigidbody>();
             joint.connectedAnchor = parentGo.transform.position;
+            joint.projectionMode = JointProjectionMode.PositionAndRotation;
 
             joint.xMotion = ConfigurableJointMotion.Locked;
             joint.yMotion = ConfigurableJointMotion.Locked;
@@ -186,6 +190,7 @@ public class SkeletonAssembler {
                 meshObject.transform.localPosition = bone.LocalMidpoint();
                 meshObject.transform.localScale = new Vector3(radius / 0.5f, radius / 0.5f , radius / 0.5f);
 
+                meshObject.GetComponent<MeshRenderer>().shadowCastingMode = settings.PrimitiveMeshShadows;
                 // Delete Collider from primitive
                 UnityEngine.Object.Destroy(meshObject.GetComponent<Collider>());
             }
@@ -206,7 +211,7 @@ public class SkeletonAssembler {
                 meshObject.transform.localScale = size;
                 meshObject.transform.rotation = Quaternion.LookRotation(bone.WorldProximalAxis(), bone.WorldVentralAxis());
                 //meshObject.transform.rotation = Quaternion.LookRotation(bone.WorldVentralAxis(), bone.WorldProximalAxis());
-
+                meshObject.GetComponent<MeshRenderer>().shadowCastingMode = settings.PrimitiveMeshShadows;
                 // Delete Collider from primitive
                 UnityEngine.Object.Destroy(meshObject.GetComponent<Collider>());
             }
@@ -232,6 +237,8 @@ public class SkeletonAssembler {
                 // Rotate capsule so that y-axis points along ProximalAxis of parent, i.e. in the direction
                 // of the bone
                 meshObject.transform.rotation = Quaternion.LookRotation(bone.WorldVentralAxis(), bone.WorldProximalAxis());
+
+                meshObject.GetComponent<MeshRenderer>().shadowCastingMode = settings.PrimitiveMeshShadows;
 
                 // Delete Collider from primitive
                 UnityEngine.Object.Destroy(meshObject.GetComponent<Collider>());

@@ -158,8 +158,6 @@ public class SkeletonAssembler {
             rb.useGravity = false;
         }
 
-        rb.isKinematic = true;
-
         Bone bone = result.AddComponent<Bone>();
         bone.category = self.Category;
         bone.length = self.Length;

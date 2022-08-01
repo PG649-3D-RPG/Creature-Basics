@@ -1,0 +1,16 @@
+{
+    "name": "com.pg649.creaturegenerator.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:51913108b0eb5694892af00261c200bf"
+    ],
+    "includePlatforms": ["Editor"],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

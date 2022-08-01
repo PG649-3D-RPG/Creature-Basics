@@ -1,9 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 using System;
 using System.Linq;
 using LSystem;
+using UnityEditor.PackageManager.UI;
 
 public class SkeletonAssembler {
     // Human density if apparently about 1000kg/m^3
@@ -92,6 +94,7 @@ public class SkeletonAssembler {
             
             joint.connectedBody = parent.GetComponent<Rigidbody>();
             joint.connectedAnchor = parent.transform.position;
+            joint.projectionMode = JointProjectionMode.PositionAndRotation;
 
             joint.xMotion = ConfigurableJointMotion.Locked;
             joint.yMotion = ConfigurableJointMotion.Locked;
@@ -148,11 +151,20 @@ public class SkeletonAssembler {
         result.tag = "Agent";
 
         Rigidbody rb = result.AddComponent<Rigidbody>();
+        rb.drag = settings.RigidbodyDrag;
+        rb.collisionDetectionMode = settings.CollisionDetectionMode;
+        if (settings.DebugDisableBoneGravity)
+        {
+            rb.useGravity = false;
+        }
+
+        rb.isKinematic = true;
 
         Bone bone = result.AddComponent<Bone>();
         bone.category = self.Category;
         bone.length = self.Length;
         bone.mirrored = self.Mirrored;
+        bone.thickness = self.Thickness;
 
         // Align local coordinate system to chosen proximal and ventral axis.
         result.transform.rotation = Quaternion.LookRotation(self.DistalAxis, self.VentralAxis);
@@ -164,7 +176,12 @@ public class SkeletonAssembler {
             // aftwards again, if axis are not correct.
             Bone parentBone = parentGo.GetComponent<Bone>();
             result.transform.parent = parentGo.transform;
-            result.transform.localPosition = Vector3.Lerp(parentBone.LocalProximalPoint(), parentBone.LocalDistalPoint(), self.AttachmentHint.AttachmentPoint);
+
+            Vector3 pos = parentBone.LocalProximalPoint() +
+                self.AttachmentHint.Position.Proximal * self.ParentBone.Length * parentBone.LocalDistalAxis() +
+                self.AttachmentHint.Position.Lateral * self.ParentBone.Thickness * parentBone.LocalLateralAxis() +
+                self.AttachmentHint.Position.Ventral * self.ParentBone.Thickness * parentBone.LocalVentralAxis();
+            result.transform.localPosition = pos;
 
             if (self.AttachmentHint.Offset != null) {
                 // Apply offset prescribed in AttachmentHint
@@ -187,11 +204,11 @@ public class SkeletonAssembler {
 
         GameObject meshObject;
         if(self.Category == BoneCategory.Hand){
-            float r = 0.1f;
-            SphereCollider collider = result.AddComponent<SphereCollider>();                        
-            // NOTE(markus): Needs to be scaled by anther factor of 0.1, not quite sure why
-            collider.radius = 0.1f * self.Thickness;
-            rb.mass = BodyDensity * (3.0f * (float)Math.PI * r * r * r) / 4.0f;
+            SphereCollider collider = result.AddComponent<SphereCollider>();
+            float radius = self.Thickness;
+            collider.radius = radius;
+            collider.center = bone.LocalMidpoint();
+            rb.mass = BodyDensity * (3.0f * (float)Math.PI * radius * radius * radius) / 4.0f;
 
             if(settings.AttachPrimitiveMesh){
                 meshObject = GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -199,14 +216,19 @@ public class SkeletonAssembler {
 
                 meshObject.transform.parent = result.transform;
                 meshObject.transform.localPosition = bone.LocalMidpoint();
-                meshObject.transform.localScale = new Vector3(0.1f, 0.1f ,0.1f);
+                meshObject.transform.localScale = new Vector3(radius / 0.5f, radius / 0.5f , radius / 0.5f);
+
+                meshObject.GetComponent<MeshRenderer>().shadowCastingMode = settings.PrimitiveMeshShadows;
+                // Delete Collider from primitive
+                UnityEngine.Object.Destroy(meshObject.GetComponent<Collider>());
             }
         }
         else if (self.Category == BoneCategory.Foot) {
-            Vector3 size = new Vector3(0.1f, self.Length * 0.9f, 0.05f);
+            Vector3 size = new Vector3(self.Thickness, 0.05f, self.Length * 0.9f);
 
             BoxCollider collider = result.AddComponent<BoxCollider>();
             collider.size = size;
+            collider.center = bone.LocalMidpoint();
             rb.mass = BodyDensity * (size.x * size.y * size.z);
 
             if(settings.AttachPrimitiveMesh){
@@ -216,12 +238,18 @@ public class SkeletonAssembler {
                 meshObject.transform.localPosition = bone.LocalMidpoint();
                 meshObject.transform.localScale = size;
                 meshObject.transform.rotation = Quaternion.LookRotation(bone.WorldDistalAxis(), bone.WorldVentralAxis());
+                //meshObject.transform.rotation = Quaternion.LookRotation(bone.WorldVentralAxis(), bone.WorldProximalAxis());
+                meshObject.GetComponent<MeshRenderer>().shadowCastingMode = settings.PrimitiveMeshShadows;
+                // Delete Collider from primitive
+                UnityEngine.Object.Destroy(meshObject.GetComponent<Collider>());
             }
         } else {
+            float height = self.Length;
+            float radius = Mathf.Clamp(self.Thickness, 0.0f, 0.5f * height);
             CapsuleCollider collider = result.AddComponent<CapsuleCollider>();
-            collider.height = self.Length;
-            //collider.radius = self.Thickness;
-            collider.radius = 0.25f;
+            collider.height = height;
+            collider.radius = radius;
+            //collider.radius = 0.25f;
             collider.center = bone.LocalMidpoint();
             // Colliders point along Proximal (Z) Axis
             collider.direction = 2;
@@ -233,10 +261,15 @@ public class SkeletonAssembler {
                 meshObject.tag = "Agent";
                 meshObject.transform.parent = result.transform;
                 meshObject.transform.localPosition = bone.LocalMidpoint();
-                meshObject.transform.localScale = new Vector3(0.5f ,self.Length*0.45f, 0.5f);
+                meshObject.transform.localScale = new Vector3(radius / 0.5f , height * 0.45f, radius / 0.5f);
                 // Rotate capsule so that y-axis points along ProximalAxis of parent, i.e. in the direction
                 // of the bone
                 meshObject.transform.rotation = Quaternion.LookRotation(bone.WorldVentralAxis(), bone.WorldDistalAxis());
+
+                meshObject.GetComponent<MeshRenderer>().shadowCastingMode = settings.PrimitiveMeshShadows;
+
+                // Delete Collider from primitive
+                UnityEngine.Object.Destroy(meshObject.GetComponent<Collider>());
             }
         }
         return result;

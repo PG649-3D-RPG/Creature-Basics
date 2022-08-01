@@ -40,22 +40,38 @@ public class BoneDefinition {
     }
 }
 
-public static class AttachmentPoints {
-    public const float ProximalPoint = 0.0f;
-    public const float MidPoint = 0.5f;
-    public const float DistalPoint = 1.0f;
+public static class RelativePositions {
+    public static readonly RelativePosition ProximalPoint = new(0.0f, 0.0f, 0.0f);
+    public static readonly RelativePosition MidPoint = new(0.0f, 0.0f, 0.5f);
+    public static readonly RelativePosition DistalPoint = new(0.0f, 0.0f, 1.0f);
 }
+
+/// Position on the plane spanned by the Proximal and Lateral axis. Normalized to Length and Thickness.
+/// Proximal 0 is the proximal point, Proximal 1 is the distal point.
+/// Lateral 1 is one thickness towards Lateral axis, Lateral -1 is one thickness behind Lateral axis.
+public struct RelativePosition {
+    public float Lateral;
+    public float Ventral;
+    public float Proximal;
+
+    public RelativePosition(float lateral, float ventral, float proximal) {
+        Lateral = lateral;
+        Ventral = ventral;
+        Proximal = proximal;
+    }
+}
+
 /// Provides a hint for how a bone should be attached to its parent.
 /// The world-space VentralAxis of the bone should point towards the VentralDirection
 /// after attachment.
 public class AttachmentHint {
-    public float AttachmentPoint;
+    public RelativePosition Position;
     public Vector3? VentralDirection;
     public Vector3? Offset;
     public Quaternion? Rotation;
 
     public AttachmentHint() {
-        AttachmentPoint =  AttachmentPoints.DistalPoint;
+        Position = RelativePositions.DistalPoint;
         VentralDirection = null;
         Offset = null;
         Rotation = null;

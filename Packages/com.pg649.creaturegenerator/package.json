@@ -36,6 +36,21 @@
       "displayName": "Human Creature 4 Torso Segments",
       "description": "Prefab HumanCreature with four torso segments.",
       "path": "Samples~/HumanCreature4TorsoSegments"
-  }
+  },
+  {
+    "displayName": "20-07-L-HumanOneHip",
+    "description": "one hip, updated colliders",
+    "path": "Samples~/20-07-L-HumanOneHip"
+},
+{
+  "displayName": "20-07-L-HumanTwoHips",
+  "description": "two hips, updated colliders",
+  "path": "Samples~/20-07-L-HumanTwoHips"
+},
+{
+  "displayName": "20-07-L-HumanOneHipOneShoulder",
+  "description": "one hip, one shoulder, updated colliders",
+  "path": "Samples~/20-07-L-HumanOneHipOneShoulder"
+}
   ]
 }

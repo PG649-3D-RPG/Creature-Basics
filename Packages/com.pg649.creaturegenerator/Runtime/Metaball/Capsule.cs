@@ -50,8 +50,6 @@ public class Capsule: Ball
         Bounds bounds = new Bounds(segment.startPoint, new Vector3(segment.thickness*2, segment.thickness*2, segment.thickness*2));
         bounds.Encapsulate(new Bounds(segment.endPoint, new Vector3(segment.thickness*2, segment.thickness*2, segment.thickness*2)));
 
-        bounds.Expand(0.75f); //TODO only temporary fix...
-
         return bounds;
     }
 

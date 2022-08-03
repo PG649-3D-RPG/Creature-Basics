@@ -60,7 +60,6 @@ namespace MarchingCubesProject
 
         /// <summary>
         /// Generates a mesh from the given Metaball
-        /// within a box of dimensions size*size*size centered at (0,0,0)
         /// </summary>
         /// <param name="metaball"></param>
         public void Generate(Metaball metaball)
@@ -75,7 +74,10 @@ namespace MarchingCubesProject
 
             Bounds metaballBounds = metaball.GetBounds();
             float maxSizeComp = Mathf.Max(metaballBounds.size.x, metaballBounds.size.y, metaballBounds.size.z);
-            Bounds voxelBounds = new Bounds(metaballBounds.center, new Vector3(maxSizeComp, maxSizeComp, maxSizeComp));
+            float voxelSize = maxSizeComp / (gridResolution - 1.0f);
+            maxSizeComp += 3.0f * voxelSize;
+
+            Bounds voxelBounds = new Bounds(metaballBounds.center - new Vector3(voxelSize, voxelSize, voxelSize), new Vector3(maxSizeComp, maxSizeComp, maxSizeComp));
 
             //Set the mode used to create the mesh.
             //Cubes is faster and creates less verts, tetrahedrons is slower and creates more verts but better represents the mesh surface.
@@ -99,9 +101,9 @@ namespace MarchingCubesProject
                 {
                     for (int z = 0; z < gridResolution; z++)
                     {
-                        float u = ((x + 0.5f) / gridResolution) * voxelBounds.size.x + voxelBounds.min.x;
-                        float v = ((y + 0.5f) / gridResolution) * voxelBounds.size.y + voxelBounds.min.y;
-                        float w = ((z + 0.5f) / gridResolution) * voxelBounds.size.z + voxelBounds.min.z;
+                        float u = (x / (gridResolution - 1.0f)) * voxelBounds.size.x + voxelBounds.min.x;
+                        float v = (y / (gridResolution - 1.0f)) * voxelBounds.size.y + voxelBounds.min.y;
+                        float w = (z / (gridResolution - 1.0f)) * voxelBounds.size.z + voxelBounds.min.z;
                         
                         voxels[x, y, z] = metaball.Value(u, v, w);
                     }

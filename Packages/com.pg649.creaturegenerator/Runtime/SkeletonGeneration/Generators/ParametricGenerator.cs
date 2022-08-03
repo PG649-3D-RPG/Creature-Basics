@@ -88,14 +88,12 @@ public class ParametricGenerator {
 
             var leftShoulder = buildShoulder();
             leftShoulder.LinkChild(leftRoot);
-            leftShoulder.AttachmentHint.Position = new RelativePosition(1.0f, 0.0f, 0.5f);
-            leftShoulder.AttachmentHint.Offset = new Vector3(-0.75f, 0.0f, 0.0f);
+            leftShoulder.AttachmentHint.Position = new RelativePosition(0.7f, 0.0f, 0.5f);
             leftShoulder.AttachmentHint.Rotation = Quaternion.Euler(0.0f, -90.0f, 0.0f);
             
             var rightShoulder = buildShoulder();
             rightShoulder.LinkChild(rightRoot);
-            rightShoulder.AttachmentHint.Position = new RelativePosition(-1.0f, 0.0f, 0.5f);
-            rightShoulder.AttachmentHint.Offset = new Vector3(0.75f, 0.0f, 0.0f);
+            rightShoulder.AttachmentHint.Position = new RelativePosition(-0.7f, 0.0f, 0.5f);
             rightShoulder.AttachmentHint.Rotation = Quaternion.Euler(0.0f, 90.0f, 0.0f);
 
             arms.Add(leftShoulder);

@@ -132,7 +132,6 @@ public class SkeletonAssembler {
                 // Rotate about proximal (z) Axis, so that the world-space ventral axis matches
                 // the axis prescribed by the AttachmentHint
                 float angle = Vector3.Angle(bone.WorldVentralAxis(), self.AttachmentHint.VentralDirection.GetValueOrDefault());
-                Debug.Log(angle);
                 result.transform.Rotate(0.0f, 0.0f, angle);
                 self.PropagateAttachmentRotation(angle);
             }

@@ -1,11 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Rendering;
 using System;
-using System.Linq;
-using LSystem;
-using UnityEditor.PackageManager.UI;
 
 public class SkeletonAssembler {
     // Human density if apparently about 1000kg/m^3

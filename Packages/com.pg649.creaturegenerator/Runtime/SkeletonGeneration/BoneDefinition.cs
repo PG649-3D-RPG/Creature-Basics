@@ -16,6 +16,8 @@ public class BoneDefinition {
 
     public BoneCategory Category;
 
+    public BoneCategory? SubCategory;
+
     public AttachmentHint AttachmentHint;
 
     public float Thickness;

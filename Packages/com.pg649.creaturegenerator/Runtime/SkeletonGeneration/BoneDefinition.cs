@@ -9,7 +9,7 @@ public class BoneDefinition {
     public float Length;
 
     /// Direction pointing along the bone (towards the child bone / away from the torso).
-    public Vector3 ProximalAxis;
+    public Vector3 DistalAxis;
 
     /// Direction pointing towards the front of the body part.
     public Vector3 VentralAxis;
@@ -22,6 +22,8 @@ public class BoneDefinition {
 
     public float Thickness;
 
+    public bool Mirrored;
+
     public BoneDefinition() {
         ChildBones = new();
         AttachmentHint = new();
@@ -32,10 +34,10 @@ public class BoneDefinition {
         child.ParentBone = this;
     }
 
-    public void PropagateAttachmentRotation(float angle) {
-        VentralAxis = Quaternion.AngleAxis(angle, ProximalAxis) * VentralAxis;
+    public void PropagateAttachmentRotation(Quaternion delta) {
+        VentralAxis = delta * VentralAxis;
         foreach (var child in ChildBones) {
-            child.PropagateAttachmentRotation(angle);
+            child.PropagateAttachmentRotation(delta);
         }
     }
 }

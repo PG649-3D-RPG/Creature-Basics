@@ -21,8 +21,16 @@ public class ParametricGenerator {
 
     private BoneDefinition armAttachmentBone;
 
-    private static Dictionary<(BoneCategory, BoneCategory), JointLimits> humanoidJointLimits = new Dictionary<(BoneCategory, BoneCategory), JointLimits>() {
-        {(BoneCategory.Arm, BoneCategory.Arm), new JointLimits { XAxisMin = 20, XAxisMax = 160, YAxisSymmetric = 0, ZAxisSymmetric = 0}}
+    private static readonly Dictionary<(BoneCategory, BoneCategory), JointLimits> HumanoidJointLimits = new Dictionary<(BoneCategory, BoneCategory), JointLimits>() {
+        {(BoneCategory.Arm, BoneCategory.Arm), new JointLimits { XAxisMin = -10, XAxisMax = 160, Axis = Vector3.up, SecondaryAxis = Vector3.forward }},
+        {(BoneCategory.Shoulder, BoneCategory.Arm), new JointLimits { XAxisMin = -90, XAxisMax = 160, Axis = Vector3.up, SecondaryAxis = Vector3.forward }},
+        {(BoneCategory.Torso, BoneCategory.Torso), new JointLimits { XAxisMin = -10, XAxisMax = 10, YAxisSymmetric = 10 }},
+        {(BoneCategory.Torso, BoneCategory.Hip), new JointLimits { XAxisMin = -10, XAxisMax = 10, YAxisSymmetric = 10 }},
+        {(BoneCategory.Torso, BoneCategory.Head), new JointLimits() { XAxisMin = -90, XAxisMax = 90, YAxisSymmetric = 45 }},
+        {(BoneCategory.Hip, BoneCategory.Leg), new JointLimits() { XAxisMin = -90, XAxisMax = 45, YAxisSymmetric = 45 }},
+        {(BoneCategory.Leg, BoneCategory.Leg), new JointLimits() { XAxisMin = -10, XAxisMax = 90 }},
+        {(BoneCategory.Arm, BoneCategory.Hand), new JointLimits() { XAxisMin = -180, XAxisMax = 180, YAxisSymmetric = 45, ZAxisSymmetric = 90, Axis = Vector3.forward }},
+        {(BoneCategory.Leg, BoneCategory.Foot), new JointLimits() { XAxisMin = -10, XAxisMax = 10, YAxisSymmetric = 45 }}
     };
 
     private static Dictionary<(BoneCategory, BoneCategory), JointLimits> quadrupedJointLimits = new Dictionary<(BoneCategory, BoneCategory), JointLimits>() {
@@ -54,7 +62,7 @@ public class ParametricGenerator {
             armAttachmentBone.LinkChild(arm);
 
         if (mode == Mode.Biped)
-            return new SkeletonDefinition(root, new LimitTable(humanoidJointLimits));
+            return new SkeletonDefinition(root, new LimitTable(HumanoidJointLimits));
         else
             return new SkeletonDefinition(root, new LimitTable(quadrupedJointLimits));
     }
@@ -62,9 +70,8 @@ public class ParametricGenerator {
     private List<BoneDefinition> buildArms() {
         List<BoneDefinition> arms = new();
         if (mode == Mode.Biped) {
-            float armHeight = Random.Range(settings.minArmSize, settings.maxArmSize);
-            float armSplit = Random.Range(0.25f * armHeight, 0.75f * armHeight);
-            //legHeights = new List<float>() { legHeight };
+            var armHeight = Random.Range(settings.minArmSize, settings.maxArmSize);
+            var armSplit = Random.Range(0.25f * armHeight, 0.75f * armHeight);
 
             List<float> heights = new() {armSplit, armHeight - armSplit};
 
@@ -73,38 +80,59 @@ public class ParametricGenerator {
             thicknesses.Add(Random.Range(settings.minArmThickness, settings.maxArmThickness));
             thicknesses.Sort();
 
-            BoneDefinition leftRoot = buildArm(heights, thicknesses);
-            BoneDefinition rightRoot = buildArm(heights, thicknesses);
-
-            leftRoot.AttachmentHint.Position = new RelativePosition(-1.0f, 0.0f, 0.5f);
+            var leftRoot = buildArm(heights, thicknesses, false);
             leftRoot.AttachmentHint.VentralDirection = Vector3.right;
-            leftRoot.AttachmentHint.Rotation = Quaternion.Euler(-90.0f, 0.0f, 0.0f);
-
-            rightRoot.AttachmentHint.Position = new RelativePosition(1.0f, 0.0f, 0.5f);
+            
+            var rightRoot = buildArm(heights, thicknesses, true);
             rightRoot.AttachmentHint.VentralDirection = Vector3.left;
-            rightRoot.AttachmentHint.Rotation = Quaternion.Euler(90.0f, 0.0f, 0.0f);
 
-            arms.Add(leftRoot);
-            arms.Add(rightRoot);
+            var leftShoulder = buildShoulder();
+            leftShoulder.LinkChild(leftRoot);
+            leftShoulder.AttachmentHint.Position = new RelativePosition(1.0f, 0.0f, 0.5f);
+            leftShoulder.AttachmentHint.Offset = new Vector3(-0.75f, 0.0f, 0.0f);
+            leftShoulder.AttachmentHint.Rotation = Quaternion.Euler(0.0f, -90.0f, 0.0f);
+            
+            var rightShoulder = buildShoulder();
+            rightShoulder.LinkChild(rightRoot);
+            rightShoulder.AttachmentHint.Position = new RelativePosition(-1.0f, 0.0f, 0.5f);
+            rightShoulder.AttachmentHint.Offset = new Vector3(0.75f, 0.0f, 0.0f);
+            rightShoulder.AttachmentHint.Rotation = Quaternion.Euler(0.0f, 90.0f, 0.0f);
+
+            arms.Add(leftShoulder);
+            arms.Add(rightShoulder);
         }
         return arms;
     }
 
-    private BoneDefinition buildArm(List<float> lengths, List<float> thicknesses) {
+    private BoneDefinition buildShoulder()
+    {
+        return new BoneDefinition
+        {
+            Length = 0.5f,
+            DistalAxis = Vector3.down,
+            VentralAxis = Vector3.forward,
+            Category = BoneCategory.Shoulder,
+            Thickness = 0.2f,
+            Mirrored = false
+        };
+    }
+
+    private BoneDefinition buildArm(List<float> lengths, List<float> thicknesses, bool mirrored = false) {
         Assert.AreEqual(lengths.Count, thicknesses.Count);
         Assert.IsTrue(lengths.Count > 0);
 
-        BoneDefinition root = buildArmPart(lengths[0], thicknesses[0]);
+        BoneDefinition root = buildArmPart(lengths[0], thicknesses[0], mirrored);
+        root.Mirrored = mirrored;
         BoneDefinition prev = root;
 
         foreach (var (length, thickness) in lengths.Zip(thicknesses, (a, b) => (a, b)).Skip(1)) {
-            BoneDefinition part = buildArmPart(length, thickness);
+            BoneDefinition part = buildArmPart(length, thickness, mirrored);
             prev.LinkChild(part);
             prev = part;
         }
 
         BoneDefinition hand = new();
-        hand.ProximalAxis = Vector3.up;
+        hand.DistalAxis = Vector3.down;
         hand.VentralAxis = Vector3.forward;
         hand.Length = 0.5f;
         hand.Thickness = 0.5f;
@@ -116,14 +144,15 @@ public class ParametricGenerator {
         return root;
     }
 
-    private BoneDefinition buildArmPart(float length, float thickness) {
+    private BoneDefinition buildArmPart(float length, float thickness, bool mirrored) {
         BoneDefinition part = new();
 
         part.Length = length;
-        part.ProximalAxis = Vector3.up;
+        part.DistalAxis = Vector3.down;
         part.VentralAxis = Vector3.forward;
         part.Category = BoneCategory.Arm;
         part.Thickness = thickness;
+        part.Mirrored = mirrored;
 
         return part;
     }
@@ -201,7 +230,7 @@ public class ParametricGenerator {
         if (mode == Mode.Biped)
         {
             BoneDefinition foot = new();
-            foot.ProximalAxis = Vector3.back;
+            foot.DistalAxis = Vector3.forward;
             foot.VentralAxis = Vector3.up;
             foot.Length = 2.0f;
             foot.Thickness = 0.5f;
@@ -219,7 +248,7 @@ public class ParametricGenerator {
 
         part.Length = length;
         // Construct Legs pointing down, with front side facing forward.
-        part.ProximalAxis = Vector3.up;
+        part.DistalAxis = Vector3.down;
         part.VentralAxis = Vector3.forward;
         part.Category = BoneCategory.Leg;
         part.AttachmentHint = new();
@@ -271,15 +300,15 @@ public class ParametricGenerator {
         BoneDefinition part = new();
 
         part.Length = length;
-        // Construct Torso pointing down, with front side facing forward.
+        // Construct Torso pointing up, with front side facing forward.
         if (mode == Mode.Biped)
         {
-            part.ProximalAxis = Vector3.down;
+            part.DistalAxis = Vector3.up;
             part.VentralAxis = Vector3.forward;
         }
         else if (mode == Mode.Quadruped)
         {
-            part.ProximalAxis = Vector3.back;
+            part.DistalAxis = Vector3.forward;
             part.VentralAxis = Vector3.down;
         }
         part.Category = BoneCategory.Torso;
@@ -311,8 +340,8 @@ public class ParametricGenerator {
         BoneDefinition part = new();
 
         part.Length = length;
-        // Construct Neck pointing down, with front side facing forward.
-        part.ProximalAxis = Vector3.down;
+        // Construct Neck pointing up, with front side facing forward.
+        part.DistalAxis = Vector3.up;
         part.VentralAxis = Vector3.forward;
         part.Category = BoneCategory.Torso;
         part.AttachmentHint = new();
@@ -328,7 +357,7 @@ public class ParametricGenerator {
         attachTo.LinkChild(head);
 
         head.Length = headSize;
-        head.ProximalAxis = Vector3.down;
+        head.DistalAxis = Vector3.up;
         head.VentralAxis = Vector3.forward;
         head.Category = BoneCategory.Head;
         head.AttachmentHint = new();
@@ -350,7 +379,7 @@ public class ParametricGenerator {
         {
             BoneDefinition hip = new();
             hip.Length = 1.25f;
-            hip.ProximalAxis = Vector3.up;
+            hip.DistalAxis = Vector3.down;
             hip.VentralAxis = Vector3.forward;
             hip.Category = BoneCategory.Hip;
             hip.Thickness = torso.Thickness;
@@ -370,7 +399,7 @@ public class ParametricGenerator {
     {
         BoneDefinition hip = new();
         hip.Length = attachTo.Thickness;
-        hip.ProximalAxis = proximalAxis;
+        hip.DistalAxis = proximalAxis;
         hip.VentralAxis = Vector3.forward;
         hip.Category = BoneCategory.Hip;
         hip.Thickness = 0f; // For now to avoid metaball generation around hip

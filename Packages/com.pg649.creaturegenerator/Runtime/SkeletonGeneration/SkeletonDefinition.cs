@@ -18,4 +18,7 @@ public struct JointLimits {
     public float XAxisMin;
     public float YAxisSymmetric;
     public float ZAxisSymmetric;
+
+    public Vector3? Axis;
+    public Vector3? SecondaryAxis;
 }

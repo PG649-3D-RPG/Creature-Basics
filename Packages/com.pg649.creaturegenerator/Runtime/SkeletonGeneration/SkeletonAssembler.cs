@@ -84,7 +84,7 @@ public class SkeletonAssembler {
     }
 
 
-    private static void LinkWithJoint(GameObject parent, GameObject child, LimitTable jointLimits, SkeletonAssemblerSettings settings)
+    private static void LinkWithJoint(GameObject parent, GameObject child, LimitTable jointLimits, SkeletonSettings settings)
     {
             var joint = child.AddComponent<ConfigurableJoint>();
             
@@ -140,7 +140,7 @@ public class SkeletonAssembler {
             joint.slerpDrive = slerp;
             joint.rotationDriveMode = RotationDriveMode.Slerp;
     }
-    private static GameObject toGameObject(BoneDefinition self, GameObject parentGo, GameObject rootGo, LimitTable jointLimits, SkeletonSettings settings, DebugSettings debug) {
+    private static GameObject toGameObject(BoneDefinition self, GameObject parentGo, GameObject rootGo, SkeletonSettings settings, DebugSettings debug) {
         bool isRoot = parentGo == null;
 
         GameObject result = new GameObject("");

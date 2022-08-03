@@ -17,7 +17,8 @@ public class CreatureGeneratorSettings : ScriptableObject
     {
         // NOTE: Shader.Find is not allowed during deserialization.
         // Instead find the standard shader once the object is loaded.
-        MeshSettings.Material = new Material(Shader.Find("MadCake/Material/Standard hacked for DQ skinning"));
+        MeshSettings.Material = new Material(Shader.Find("Standard"));
+        //MeshSettings.Material = new Material(Shader.Find("MadCake/Material/Standard hacked for DQ skinning"));
     }
 }
 

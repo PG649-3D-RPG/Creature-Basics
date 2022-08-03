@@ -75,7 +75,7 @@ namespace MarchingCubesProject
 
             Bounds metaballBounds = metaball.GetBounds();
             float maxSizeComp = Mathf.Max(metaballBounds.size.x, metaballBounds.size.y, metaballBounds.size.z);
-            Bounds rectangularBounds = new Bounds(metaballBounds.center, new Vector3(maxSizeComp, maxSizeComp, maxSizeComp));
+            Bounds voxelBounds = new Bounds(metaballBounds.center, new Vector3(maxSizeComp, maxSizeComp, maxSizeComp));
 
             //Set the mode used to create the mesh.
             //Cubes is faster and creates less verts, tetrahedrons is slower and creates more verts but better represents the mesh surface.
@@ -99,9 +99,9 @@ namespace MarchingCubesProject
                 {
                     for (int z = 0; z < gridResolution; z++)
                     {
-                        float u = ((x + 0.5f) / gridResolution) * rectangularBounds.size.x + rectangularBounds.min.x;
-                        float v = ((y + 0.5f) / gridResolution) * rectangularBounds.size.y + rectangularBounds.min.y;
-                        float w = ((z + 0.5f) / gridResolution) * rectangularBounds.size.z + rectangularBounds.min.z;
+                        float u = ((x + 0.5f) / gridResolution) * voxelBounds.size.x + voxelBounds.min.x;
+                        float v = ((y + 0.5f) / gridResolution) * voxelBounds.size.y + voxelBounds.min.y;
+                        float w = ((z + 0.5f) / gridResolution) * voxelBounds.size.z + voxelBounds.min.z;
                         
                         voxels[x, y, z] = metaball.Value(u, v, w);
                     }
@@ -134,8 +134,8 @@ namespace MarchingCubesProject
                 }
             }
 
-            var position = this.transform.localPosition + (rectangularBounds.min );
-            Matrix4x4 mat = Matrix4x4.Translate(position) * Matrix4x4.Scale(rectangularBounds.size / gridResolution);
+            var position = this.transform.localPosition + (voxelBounds.min );
+            Matrix4x4 mat = Matrix4x4.Translate(position) * Matrix4x4.Scale(voxelBounds.size / gridResolution);
 
             for (int i = 0; i < verts.Count; i++)
             {

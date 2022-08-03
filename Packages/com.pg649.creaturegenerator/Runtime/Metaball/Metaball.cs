@@ -81,6 +81,15 @@ public class Metaball
         return metaball;
     }
 
+    public static Metaball BuildFromSkeleton(Skeleton skeleton, MetaballFunction f = MetaballFunction.Polynomial2) {
+        Metaball metaball = new Metaball();
+
+        foreach (var (go, bone, rb, joint) in skeleton.Iterator()) {
+            metaball.AddCapsule(new(bone.WorldProximalPoint(), bone.WorldDistalPoint(), bone.thickness), f);
+        }
+        return metaball;
+    }
+
     public static float RandomGaussian(float minValue = 0.0f, float maxValue = 1.0f)
     {
         float u, v, S;

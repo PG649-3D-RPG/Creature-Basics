@@ -46,6 +46,17 @@ namespace MarchingCubesProject
         {
         }
 
+        public void ApplySettings(MeshSettings settings)
+        {
+            mode = settings.Mode;
+            material = settings.Material;
+            smoothNormals = settings.SmoothNormals;
+            drawNormals = settings.DrawNormals;
+            enableDQSkinner = settings.enableDQSkinner;
+            gridResolution = settings.GridResolution;
+            size = settings.Size;
+        }
+
         void Clear() {
             if (normalRenderer != null)
                 normalRenderer.Clear();
@@ -170,7 +181,7 @@ namespace MarchingCubesProject
             GameObject go = new GameObject("Mesh");
             go.transform.parent = transform;
 
-            Transform[] bones = BoneUtil.FindBones(transform.Find("head_0_0").gameObject);
+            Transform[] bones = BoneUtil.FindBones(transform.gameObject);
             Debug.Log("Found " + bones.Length + " Bones in the hierarchy");
 
             // bind poses must be generated relative to the meshes transform

@@ -157,17 +157,20 @@ public class SkeletonAssembler {
             joint.angularYMotion = ConfigurableJointMotion.Limited;
             joint.angularZMotion = ConfigurableJointMotion.Limited;
 
-            if (jointLimits.HasLimits((self.Category, self.ParentBone.Category))) {
-                JointLimits limits = jointLimits[(self.Category, self.ParentBone.Category)];
+            BoneCategory category = self.SubCategory.HasValue ? self.SubCategory.Value : self.Category;
+            BoneCategory parentCategory = self.ParentBone.SubCategory.HasValue ? self.ParentBone.SubCategory.Value : self.ParentBone.Category;
+
+            if (jointLimits.HasLimits((category, parentCategory))) {
+                JointLimits limits = jointLimits[(category, parentCategory)];
                 joint.lowAngularXLimit = new SoftJointLimit() { limit = limits.XAxisMin};
                 joint.highAngularXLimit = new SoftJointLimit() { limit = limits.XAxisMax};
                 joint.angularYLimit = new SoftJointLimit() { limit = limits.YAxisSymmetric};
                 joint.angularZLimit = new SoftJointLimit() { limit = limits.ZAxisSymmetric};
             } else {
-                joint.lowAngularXLimit = BoneAdd.defaultLowXLimit[self.Category];
-                joint.highAngularXLimit = BoneAdd.defaultHighXLimit[self.Category];
-                joint.angularYLimit = BoneAdd.defaultYLimit[self.Category];
-                joint.angularZLimit = BoneAdd.defaultZLimit[self.Category];
+                joint.lowAngularXLimit = BoneAdd.defaultLowXLimit[category];
+                joint.highAngularXLimit = BoneAdd.defaultHighXLimit[category];
+                joint.angularYLimit = BoneAdd.defaultYLimit[category];
+                joint.angularZLimit = BoneAdd.defaultZLimit[category];
             }
 
             Skeleton skeleton = rootGo.GetComponent<Skeleton>();

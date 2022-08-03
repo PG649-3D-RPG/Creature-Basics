@@ -25,6 +25,11 @@ public class ParametricGenerator {
         {(BoneCategory.Arm, BoneCategory.Arm), new JointLimits { XAxisMin = 20, XAxisMax = 160, YAxisSymmetric = 0, ZAxisSymmetric = 0}}
     };
 
+    private static Dictionary<(BoneCategory, BoneCategory), JointLimits> quadrupedJointLimits = new Dictionary<(BoneCategory, BoneCategory), JointLimits>() {
+        {(BoneCategory.Arm, BoneCategory.Arm), new JointLimits { XAxisMin = 20, XAxisMax = 160, YAxisSymmetric = 0, ZAxisSymmetric = 0}},
+        {(BoneCategory.LowerLeg2, BoneCategory.Leg), new JointLimits { XAxisMin = 0, XAxisMax = 30, YAxisSymmetric = 0, ZAxisSymmetric = 0}}
+    };
+
 
     public ParametricGenerator(CreatureParameters parameters) {
         this.parameters = parameters;
@@ -53,7 +58,10 @@ public class ParametricGenerator {
         foreach (var arm in arms)
             armAttachmentBone.LinkChild(arm);
 
-        return new SkeletonDefinition(root, new LimitTable(humanoidJointLimits));
+        if (mode == Mode.Biped)
+            return new SkeletonDefinition(root, new LimitTable(humanoidJointLimits));
+        else
+            return new SkeletonDefinition(root, new LimitTable(quadrupedJointLimits));
     }
 
     private List<BoneDefinition> buildArms() {
@@ -189,8 +197,8 @@ public class ParametricGenerator {
         BoneDefinition root = buildLegPart(lengths[0], thicknesses[0]);
         BoneDefinition prev = root;
 
-        foreach (var (length, thickness) in lengths.Zip(thicknesses, (a, b) => (a, b)).Skip(1)) {
-            BoneDefinition part = buildLegPart(length, thickness);
+        for (int i=1; i<thicknesses.Count; i++) {
+            BoneDefinition part = buildLegPart(lengths[i], thicknesses[i], i);
             prev.LinkChild(part);
             prev = part;
         }
@@ -211,7 +219,7 @@ public class ParametricGenerator {
         return root;
     }
 
-    private BoneDefinition buildLegPart(float length, float thickness) {
+    private BoneDefinition buildLegPart(float length, float thickness, int index=0) {
         BoneDefinition part = new();
 
         part.Length = length;
@@ -221,6 +229,11 @@ public class ParametricGenerator {
         part.Category = BoneCategory.Leg;
         part.AttachmentHint = new();
         part.Thickness = thickness;
+
+        if (index == 1)
+            part.SubCategory = BoneCategory.LowerLeg1;
+        else if (index == 2)
+            part.SubCategory = BoneCategory.LowerLeg2;
 
         return part;
     }

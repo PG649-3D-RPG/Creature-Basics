@@ -7,6 +7,8 @@ public class Bone : MonoBehaviour
     /// What type of body part this bone belongs to.
     public BoneCategory category;
 
+    public BoneCategory? subCategory;
+
     public float length;
 
     public float thickness;

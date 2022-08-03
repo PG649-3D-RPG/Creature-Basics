@@ -25,7 +25,6 @@ public class Capsule: Ball
         float dotEnd = Vector3.Dot(segmentFwd, endToPoint);
 
         float dist;
-
         if (dotEnd > 0)
         {
             // Finding the magnitude

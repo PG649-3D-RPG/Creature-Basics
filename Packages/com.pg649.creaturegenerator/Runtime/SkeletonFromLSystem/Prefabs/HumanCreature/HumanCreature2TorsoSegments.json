@@ -1,1 +1,0 @@
-{"distance":1.0,"angle":90,"initialDirection":1,"thickness":0.10000000149011612,"crossSections":4,"crossSectionDivisions":2,"translatePoints":true,"startString":"[|C]+(90)[AH]-(180)[AH]+(90)T+(90)[G-(90)L]-(180)[G+(90)L]","iterations":2,"rules":["A=F(0.25)F(0.25)","L=F(0.35)F(0.3)^V","T=F(0.4)F(0.4)","C=F(0.3)","G=F(0.2)","V=F(0.2)","H=F(0.15)"]}

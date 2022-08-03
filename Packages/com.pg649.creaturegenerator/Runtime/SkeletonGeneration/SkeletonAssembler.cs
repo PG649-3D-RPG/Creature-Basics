@@ -1,11 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Rendering;
 using System;
-using System.Linq;
-using LSystem;
-using UnityEditor.PackageManager.UI;
 
 public class SkeletonAssembler {
     // Human density if apparently about 1000kg/m^3
@@ -13,14 +8,14 @@ public class SkeletonAssembler {
 
     public static bool attachPrimitiveMesh = true;
 
-    public static  GameObject Assemble(SkeletonDefinition skeleton, SkeletonAssemblerSettings settings) {
+    public static  GameObject Assemble(SkeletonDefinition skeleton, SkeletonSettings settings, DebugSettings debugSettings) {
         Dictionary<BoneDefinition, GameObject> objects = new();
         Dictionary<BoneCategory, int> nextIndices = new();
         // Walk over SkeletonDefinition to create gameobjects.
         pass(skeleton.RootBone, def => {
             GameObject parent = (def.ParentBone != null && objects.ContainsKey(def.ParentBone)) ? objects[def.ParentBone] : null;
             GameObject root = objects.ContainsKey(skeleton.RootBone) ? objects[skeleton.RootBone] : null;
-            GameObject current = toGameObject(def, parent, root, skeleton.JointLimits, settings);
+            GameObject current = toGameObject(def, parent, root, skeleton.JointLimits, settings, debugSettings);
 
             Bone currentBone = current.GetComponent<Bone>();
             Bone parentBone = parent != null ? parent.GetComponent<Bone>() : null;
@@ -85,7 +80,7 @@ public class SkeletonAssembler {
     }
 
 
-    private static GameObject toGameObject(BoneDefinition self, GameObject parentGo, GameObject rootGo, LimitTable jointLimits, SkeletonAssemblerSettings settings) {
+    private static GameObject toGameObject(BoneDefinition self, GameObject parentGo, GameObject rootGo, LimitTable jointLimits, SkeletonSettings settings, DebugSettings debug) {
         bool isRoot = parentGo == null;
 
         // TOOD(markus): Name
@@ -97,7 +92,7 @@ public class SkeletonAssembler {
         Rigidbody rb = result.AddComponent<Rigidbody>();
         rb.drag = settings.RigidbodyDrag;
         rb.collisionDetectionMode = settings.CollisionDetectionMode;
-        if (settings.DebugDisableBoneGravity)
+        if (debug.DisableBoneGravity)
         {
             rb.useGravity = false;
         }
@@ -185,7 +180,7 @@ public class SkeletonAssembler {
             collider.center = bone.LocalMidpoint();
             rb.mass = BodyDensity * (3.0f * (float)Math.PI * radius * radius * radius) / 4.0f;
 
-            if(settings.AttachPrimitiveMesh){
+            if(debug.AttachPrimitiveMesh){
                 meshObject = GameObject.CreatePrimitive(PrimitiveType.Sphere);
                 meshObject.tag = "Agent";
 
@@ -206,7 +201,7 @@ public class SkeletonAssembler {
             collider.center = bone.LocalMidpoint();
             rb.mass = BodyDensity * (size.x * size.y * size.z);
 
-            if(settings.AttachPrimitiveMesh){
+            if(debug.AttachPrimitiveMesh){
                 meshObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 meshObject.tag = "Agent";
                 meshObject.transform.parent = result.transform;
@@ -231,7 +226,7 @@ public class SkeletonAssembler {
             // Ellipsoid Volume is 3/4 PI abc, with radii a, b, c
             rb.mass = BodyDensity * (3.0f * (float)Math.PI * 0.1f * self.Length * 0.45f * 0.1f) / 4;
 
-            if(settings.AttachPrimitiveMesh){
+            if(debug.AttachPrimitiveMesh){
                 meshObject = GameObject.CreatePrimitive(PrimitiveType.Capsule);
                 meshObject.tag = "Agent";
                 meshObject.transform.parent = result.transform;

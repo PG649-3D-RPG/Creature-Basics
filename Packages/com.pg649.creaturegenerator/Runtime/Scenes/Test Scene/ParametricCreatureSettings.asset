@@ -15,7 +15,7 @@ MonoBehaviour:
   minLegThickness: 0.1
   maxLegThickness: 0.5
   minLegSize: 2
-  maxLegSize: 19.95
+  maxLegSize: 6
   minArmThickness: 0.1
   maxArmThickness: 0.5
   minArmSize: 2

@@ -62,9 +62,6 @@ public class PrefabCreator : MonoBehaviour
             return;
         }
 
-        // remove unneeded components and lock lsystem
-        if (gameObject.TryGetComponent(out SkeletonTest skeletonTest)) DestroyImmediate(skeletonTest);
-
         // Create the new Prefab and log whether Prefab was saved successfully.
         PrefabUtility.SaveAsPrefabAsset(gameObject, localPathToPrefab, out bool prefabSuccess);
         if (prefabSuccess == true)
@@ -115,9 +112,6 @@ public class PrefabCreator : MonoBehaviour
 
         string globalPathToLSystem = Path.ChangeExtension(path, ".json");
         string localPathToLSystem = globalPathToLSystem[(projectpath.Length + 1)..];
-
-        // remove unneeded components and lock lsystem
-        if (gameObject.TryGetComponent(out SkeletonTest skeletonTest)) DestroyImmediate(skeletonTest);
 
         // Create the new Prefab and log whether Prefab was saved successfully.
         PrefabUtility.SaveAsPrefabAsset(gameObject, localPath, out bool prefabSuccess);

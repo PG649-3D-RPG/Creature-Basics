@@ -21,8 +21,6 @@ public class ExampleMetaball : MonoBehaviour
 
         //generate mesh from the metaball
         MeshGenerator meshGen = GetComponent<MeshGenerator>();
-        //attributes such as the size and grid resolution can be set via component or through meshGen.gridResolution
-        meshGen.size = 25;
 
         meshGen.Generate(m);
     }

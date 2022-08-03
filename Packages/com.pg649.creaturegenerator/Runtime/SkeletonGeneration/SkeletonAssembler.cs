@@ -35,6 +35,7 @@ public class SkeletonAssembler {
             current.transform.Rotate(def.AttachmentHint.Rotation.GetValueOrDefault().eulerAngles);
         });
 
+        objects[skeleton.RootBone].GetComponent<Bone>().isRoot = true;
         return objects[skeleton.RootBone];
     }
 

@@ -50,6 +50,11 @@ public class Ball
         return Mathf.Exp(0.5f - (0.5f * (Mathf.Pow(x - position.x, 2) + Mathf.Pow(y - position.y, 2) + Mathf.Pow(z - position.z, 2))) / (R*R));
     }
 
+    public virtual Bounds GetBounds() {
+        Bounds bounds = new Bounds(position, new Vector3(R*2, R*2, R*2));
+        return bounds;
+    }
+
     public static int GetMinimumNumBalls(MetaballFunction function, float segmentLength, float segmentThickness) {
         switch(function) {
             case MetaballFunction.Polynomial2:

@@ -52,5 +52,12 @@ public class Capsule: Ball
 
         return base.Value(dist, 0, 0);
     }
+    
+    public override Bounds GetBounds() {
+        Bounds bounds = new Bounds(segment.startPoint, new Vector3(segment.thickness, segment.thickness, segment.thickness));
+        bounds.Encapsulate(new Bounds(segment.endPoint, new Vector3(segment.thickness, segment.thickness, segment.thickness)));
+
+        return bounds;
+    }
 
 }

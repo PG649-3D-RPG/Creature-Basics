@@ -1,6 +1,6 @@
 {
     "name": "com.pg649.creaturegenerator",
-    "version": "2.0.0",
+    "version": "2.1.0",
     "displayName": "PG649 Creature Generator",
     "description": "Creature Generation for the PG649.",
     "unity": "2021.3",

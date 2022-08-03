@@ -76,24 +76,5 @@ namespace LSystem
             LSystem l = new(m_Distance, m_Angle, m_CrossSections, m_CrossSectionDivisions, m_InitialDirection, m_StartString, m_Iterations, rules, true);
             return l;
         }
-
-        public LSystemProperties GenerateProperties()
-        {
-            return new(m_Distance, m_Angle, m_InitialDirection, m_Thickness, m_CrossSections, m_CrossSectionDivisions, m_TranslatePoints, m_StartString, m_Iterations, m_Rules);
-        }
-
-        public void ApplyLSystemSettings(LSystemProperties prop)
-        {
-            this.m_Distance = prop.distance;
-            this.m_Angle = prop.angle;
-            this.m_InitialDirection = prop.initialDirection;
-            this.m_Thickness = prop.thickness;
-            this.m_CrossSections = prop.crossSections;
-            this.m_CrossSectionDivisions = prop.crossSectionDivisions;
-            this.m_TranslatePoints = prop.translatePoints;
-            this.m_StartString = prop.startString;
-            this.m_Iterations = prop.iterations;
-            this.m_Rules = prop.rules;
-        }
     }
 }

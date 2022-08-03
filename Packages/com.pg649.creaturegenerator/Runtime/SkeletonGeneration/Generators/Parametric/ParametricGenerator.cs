@@ -7,13 +7,13 @@ using System;
 
 using Random = UnityEngine.Random;
 
-enum Mode {
-    Biped,
-    Quadruped
-}
 
 public class ParametricGenerator {
-    private CreatureParameters parameters;
+    public enum Mode {
+        Biped,
+        Quadruped
+    }
+    private ParametricCreatureSettings settings;
 
     private Mode mode;
 
@@ -31,21 +31,16 @@ public class ParametricGenerator {
     };
 
 
-    public ParametricGenerator(CreatureParameters parameters) {
-        this.parameters = parameters;
+    public ParametricGenerator(ParametricCreatureSettings settings) {
+        this.settings = settings;
     }
 
-    public SkeletonDefinition BuildCreature(int seed = 0) {
+    public SkeletonDefinition BuildCreature(Mode mode, int seed = 0) {
         if (seed != 0) {
             Random.InitState(seed);
         }
-        int pairs = Random.Range(parameters.minLegPairs, parameters.maxLegPairs + 1);
-        if (pairs == 1) {
-            mode = Mode.Biped;
-        } else {
-            mode = Mode.Quadruped;
-        }
 
+        this.mode = mode;
         List<BoneDefinition> legs = buildLegs();
         List<BoneDefinition> arms = buildArms();
 
@@ -67,15 +62,15 @@ public class ParametricGenerator {
     private List<BoneDefinition> buildArms() {
         List<BoneDefinition> arms = new();
         if (mode == Mode.Biped) {
-            float armHeight = Random.Range(parameters.minArmSize, parameters.maxArmSize);
+            float armHeight = Random.Range(settings.minArmSize, settings.maxArmSize);
             float armSplit = Random.Range(0.25f * armHeight, 0.75f * armHeight);
             //legHeights = new List<float>() { legHeight };
 
             List<float> heights = new() {armSplit, armHeight - armSplit};
 
             List<float> thicknesses = new();
-            thicknesses.Add(Random.Range(parameters.minArmThickness, parameters.maxArmThickness));
-            thicknesses.Add(Random.Range(parameters.minArmThickness, parameters.maxArmThickness));
+            thicknesses.Add(Random.Range(settings.minArmThickness, settings.maxArmThickness));
+            thicknesses.Add(Random.Range(settings.minArmThickness, settings.maxArmThickness));
             thicknesses.Sort();
 
             BoneDefinition leftRoot = buildArm(heights, thicknesses);
@@ -136,15 +131,15 @@ public class ParametricGenerator {
     private List<BoneDefinition> buildLegs() {
         List<BoneDefinition> legs = new();
         if (mode == Mode.Biped) {
-            float legHeight = Random.Range(parameters.minLegSize, parameters.maxLegSize);
+            float legHeight = Random.Range(settings.minLegSize, settings.maxLegSize);
             float legSplit = Random.Range(0.25f * legHeight, 0.75f * legHeight);
             //legHeights = new List<float>() { legHeight };
 
             List<float> heights = new() {legSplit, legHeight - legSplit};
 
             List<float> thicknesses = new();
-            thicknesses.Add(Random.Range(parameters.minLegThickness, parameters.maxLegThickness));
-            thicknesses.Add(Random.Range(parameters.minLegThickness, parameters.maxLegThickness));
+            thicknesses.Add(Random.Range(settings.minLegThickness, settings.maxLegThickness));
+            thicknesses.Add(Random.Range(settings.minLegThickness, settings.maxLegThickness));
             thicknesses.Sort();
 
             BoneDefinition leftLeg = buildLeg(heights, thicknesses);
@@ -157,8 +152,8 @@ public class ParametricGenerator {
         else if (mode == Mode.Quadruped)
         {
             // quadruped
-            float frontLegHeight = Random.Range(parameters.minLegSize, parameters.maxLegSize);
-            float hindLegHeight = Random.Range(parameters.minLegSize, parameters.maxLegSize);
+            float frontLegHeight = Random.Range(settings.minLegSize, settings.maxLegSize);
+            float hindLegHeight = Random.Range(settings.minLegSize, settings.maxLegSize);
             //legHeights = new List<float>() { hindLegHeight, frontLegHeight };
 
             for (int i = 0; i < 2; i++)
@@ -174,10 +169,10 @@ public class ParametricGenerator {
 
                 List<float> thicknesses = new();
 
-                thicknesses.Add(Random.Range(parameters.minLegThickness, parameters.maxLegThickness));
-                thicknesses.Add(Random.Range(parameters.minLegThickness, parameters.maxLegThickness));
-                thicknesses.Add(Random.Range(parameters.minLegThickness, parameters.maxLegThickness));
-                thicknesses.Add(Random.Range(parameters.minLegThickness, parameters.maxLegThickness));
+                thicknesses.Add(Random.Range(settings.minLegThickness, settings.maxLegThickness));
+                thicknesses.Add(Random.Range(settings.minLegThickness, settings.maxLegThickness));
+                thicknesses.Add(Random.Range(settings.minLegThickness, settings.maxLegThickness));
+                thicknesses.Add(Random.Range(settings.minLegThickness, settings.maxLegThickness));
                 thicknesses.Sort();
 
                 for (int j = -1; j < 2; j+=2)
@@ -239,7 +234,7 @@ public class ParametricGenerator {
     }
 
     private BoneDefinition buildTorso() {
-        float torsoSize = Random.Range(parameters.minTorsoSize, parameters.maxTorsoSize);
+        float torsoSize = Random.Range(settings.minTorsoSize, settings.maxTorsoSize);
 
         List<float> torsoSplits = new List<float>()
         {
@@ -254,9 +249,9 @@ public class ParametricGenerator {
         torsoSplits.Sort();
 
         if(mode == Mode.Biped || mode == Mode.Quadruped) {
-            float thicknessBottom = Random.Range(parameters.minTorsoThickness, parameters.maxTorsoThickness);
-            float thicknessMiddle = Random.Range(parameters.minTorsoThickness, parameters.maxTorsoThickness);
-            float thicknessTop = Random.Range(parameters.minTorsoThickness, parameters.maxTorsoThickness);
+            float thicknessBottom = Random.Range(settings.minTorsoThickness, settings.maxTorsoThickness);
+            float thicknessMiddle = Random.Range(settings.minTorsoThickness, settings.maxTorsoThickness);
+            float thicknessTop = Random.Range(settings.minTorsoThickness, settings.maxTorsoThickness);
             BoneDefinition bottom = buildTorsoPart(torsoSplits[0], thicknessBottom);
             BoneDefinition middle = buildTorsoPart(torsoSplits[1] - torsoSplits[0], thicknessMiddle);
             BoneDefinition top = buildTorsoPart(torsoSize - torsoSplits[1], thicknessTop);
@@ -295,8 +290,8 @@ public class ParametricGenerator {
     }
 
     private BoneDefinition buildNeck(BoneDefinition attachTo) {
-        int neckSegments = Random.Range(parameters.minNeckSegments, parameters.maxNeckSegments + 1);
-        float neckSize = Random.Range(parameters.minNeckSize, parameters.maxNeckSize);
+        int neckSegments = Random.Range(settings.minNeckSegments, settings.maxNeckSegments + 1);
+        float neckSize = Random.Range(settings.minNeckSize, settings.maxNeckSize);
         float segmentLength = neckSize / neckSegments;
         float neckThickness = 0.2f;
 
@@ -327,7 +322,7 @@ public class ParametricGenerator {
     }
 
     private BoneDefinition buildHead(BoneDefinition attachTo) {
-        float headSize = Random.Range(parameters.minHeadSize, parameters.maxHeadSize);
+        float headSize = Random.Range(settings.minHeadSize, settings.maxHeadSize);
 
         BoneDefinition head = new();
         attachTo.LinkChild(head);

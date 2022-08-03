@@ -21,7 +21,7 @@ public class SkeletonTest : MonoBehaviour
     private GameObject orientationCube;
     void Start()
     {
-        LSystemEditor ed = gameObject.GetComponent<LSystemEditor>();
+        LSystemSettings ed = gameObject.GetComponent<LSystemSettings>();
         LSystem.LSystem l = ed.BuildLSystem();
         List<Tuple<Vector3, Vector3>> segments = l.segments;
         if (generateSkeleton)

@@ -8,7 +8,8 @@ namespace LSystem
 {
     public enum INITIAL_DIRECTION { UP, DOWN, LEFT, RIGHT, FORWARD, BACK, DIAGONAL };
 
-    public class LSystemEditor : MonoBehaviour
+    [CreateAssetMenu(fileName = "LSystemSettings", menuName = "PG649-CreatureGenerator/LSystem Settings")]
+    public class LSystemSettings : ScriptableObject
     {
         [Header("Default Settings")]
         [Tooltip("Default forward distance")]
@@ -31,11 +32,21 @@ namespace LSystem
         [Tooltip("Translate points to above ground")]
         public bool m_TranslatePoints = true;
         [Tooltip("Initial string to evaluate")]
-        public string m_StartString = "FABFCD";//"FF[+F][-F]F(42)";
+        public string m_StartString = "[|C]+(90)[AH]-(180)[AH]+(90)T+(90)[G-(90)L]-(180)[G+(90)L]";
         [Tooltip("Number of iterations to apply the replacement rules")]
-        public uint m_Iterations = 1;
+        public uint m_Iterations = 2;
+
         [Tooltip("Replacement rules")]
-        public string[] m_Rules = { "A=[+F(1.5)]", "B=[-F(1.5)]", "C=[+(30)F(1.5)C]", "D=[-(30)F(1.5)D]" };
+        public string[] m_Rules =
+        {
+            "A=F(0.25)F(0.25)",
+            "L=F(0.35)F(0.3)^V",
+            "T=F(0.4)F(0.4)",
+            "C=F(0.3)",
+            "G=F(0.2)",
+            "V=F(0.2)",
+            "H=F(0.15)"
+        };
 
         private Dictionary<char, List<string>> ParseRuleInput(string[] rules)
         {

@@ -3,12 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public class CreatureParameters : MonoBehaviour
+[CreateAssetMenu(fileName = "ParametricCreatureSettings", menuName = "PG649-CreatureGenerator/Parametric Creature Settings")]
+public class ParametricCreatureSettings : ScriptableObject
 {
-    [Range(1,2)]
-    public int minLegPairs = 1;
-    [Range(1, 2)]
-    public int maxLegPairs = 2;
     public float minLegThickness = 0.1f;
     public float maxLegThickness = 0.5f;
     public float minLegSize = 2f;
@@ -36,21 +33,4 @@ public class CreatureParameters : MonoBehaviour
     public float maxSnoutSize = 4f;
     public float minSnoutThickness = 0.1f;
     public float maxSnoutThickness = 0.5f;
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
-    // Returns whether or not the parameters are valid values
-    public bool isValid()
-    {
-        return true;
-    }
 }

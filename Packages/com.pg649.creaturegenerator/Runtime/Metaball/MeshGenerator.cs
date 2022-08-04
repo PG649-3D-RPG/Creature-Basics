@@ -49,7 +49,6 @@ namespace MarchingCubesProject
             drawNormals = settings.DrawNormals;
             enableDQSkinner = settings.enableDQSkinner;
             gridResolution = settings.GridResolution;
-            size = settings.Size;
         }
 
         void Clear() {

@@ -1,11 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Rendering;
 using System;
-using System.Linq;
-using LSystem;
-using UnityEditor.PackageManager.UI;
 
 public class SkeletonAssembler {
     // Human density if apparently about 1000kg/m^3
@@ -13,14 +8,14 @@ public class SkeletonAssembler {
 
     public static bool attachPrimitiveMesh = true;
 
-    public static  GameObject Assemble(SkeletonDefinition skeleton, SkeletonAssemblerSettings settings) {
+    public static  GameObject Assemble(SkeletonDefinition skeleton, SkeletonSettings settings, DebugSettings debugSettings) {
         Dictionary<BoneDefinition, GameObject> objects = new();
         Dictionary<BoneCategory, int> nextIndices = new();
         // Walk over SkeletonDefinition to create gameobjects.
         pass(skeleton.RootBone, def => {
             GameObject parent = (def.ParentBone != null && objects.ContainsKey(def.ParentBone)) ? objects[def.ParentBone] : null;
             GameObject root = objects.ContainsKey(skeleton.RootBone) ? objects[skeleton.RootBone] : null;
-            GameObject current = toGameObject(def, parent, root, skeleton.JointLimits, settings);
+            GameObject current = toGameObject(def, parent, root, settings, debugSettings);
 
             Bone currentBone = current.GetComponent<Bone>();
             Bone parentBone = parent != null ? parent.GetComponent<Bone>() : null;
@@ -38,8 +33,12 @@ public class SkeletonAssembler {
         pass(skeleton.RootBone, def => {
             GameObject current = objects[def];
             current.transform.Rotate(def.AttachmentHint.Rotation.GetValueOrDefault().eulerAngles);
+
+            if (def != skeleton.RootBone)
+                LinkWithJoint(objects[def.ParentBone], current, skeleton.JointLimits, settings);
         });
 
+        objects[skeleton.RootBone].GetComponent<Bone>().isRoot = true;
         return objects[skeleton.RootBone];
     }
 
@@ -85,19 +84,72 @@ public class SkeletonAssembler {
     }
 
 
-    private static GameObject toGameObject(BoneDefinition self, GameObject parentGo, GameObject rootGo, LimitTable jointLimits, SkeletonAssemblerSettings settings) {
+    private static void LinkWithJoint(GameObject parent, GameObject child, LimitTable jointLimits, SkeletonSettings settings)
+    {
+            var joint = child.AddComponent<ConfigurableJoint>();
+            
+            joint.connectedBody = parent.GetComponent<Rigidbody>();
+            joint.connectedAnchor = parent.transform.position;
+            joint.projectionMode = JointProjectionMode.PositionAndRotation;
+
+            joint.xMotion = ConfigurableJointMotion.Locked;
+            joint.yMotion = ConfigurableJointMotion.Locked;
+            joint.zMotion = ConfigurableJointMotion.Locked;
+            joint.angularXMotion = ConfigurableJointMotion.Locked;
+            joint.angularYMotion = ConfigurableJointMotion.Locked;
+            joint.angularZMotion = ConfigurableJointMotion.Locked;
+
+            var childCategory = child.GetComponent<Bone>().category;
+            var parentCategory = parent.GetComponent<Bone>().category;
+            var mirrored = child.GetComponent<Bone>().mirrored;
+            
+            if (jointLimits.HasLimits((parentCategory, childCategory))) {
+                var limits = jointLimits[(parentCategory, childCategory)];
+                if (limits.XAxisMin != 0.0f || limits.XAxisMax != 0.0f)
+                {
+                    joint.angularXMotion = ConfigurableJointMotion.Limited;
+                    joint.lowAngularXLimit = new SoftJointLimit() { limit = limits.XAxisMin};
+                    joint.highAngularXLimit = new SoftJointLimit() { limit = limits.XAxisMax};
+                }
+                if (limits.YAxisSymmetric != 0.0f)
+                {
+                    joint.angularYMotion = ConfigurableJointMotion.Limited;
+                    joint.angularYLimit = new SoftJointLimit() { limit = limits.YAxisSymmetric};
+                }
+                if (limits.ZAxisSymmetric != 0.0f)
+                {
+                    joint.angularZMotion = ConfigurableJointMotion.Limited;
+                    joint.angularZLimit = new SoftJointLimit() { limit = limits.ZAxisSymmetric};
+                }
+                if (limits.Axis != null)
+                {
+                    joint.axis = (mirrored ? -1.0f : 1.0f) * limits.Axis.GetValueOrDefault();
+                }
+                if (limits.SecondaryAxis != null)
+                {
+                    joint.secondaryAxis = (mirrored ? -1.0f : 1.0f) * limits.SecondaryAxis.GetValueOrDefault();
+                }
+            }
+
+            JointDrive slerp = new()
+            {
+                positionSpring = 10000.0f,
+                positionDamper = 500.0f,
+                maximumForce = float.MaxValue
+            };
+            joint.slerpDrive = slerp;
+            joint.rotationDriveMode = RotationDriveMode.Slerp;
+    }
+    private static GameObject toGameObject(BoneDefinition self, GameObject parentGo, GameObject rootGo, SkeletonSettings settings, DebugSettings debug) {
         bool isRoot = parentGo == null;
 
-        // TOOD(markus): Name
         GameObject result = new GameObject("");
         result.tag = "Agent";
-
-
 
         Rigidbody rb = result.AddComponent<Rigidbody>();
         rb.drag = settings.RigidbodyDrag;
         rb.collisionDetectionMode = settings.CollisionDetectionMode;
-        if (settings.DebugDisableBoneGravity)
+        if (debug.DisableBoneGravity)
         {
             rb.useGravity = false;
         }
@@ -105,13 +157,11 @@ public class SkeletonAssembler {
         Bone bone = result.AddComponent<Bone>();
         bone.category = self.Category;
         bone.length = self.Length;
+        bone.mirrored = self.Mirrored;
         bone.thickness = self.Thickness;
-        // TODO(markus): Limb indices
-        //bone.limbIndex = limbIndex;
-        //bone.boneIndex = boneIndex;
 
         // Align local coordinate system to chosen proximal and ventral axis.
-        result.transform.rotation = Quaternion.LookRotation(self.ProximalAxis, self.VentralAxis);
+        result.transform.rotation = Quaternion.LookRotation(self.DistalAxis, self.VentralAxis);
         
         if (isRoot) {
             result.AddComponent<Skeleton>();
@@ -121,8 +171,8 @@ public class SkeletonAssembler {
             Bone parentBone = parentGo.GetComponent<Bone>();
             result.transform.parent = parentGo.transform;
 
-            Vector3 pos = parentBone.LocalProximalPoint() -
-                self.AttachmentHint.Position.Proximal * self.ParentBone.Length * parentBone.LocalProximalAxis() +
+            Vector3 pos = parentBone.LocalProximalPoint() +
+                self.AttachmentHint.Position.Proximal * self.ParentBone.Length * parentBone.LocalDistalAxis() +
                 self.AttachmentHint.Position.Lateral * self.ParentBone.Thickness * parentBone.LocalLateralAxis() +
                 self.AttachmentHint.Position.Ventral * self.ParentBone.Thickness * parentBone.LocalVentralAxis();
             result.transform.localPosition = pos;
@@ -133,43 +183,15 @@ public class SkeletonAssembler {
             }
 
             if (self.AttachmentHint.VentralDirection != null) {
-                // Rotate about proximal (z) Axis, so that the world-space ventral axis matches
+                // Rotate so that the world-space ventral axis matches
                 // the axis prescribed by the AttachmentHint
-                float angle = Vector3.Angle(bone.WorldVentralAxis(), self.AttachmentHint.VentralDirection.GetValueOrDefault());
-                Debug.Log(angle);
-                result.transform.Rotate(0.0f, 0.0f, angle);
-                self.PropagateAttachmentRotation(angle);
+                var target = Quaternion.LookRotation(self.DistalAxis, self.AttachmentHint.VentralDirection.GetValueOrDefault());
+                var current = result.transform.rotation;
+                result.transform.rotation = target;
+                var delta = target * Quaternion.Inverse(current);
+                self.PropagateAttachmentRotation(delta);
+
             }
-
-            ConfigurableJoint joint = result.AddComponent<ConfigurableJoint>();
-            //joint.transform.rotation = result.transform.rotation;
-            //joint.targetRotation = Quaternion.LookRotation(end-start);
-            //joint.anchor = new Vector3(0,-length/2,0);
-
-            joint.connectedBody = parentGo.GetComponent<Rigidbody>();
-            joint.connectedAnchor = parentGo.transform.position;
-            joint.projectionMode = JointProjectionMode.PositionAndRotation;
-
-            joint.xMotion = ConfigurableJointMotion.Locked;
-            joint.yMotion = ConfigurableJointMotion.Locked;
-            joint.zMotion = ConfigurableJointMotion.Locked;
-            joint.angularXMotion = ConfigurableJointMotion.Limited;
-            joint.angularYMotion = ConfigurableJointMotion.Limited;
-            joint.angularZMotion = ConfigurableJointMotion.Limited;
-
-            if (jointLimits.HasLimits((self.Category, self.ParentBone.Category))) {
-                JointLimits limits = jointLimits[(self.Category, self.ParentBone.Category)];
-                joint.lowAngularXLimit = new SoftJointLimit() { limit = limits.XAxisMin};
-                joint.highAngularXLimit = new SoftJointLimit() { limit = limits.XAxisMax};
-                joint.angularYLimit = new SoftJointLimit() { limit = limits.YAxisSymmetric};
-                joint.angularZLimit = new SoftJointLimit() { limit = limits.ZAxisSymmetric};
-            } else {
-                joint.lowAngularXLimit = BoneAdd.defaultLowXLimit[self.Category];
-                joint.highAngularXLimit = BoneAdd.defaultHighXLimit[self.Category];
-                joint.angularYLimit = BoneAdd.defaultYLimit[self.Category];
-                joint.angularZLimit = BoneAdd.defaultZLimit[self.Category];
-            }
-
             Skeleton skeleton = rootGo.GetComponent<Skeleton>();
             skeleton.bonesByCategory[self.Category].Add(result);
         }
@@ -182,7 +204,7 @@ public class SkeletonAssembler {
             collider.center = bone.LocalMidpoint();
             rb.mass = BodyDensity * (3.0f * (float)Math.PI * radius * radius * radius) / 4.0f;
 
-            if(settings.AttachPrimitiveMesh){
+            if(debug.AttachPrimitiveMesh){
                 meshObject = GameObject.CreatePrimitive(PrimitiveType.Sphere);
                 meshObject.tag = "Agent";
 
@@ -203,13 +225,13 @@ public class SkeletonAssembler {
             collider.center = bone.LocalMidpoint();
             rb.mass = BodyDensity * (size.x * size.y * size.z);
 
-            if(settings.AttachPrimitiveMesh){
+            if(debug.AttachPrimitiveMesh){
                 meshObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 meshObject.tag = "Agent";
                 meshObject.transform.parent = result.transform;
                 meshObject.transform.localPosition = bone.LocalMidpoint();
                 meshObject.transform.localScale = size;
-                meshObject.transform.rotation = Quaternion.LookRotation(bone.WorldProximalAxis(), bone.WorldVentralAxis());
+                meshObject.transform.rotation = Quaternion.LookRotation(bone.WorldDistalAxis(), bone.WorldVentralAxis());
                 //meshObject.transform.rotation = Quaternion.LookRotation(bone.WorldVentralAxis(), bone.WorldProximalAxis());
                 meshObject.GetComponent<MeshRenderer>().shadowCastingMode = settings.PrimitiveMeshShadows;
                 // Delete Collider from primitive
@@ -228,7 +250,7 @@ public class SkeletonAssembler {
             // Ellipsoid Volume is 3/4 PI abc, with radii a, b, c
             rb.mass = BodyDensity * (3.0f * (float)Math.PI * 0.1f * self.Length * 0.45f * 0.1f) / 4;
 
-            if(settings.AttachPrimitiveMesh){
+            if(debug.AttachPrimitiveMesh){
                 meshObject = GameObject.CreatePrimitive(PrimitiveType.Capsule);
                 meshObject.tag = "Agent";
                 meshObject.transform.parent = result.transform;
@@ -236,7 +258,7 @@ public class SkeletonAssembler {
                 meshObject.transform.localScale = new Vector3(radius / 0.5f , height * 0.45f, radius / 0.5f);
                 // Rotate capsule so that y-axis points along ProximalAxis of parent, i.e. in the direction
                 // of the bone
-                meshObject.transform.rotation = Quaternion.LookRotation(bone.WorldVentralAxis(), bone.WorldProximalAxis());
+                meshObject.transform.rotation = Quaternion.LookRotation(bone.WorldVentralAxis(), bone.WorldDistalAxis());
 
                 meshObject.GetComponent<MeshRenderer>().shadowCastingMode = settings.PrimitiveMeshShadows;
 

@@ -48,6 +48,17 @@ namespace MarchingCubesProject
         {
         }
 
+        public void ApplySettings(MeshSettings settings)
+        {
+            mode = settings.Mode;
+            material = settings.Material;
+            smoothNormals = settings.SmoothNormals;
+            drawNormals = settings.DrawNormals;
+            enableDQSkinner = settings.enableDQSkinner;
+            gridResolution = settings.GridResolution;
+            size = settings.Size;
+        }
+
         void Clear() {
             if (normalRenderer != null)
                 normalRenderer.Clear();

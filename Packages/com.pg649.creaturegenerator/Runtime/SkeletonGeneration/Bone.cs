@@ -7,6 +7,8 @@ public class Bone : MonoBehaviour
     /// What type of body part this bone belongs to.
     public BoneCategory category;
 
+    public BoneCategory? subCategory;
+
     public float length;
 
     public float thickness;
@@ -22,19 +24,23 @@ public class Bone : MonoBehaviour
 
     public bool isRoot;
 
+    /// <summary>
+    ///  True if this bone is a mirrored version of another bone
+    /// </summary>
+    public bool mirrored;
     public Vector3 WorldProximalPoint() {
         return gameObject.transform.position;
     }
 
     public Vector3 WorldDistalPoint() {
-        return WorldProximalPoint() - WorldProximalAxis() * length;
+        return WorldProximalPoint() + WorldDistalAxis() * length;
     }
 
     public Vector3 WorldMidpoint() {
         return WorldProximalPoint() + WorldDistalPoint() / 2.0f;
     }
 
-    public Vector3 WorldProximalAxis() {
+    public Vector3 WorldDistalAxis() {
         return gameObject.transform.forward;
     }
 
@@ -52,14 +58,14 @@ public class Bone : MonoBehaviour
     }
 
     public Vector3 LocalDistalPoint() {
-        return LocalProximalPoint() - LocalProximalAxis() * length;
+        return LocalProximalPoint() + LocalDistalAxis() * length;
     }
 
     public Vector3 LocalMidpoint() {
         return LocalProximalPoint() + LocalDistalPoint() / 2.0f;
     }
 
-    public Vector3 LocalProximalAxis() {
+    public Vector3 LocalDistalAxis() {
         return Vector3.forward;
     }
 

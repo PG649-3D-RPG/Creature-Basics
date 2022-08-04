@@ -328,7 +328,7 @@ public class ParametricGenerator {
         float neckThickness = 0.2f;
         float angle = 0f;
         if (mode == Mode.Quadruped)
-            angle = Random.Range(0f, 90f);
+            angle = Random.Range(-90f, 0f);
 
         //Vector3 fwd = 0.5f * ((torso[2].endPoint - torso[2].startPoint).normalized + Vector3.up);
 
@@ -388,7 +388,7 @@ public class ParametricGenerator {
             
             // rotate torso
             float legDiff = hindLegHeight - frontLegHeight;
-            float angle = Mathf.Atan(legDiff / torsoSize) * Mathf.Rad2Deg;
+            float angle = - Mathf.Atan(legDiff / torsoSize) * Mathf.Rad2Deg;
             torso.AttachmentHint.Rotation = Quaternion.Euler(angle, 0.0f, 0.0f);
 
             foreach (var leg in legs)

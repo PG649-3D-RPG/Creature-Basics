@@ -1,24 +1,19 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using MarchingCubesProject;
-using Newtonsoft.Json.Serialization;
 using UnityEngine;
 using UnityEngine.Rendering;
 
 [CreateAssetMenu(fileName = "CreatureGeneratorSettings", menuName = "PG649-CreatureGenerator/Creature Generator Settings")]
 public class CreatureGeneratorSettings : ScriptableObject
 {
-    public SkeletonSettings SkeletonSettings;
-    public MeshSettings MeshSettings;
-    public DebugSettings DebugSettings;
+    public SkeletonSettings SkeletonSettings = new();
+    public MeshSettings MeshSettings = new();
+    public DebugSettings DebugSettings = new();
 
     private void OnEnable()
     {
         // NOTE: Shader.Find is not allowed during deserialization.
         // Instead find the standard shader once the object is loaded.
-        MeshSettings.Material = new Material(Shader.Find("Standard"));
-        //MeshSettings.Material = new Material(Shader.Find("MadCake/Material/Standard hacked for DQ skinning"));
+        MeshSettings.Material = new Material(Shader.Find("MadCake/Material/Standard hacked for DQ skinning"));
     }
 }
 

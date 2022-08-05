@@ -166,16 +166,29 @@ public class SkeletonAssembler {
         if (isRoot) {
             result.AddComponent<Skeleton>();
         } else {
-            // Does reparenting change a transform? Maybe realign coordinate system
-            // aftwards again, if axis are not correct.
             Bone parentBone = parentGo.GetComponent<Bone>();
             result.transform.parent = parentGo.transform;
-
-            Vector3 pos = parentBone.LocalProximalPoint() +
-                self.AttachmentHint.Position.Proximal * self.ParentBone.Length * parentBone.LocalDistalAxis() +
-                self.AttachmentHint.Position.Lateral * self.ParentBone.Thickness * parentBone.LocalLateralAxis() +
-                self.AttachmentHint.Position.Ventral * self.ParentBone.Thickness * parentBone.LocalVentralAxis();
-            result.transform.localPosition = pos;
+            if (parentBone.category is BoneCategory.Foot or BoneCategory.Hand)
+            {
+                Vector3 pos = parentBone.LocalProximalPoint() +
+                    self.AttachmentHint.Position.Proximal * self.ParentBone.Length * parentBone.LocalDistalAxis() +
+                    self.AttachmentHint.Position.Lateral * self.ParentBone.Thickness * parentBone.LocalLateralAxis() +
+                    self.AttachmentHint.Position.Ventral * self.ParentBone.Thickness * parentBone.LocalVentralAxis();
+                result.transform.localPosition = pos;
+            }
+            else
+            {
+                // Parents thickness might have been clamped. Clamp here as well to ensure consistency.
+                // NOTE: This fixes the issue with weirdly placed limbs in #108 for now, but is not a very clean solution.
+                // We should probably instead insure that the generators don't produce bones that are thicker, than they are long.
+                // Ideally that should be done in the inspector, so that it is visible to the user.
+                float radius = Mathf.Clamp(parentBone.thickness, 0.0f, 0.5f * parentBone.length);
+                Vector3 pos = parentBone.LocalProximalPoint() +
+                    self.AttachmentHint.Position.Proximal * self.ParentBone.Length * parentBone.LocalDistalAxis() +
+                    self.AttachmentHint.Position.Lateral * radius * parentBone.LocalLateralAxis() +
+                    self.AttachmentHint.Position.Ventral * radius * parentBone.LocalVentralAxis();
+                result.transform.localPosition = pos;
+            }
 
             if (self.AttachmentHint.Offset != null) {
                 // Apply offset prescribed in AttachmentHint

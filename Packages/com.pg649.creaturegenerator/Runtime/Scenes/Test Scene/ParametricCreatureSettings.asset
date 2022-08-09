@@ -15,15 +15,15 @@ MonoBehaviour:
   minLegThickness: 0.1
   maxLegThickness: 0.5
   minLegSize: 2
-  maxLegSize: 19.95
+  maxLegSize: 6
   minArmThickness: 0.1
   maxArmThickness: 0.5
   minArmSize: 2
   maxArmSize: 6
   minTorsoSize: 4
   maxTorsoSize: 8
-  minTorsoThickness: 0.4
-  maxTorsoThickness: 1.5
+  minTorsoThickness: 10
+  maxTorsoThickness: 10
   minNeckSize: 1
   maxNeckSize: 3
   minNeckSegments: 1

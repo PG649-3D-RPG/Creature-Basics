@@ -1,6 +1,7 @@
 using Common.Unity.Drawing;
 using System.Collections;
 using System.Collections.Generic;
+using log4net.Appender;
 using UnityEngine;
 
 using UnityEngine.Rendering;
@@ -46,12 +47,12 @@ namespace MarchingCubesProject
         {
         }
 
-        public void ApplySettings(MeshSettings settings)
+        public void ApplySettings(MeshSettings settings, DebugSettings debugSettings)
         {
             mode = settings.Mode;
             material = settings.Material;
             smoothNormals = settings.SmoothNormals;
-            drawNormals = settings.DrawNormals;
+            drawNormals = debugSettings.DrawNormals;
             enableDQSkinner = settings.enableDQSkinner;
             gridResolution = settings.GridResolution;
             size = settings.Size;

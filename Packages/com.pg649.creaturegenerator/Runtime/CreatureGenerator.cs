@@ -36,7 +36,7 @@ public class CreatureGenerator
             }
             Metaball m = Metaball.BuildFromSegments(segments_, useCapsules: false);
             MeshGenerator mg = root.AddComponent<MeshGenerator>();
-            mg.ApplySettings(settings.MeshSettings);
+            mg.ApplySettings(settings.MeshSettings, settings.DebugSettings);
             mg.material.color = Color.white;
 
             mg.Generate(m);
@@ -57,7 +57,7 @@ public class CreatureGenerator
         if (settings.MeshSettings.GenerateMetaballMesh)
         {
             var meshGen = root.AddComponent<MeshGenerator>();
-            meshGen.ApplySettings(settings.MeshSettings);
+            meshGen.ApplySettings(settings.MeshSettings, settings.DebugSettings);
             meshGen.Generate(Metaball.BuildFromSkeleton(root.GetComponent<Skeleton>()));
         }
 

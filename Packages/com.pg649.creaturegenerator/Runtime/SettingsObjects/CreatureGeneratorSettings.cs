@@ -47,6 +47,8 @@ public class DebugSettings
     public bool DisablePhysics = false;
     [Tooltip("If set, capsule meshes matching the bone colliders will be added to the skeleton.")]
     public bool AttachPrimitiveMesh = false;
+    [Tooltip("If set, surface normals will be visualized as vectors.")]
+    public bool DrawNormals = false;
 }
 
 [System.Serializable]
@@ -60,8 +62,6 @@ public class MeshSettings
     public Material Material;
     [Tooltip("If set, surface normals will be smoothed across triangles. If not set, surface normals will be discontinous along triangle edges.")]
     public bool SmoothNormals = true;
-    [Tooltip("If set, surface normals will be visualized as vectors.")]
-    public bool DrawNormals = false;
     [Tooltip("If set, enabled the dual quaternion skinner.")]
     public bool enableDQSkinner = false;
     public int GridResolution = 90;

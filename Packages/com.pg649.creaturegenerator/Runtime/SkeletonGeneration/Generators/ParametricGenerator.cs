@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Assertions;
-using System;
 
 using Random = UnityEngine.Random;
 
@@ -20,6 +19,12 @@ public class ParametricGenerator {
     private BoneDefinition neckAttachmentBone;
 
     private BoneDefinition armAttachmentBone;
+
+    private float hindLegHeight;
+
+    private float frontLegHeight;
+
+    private float torsoSize;
 
     private static readonly Dictionary<(BoneCategory, BoneCategory), JointLimits> HumanoidJointLimits = new Dictionary<(BoneCategory, BoneCategory), JointLimits>() {
         {(BoneCategory.Arm, BoneCategory.Arm), new JointLimits { XAxisMin = -10, XAxisMax = 160, Axis = Vector3.up, SecondaryAxis = Vector3.forward }},
@@ -180,8 +185,8 @@ public class ParametricGenerator {
         else if (mode == Mode.Quadruped)
         {
             // quadruped
-            float frontLegHeight = Random.Range(settings.minLegSize, settings.maxLegSize);
-            float hindLegHeight = Random.Range(settings.minLegSize, settings.maxLegSize);
+            frontLegHeight = Random.Range(settings.minLegSize, settings.maxLegSize);
+            hindLegHeight = Random.Range(settings.minLegSize, settings.maxLegSize);
             //legHeights = new List<float>() { hindLegHeight, frontLegHeight };
 
             for (int i = 0; i < 2; i++)
@@ -262,7 +267,7 @@ public class ParametricGenerator {
     }
 
     private BoneDefinition buildTorso() {
-        float torsoSize = Random.Range(settings.minTorsoSize, settings.maxTorsoSize);
+        torsoSize = Random.Range(settings.minTorsoSize, settings.maxTorsoSize);
 
         List<float> torsoSplits = new List<float>()
         {
@@ -322,6 +327,9 @@ public class ParametricGenerator {
         float neckSize = Random.Range(settings.minNeckSize, settings.maxNeckSize);
         float segmentLength = neckSize / neckSegments;
         float neckThickness = 0.2f;
+        float angle = 0f;
+        if (mode == Mode.Quadruped)
+            angle = Random.Range(-90f, 0f);
 
         //Vector3 fwd = 0.5f * ((torso[2].endPoint - torso[2].startPoint).normalized + Vector3.up);
 
@@ -330,7 +338,10 @@ public class ParametricGenerator {
         {
             BoneDefinition neckPart = buildNeckPart(segmentLength, neckThickness);
             prev.LinkChild(neckPart);
+            neckPart.AttachmentHint.Rotation = Quaternion.Euler(angle, 0f, 0f);
             prev = neckPart;
+            if (mode == Mode.Quadruped)
+                angle = Random.Range(-20f, 20f);
         }
         return prev;
     }
@@ -373,6 +384,16 @@ public class ParametricGenerator {
 
             BoneDefinition frontHip = buildHip(neckAttachmentBone, legs[2], legs[3], Vector3.forward, Vector3.down, RelativePositions.DistalPoint);
             neckAttachmentBone = frontHip;
+
+            // rotate torso
+            float legDiff = hindLegHeight - frontLegHeight;
+            float angle = - Mathf.Atan(legDiff / torsoSize) * Mathf.Rad2Deg;
+            torso.AttachmentHint.Rotation = Quaternion.Euler(angle, 0.0f, 0.0f);
+
+            foreach (var leg in legs)
+            {
+                leg.AttachmentHint.Rotation = Quaternion.Euler(angle, 0.0f, 0.0f);
+            }
         } else
         {
             buildHip(torso, legs[0], legs[1], Vector3.down, Vector3.forward, RelativePositions.ProximalPoint);

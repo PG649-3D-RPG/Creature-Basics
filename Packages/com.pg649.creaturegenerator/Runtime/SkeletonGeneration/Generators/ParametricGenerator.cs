@@ -58,10 +58,11 @@ public class ParametricGenerator {
         List<BoneDefinition> arms = buildArms();
 
         BoneDefinition root = buildTorso();
+        attachLegs(legs, root);
+
         BoneDefinition neck = buildNeck(neckAttachmentBone);
         buildHead(neck);
 
-        attachLegs(legs, root);
 
         foreach (var arm in arms)
             armAttachmentBone.LinkChild(arm);
@@ -379,43 +380,46 @@ public class ParametricGenerator {
     {
         if (mode == Mode.Quadruped)
         {
-            buildHip(torso, legs[0], Vector3.left, RelativePositions.ProximalPoint);
-            buildHip(torso, legs[1], Vector3.right, RelativePositions.ProximalPoint);
+            buildHip(torso, legs[0], legs[1], Vector3.back, Vector3.down, RelativePositions.ProximalPoint);
 
-            buildHip(neckAttachmentBone, legs[2], Vector3.left, RelativePositions.DistalPoint);
-            buildHip(neckAttachmentBone, legs[3], Vector3.right, RelativePositions.DistalPoint);
+            BoneDefinition frontHip = buildHip(neckAttachmentBone, legs[2], legs[3], Vector3.forward, Vector3.down, RelativePositions.DistalPoint);
+            neckAttachmentBone = frontHip;
 
-            
             // rotate torso
             float legDiff = hindLegHeight - frontLegHeight;
             float angle = - Mathf.Atan(legDiff / torsoSize) * Mathf.Rad2Deg;
             torso.AttachmentHint.Rotation = Quaternion.Euler(angle, 0.0f, 0.0f);
 
             foreach (var leg in legs)
+            {
                 leg.AttachmentHint.Rotation = Quaternion.Euler(angle, 0.0f, 0.0f);
+            }
         } else
         {
-            BoneDefinition hip = new();
-            hip.Length = 1.25f;
-            hip.DistalAxis = Vector3.down;
-            hip.VentralAxis = Vector3.forward;
-            hip.Category = BoneCategory.Hip;
-            hip.Thickness = torso.Thickness;
-            hip.AttachmentHint.Position = RelativePositions.ProximalPoint;
-
-            torso.LinkChild(hip);
-
-            hip.LinkChild(legs[0]);
-            legs[0].AttachmentHint.Position = new RelativePosition(1.0f, 0.0f, 1.0f);
-
-            hip.LinkChild(legs[1]);
-            legs[1].AttachmentHint.Position = new RelativePosition(-1.0f, 0.0f, 1.0f);
+            buildHip(torso, legs[0], legs[1], Vector3.down, Vector3.forward, RelativePositions.ProximalPoint);
         }
     }
     
-    private BoneDefinition buildHip(BoneDefinition attachTo, BoneDefinition leg, Vector3 proximalAxis, RelativePosition pos)
+    private BoneDefinition buildHip(BoneDefinition attachTo, BoneDefinition leg1, BoneDefinition leg2, Vector3 distalAxis, Vector3 ventralAxis, RelativePosition pos)
     {
         BoneDefinition hip = new();
+        hip.Length = 1.25f;
+        hip.Category = BoneCategory.Hip;
+        hip.DistalAxis = distalAxis;
+        hip.VentralAxis = ventralAxis;
+        hip.Thickness = attachTo.Thickness;
+        hip.AttachmentHint.Position = pos;
+
+        attachTo.LinkChild(hip);
+        hip.LinkChild(leg1);
+        leg1.AttachmentHint.Position = new RelativePosition(1.0f, 0.0f, 0.5f);
+        hip.LinkChild(leg2);
+        leg2.AttachmentHint.Position = new RelativePosition(-1.0f, 0.0f, 0.5f);
+        return hip;
+
+        // old double hip bones
+
+        /*BoneDefinition hip = new();
         hip.Length = attachTo.Thickness;
         hip.DistalAxis = proximalAxis;
         hip.VentralAxis = Vector3.forward;
@@ -424,6 +428,6 @@ public class ParametricGenerator {
         hip.AttachmentHint.Position = pos;
         attachTo.LinkChild(hip);
         hip.LinkChild(leg);
-        return hip;
+        return hip;*/
     }
 }

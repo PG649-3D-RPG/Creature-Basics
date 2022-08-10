@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 
 namespace LSystem
@@ -15,8 +16,6 @@ namespace LSystem
 
         private readonly Vector3 initial_direction;
 
-        private readonly System.Random rand;
-
         /// <summary>
         /// An example for the output of the L-System.
         /// </summary>
@@ -29,36 +28,9 @@ namespace LSystem
         public List<Tuple<Vector3, Vector3>> segments;
         public List<Tuple<int, char>> fromRule;
 
-        /// <summary>
-        /// Initializes an L-System.
-        /// </summary>
-        /// <param name="d">Default forward distance of the turtle.</param>
-        /// <param name="a">Default angle of the turtle</param>
-        /// <param name="cs">Default number of cross sections for the drawing.</param>
-        /// <param name="csd">Default number of cross section divisions for the drawing.</param>
-        /// <param name="init_dir">Initial direction of the turtle.</param>
-        // public LSystem(float d, short a, uint cs, uint csd, INITIAL_DIRECTION init_dir)
-        // {
-        //     default_dist = d;
-        //     default_angle = a;
-        //     default_cross_sections = cs;
-        //     default_cross_section_divisions = csd;
-        //     initial_direction = init_dir switch
-        //     {
-        //         INITIAL_DIRECTION.UP => Vector3.up,
-        //         INITIAL_DIRECTION.DOWN => Vector3.down,
-        //         INITIAL_DIRECTION.LEFT => Vector3.left,
-        //         INITIAL_DIRECTION.RIGHT => Vector3.right,
-        //         INITIAL_DIRECTION.FORWARD => Vector3.forward,
-        //         INITIAL_DIRECTION.BACK => Vector3.back,
-        //         INITIAL_DIRECTION.DIAGONAL => Vector3.one,
-        //         _ => Vector3.down,
-        //     };
-        // }
-
-        public LSystem(float d, short a, uint cs, uint csd, INITIAL_DIRECTION init_dir, string start, uint iterations, Dictionary<char, List<string>> rules, bool translatePointsOfList, bool printResult = false)
+        public LSystem(float d, short a, uint cs, uint csd, INITIAL_DIRECTION init_dir, string start, uint iterations, Dictionary<char, List<string>> rules, bool translatePointsOfList, int seed, bool printResult = false)
         {
-            rand = new System.Random();
+            Random.InitState(seed);
             default_dist = d;
             default_angle = a;
             default_cross_sections = cs;
@@ -227,7 +199,6 @@ namespace LSystem
             return tuples;
         }
 
-        //TODO stochastic replacement via multiple rules with same non-terminal
         private string Parse(string s, uint it, Dictionary<char, List<string>> rules)
         {
             string a = "";
@@ -244,7 +215,7 @@ namespace LSystem
                         // NT
                         List<string> replacement = rules[c];
                         //randomly select one replacement from the replacement list
-                        int choice = this.rand.Next(0, replacement.Count);
+                        int choice = Random.Range(0, replacement.Count);
                         temp += replacement[choice];
                         //foreach (var n in replacement) if (n == 'F') fromRule.Add(new(i, c));
                         foreach (var n in replacement[choice]) at += c.ToString();

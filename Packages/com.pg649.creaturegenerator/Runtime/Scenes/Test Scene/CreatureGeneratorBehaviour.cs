@@ -17,7 +17,7 @@ public class CreatureGeneratorBehaviour : MonoBehaviour
     public ParametricCreatureSettings CreatureSettings;
     public LSystemSettings LSystemSettings;
     public int Seed = 0;
-    
+
     // Start is called before the first frame update
     void Start()
     {
@@ -25,13 +25,13 @@ public class CreatureGeneratorBehaviour : MonoBehaviour
         switch (Target)
         {
             case TargetCreature.LSystem:
-                creature = CreatureGenerator.LSystem(Settings, LSystemSettings);
+                creature = CreatureGenerator.LSystem(Settings, LSystemSettings, Seed);
                 break;
             case TargetCreature.ParametricBiped:
                 creature = CreatureGenerator.ParametricBiped(Settings, CreatureSettings, Seed);
                 break;
             case TargetCreature.ParametricQuadruped:
-                creature = CreatureGenerator.ParametricQuadruped(Settings, CreatureSettings, Seed); 
+                creature = CreatureGenerator.ParametricQuadruped(Settings, CreatureSettings, Seed);
                 break;
             default: break;
         }
@@ -45,6 +45,6 @@ public class CreatureGeneratorBehaviour : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 }

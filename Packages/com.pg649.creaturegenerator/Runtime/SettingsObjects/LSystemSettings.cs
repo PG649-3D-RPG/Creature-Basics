@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
 using UnityEngine;
 
 namespace LSystem
@@ -70,10 +68,10 @@ namespace LSystem
             return nt;
         }
 
-        public LSystem BuildLSystem()
+        public LSystem BuildLSystem(int seed)
         {
             var rules = ParseRuleInput(m_Rules);
-            LSystem l = new(m_Distance, m_Angle, m_CrossSections, m_CrossSectionDivisions, m_InitialDirection, m_StartString, m_Iterations, rules, true);
+            LSystem l = new(m_Distance, m_Angle, m_CrossSections, m_CrossSectionDivisions, m_InitialDirection, m_StartString, m_Iterations, rules, true, seed);
             return l;
         }
     }

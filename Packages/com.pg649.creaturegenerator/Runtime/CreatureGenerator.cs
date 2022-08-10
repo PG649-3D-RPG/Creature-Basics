@@ -20,15 +20,16 @@ public class CreatureGenerator
         return Parametric(ParametricGenerator.Mode.Quadruped, settings, creatureSettings, seed);
     }
 
-    public static GameObject LSystem(CreatureGeneratorSettings settings, LSystemSettings lSystemSettings)
+    public static GameObject LSystem(CreatureGeneratorSettings settings, LSystemSettings lSystemSettings, int seed)
     {
-        var lSystem = lSystemSettings.BuildLSystem();
-        
+        var lSystem = lSystemSettings.BuildLSystem(seed);
+
         List<Tuple<Vector3, Vector3>> segments = lSystem.segments;
         GameObject root = SkeletonGenerator.Generate(lSystem, settings.DebugSettings.AttachPrimitiveMesh, settings.SkeletonSettings.ConnectHips);
         // TODO: Readd orientation cube
-        
-        if (settings.MeshSettings.GenerateMetaballMesh){
+
+        if (settings.MeshSettings.GenerateMetaballMesh)
+        {
             Segment[] segments_ = new Segment[segments.Count];
             for (int i = 0; i < segments.Count; i++)
             {

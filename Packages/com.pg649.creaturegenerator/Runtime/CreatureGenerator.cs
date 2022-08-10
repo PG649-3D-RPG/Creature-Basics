@@ -23,9 +23,13 @@ public class CreatureGenerator
     public static GameObject LSystem(CreatureGeneratorSettings settings, LSystemSettings lSystemSettings)
     {
         var lSystem = lSystemSettings.BuildLSystem();
+
+        GameObject go = new GameObject("creature");
         
         List<Tuple<Vector3, Vector3>> segments = lSystem.segments;
-        GameObject root = SkeletonGenerator.Generate(lSystem, settings.DebugSettings.AttachPrimitiveMesh, settings.SkeletonSettings.ConnectHips);
+        GameObject rootBone = SkeletonGenerator.Generate(lSystem, settings.DebugSettings.AttachPrimitiveMesh, settings.SkeletonSettings.ConnectHips);
+        rootBone.transform.parent = go.transform;
+
         // TODO: Readd orientation cube
         
         if (settings.MeshSettings.GenerateMetaballMesh){
@@ -35,14 +39,12 @@ public class CreatureGenerator
                 segments_[i] = new Segment(segments[i].Item1, segments[i].Item2, .025f);
             }
             Metaball m = Metaball.BuildFromSegments(segments_, useCapsules: false);
-            MeshGenerator mg = root.AddComponent<MeshGenerator>();
-            mg.ApplySettings(settings.MeshSettings, settings.DebugSettings);
-            mg.material.color = Color.white;
-
-            mg.Generate(m);
+            MeshGenerator meshGen = go.AddComponent<MeshGenerator>();
+            meshGen.ApplySettings(settings.MeshSettings, settings.DebugSettings);
+            meshGen.Generate(m);
         }
 
-        return root;
+        return go;
     }
 
     private static GameObject Parametric(
@@ -50,19 +52,22 @@ public class CreatureGenerator
         CreatureGeneratorSettings settings,
         ParametricCreatureSettings creatureSettings, int seed = 0)
     {
+        GameObject go = new GameObject("creature");
+
         var g = new ParametricGenerator(creatureSettings);
         var skeletonDef = g.BuildCreature(mode, seed);
-        var root = SkeletonAssembler.Assemble(skeletonDef, settings.SkeletonSettings, settings.DebugSettings);
+        var rootBone = SkeletonAssembler.Assemble(skeletonDef, settings.SkeletonSettings, settings.DebugSettings);
+        rootBone.transform.parent = go.transform;
 
         if (settings.MeshSettings.GenerateMetaballMesh)
         {
-            var meshGen = root.AddComponent<MeshGenerator>();
+            var meshGen = go.AddComponent<MeshGenerator>();
             meshGen.ApplySettings(settings.MeshSettings, settings.DebugSettings);
-            meshGen.Generate(Metaball.BuildFromSkeleton(root.GetComponent<Skeleton>()));
+            meshGen.Generate(Metaball.BuildFromSkeleton(rootBone.GetComponent<Skeleton>()));
         }
 
         Physics.autoSimulation = !settings.DebugSettings.DisablePhysics;
 
-        return root;
+        return go;
     }
 }

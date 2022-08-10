@@ -86,59 +86,62 @@ public class SkeletonAssembler {
 
     private static void LinkWithJoint(GameObject parent, GameObject child, LimitTable jointLimits, SkeletonSettings settings)
     {
-            var joint = child.AddComponent<ConfigurableJoint>();
+        var joint = child.AddComponent<ConfigurableJoint>();
             
-            joint.connectedBody = parent.GetComponent<Rigidbody>();
-            joint.connectedAnchor = parent.transform.position;
-            joint.projectionMode = JointProjectionMode.PositionAndRotation;
+        joint.connectedBody = parent.GetComponent<Rigidbody>();
+        joint.connectedAnchor = parent.transform.position;
+        joint.projectionMode = JointProjectionMode.PositionAndRotation;
 
-            joint.xMotion = ConfigurableJointMotion.Locked;
-            joint.yMotion = ConfigurableJointMotion.Locked;
-            joint.zMotion = ConfigurableJointMotion.Locked;
-            joint.angularXMotion = ConfigurableJointMotion.Locked;
-            joint.angularYMotion = ConfigurableJointMotion.Locked;
-            joint.angularZMotion = ConfigurableJointMotion.Locked;
+        joint.xMotion = ConfigurableJointMotion.Locked;
+        joint.yMotion = ConfigurableJointMotion.Locked;
+        joint.zMotion = ConfigurableJointMotion.Locked;
+        joint.angularXMotion = ConfigurableJointMotion.Locked;
+        joint.angularYMotion = ConfigurableJointMotion.Locked;
+        joint.angularZMotion = ConfigurableJointMotion.Locked;
 
-            var childCategory = child.GetComponent<Bone>().category;
-            var parentCategory = parent.GetComponent<Bone>().category;
-            var mirrored = child.GetComponent<Bone>().mirrored;
-            
-            if (jointLimits.HasLimits((parentCategory, childCategory))) {
-                var limits = jointLimits[(parentCategory, childCategory)];
-                if (limits.XAxisMin != 0.0f || limits.XAxisMax != 0.0f)
-                {
-                    joint.angularXMotion = ConfigurableJointMotion.Limited;
-                    joint.lowAngularXLimit = new SoftJointLimit() { limit = limits.XAxisMin};
-                    joint.highAngularXLimit = new SoftJointLimit() { limit = limits.XAxisMax};
-                }
-                if (limits.YAxisSymmetric != 0.0f)
-                {
-                    joint.angularYMotion = ConfigurableJointMotion.Limited;
-                    joint.angularYLimit = new SoftJointLimit() { limit = limits.YAxisSymmetric};
-                }
-                if (limits.ZAxisSymmetric != 0.0f)
-                {
-                    joint.angularZMotion = ConfigurableJointMotion.Limited;
-                    joint.angularZLimit = new SoftJointLimit() { limit = limits.ZAxisSymmetric};
-                }
-                if (limits.Axis != null)
-                {
-                    joint.axis = (mirrored ? -1.0f : 1.0f) * limits.Axis.GetValueOrDefault();
-                }
-                if (limits.SecondaryAxis != null)
-                {
-                    joint.secondaryAxis = (mirrored ? -1.0f : 1.0f) * limits.SecondaryAxis.GetValueOrDefault();
-                }
-            }
+        var childBone = child.GetComponent<Bone>();
+        var parentBone = parent.GetComponent<Bone>();
 
-            JointDrive slerp = new()
+        var childCategory = childBone.subCategory.HasValue ? childBone.subCategory.Value : childBone.category;
+        var parentCategory = parentBone.subCategory.HasValue ? parentBone.subCategory.Value : parentBone.category;
+        var mirrored = childBone.mirrored;
+
+        if (jointLimits.HasLimits((parentCategory, childCategory))) {
+            var limits = jointLimits[(parentCategory, childCategory)];
+            if (limits.XAxisMin != 0.0f || limits.XAxisMax != 0.0f)
             {
-                positionSpring = 10000.0f,
-                positionDamper = 500.0f,
-                maximumForce = float.MaxValue
-            };
-            joint.slerpDrive = slerp;
-            joint.rotationDriveMode = RotationDriveMode.Slerp;
+                joint.angularXMotion = ConfigurableJointMotion.Limited;
+                joint.lowAngularXLimit = new SoftJointLimit() { limit = limits.XAxisMin};
+                joint.highAngularXLimit = new SoftJointLimit() { limit = limits.XAxisMax};
+            }
+            if (limits.YAxisSymmetric != 0.0f)
+            {
+                joint.angularYMotion = ConfigurableJointMotion.Limited;
+                joint.angularYLimit = new SoftJointLimit() { limit = limits.YAxisSymmetric};
+            }
+            if (limits.ZAxisSymmetric != 0.0f)
+            {
+                joint.angularZMotion = ConfigurableJointMotion.Limited;
+                joint.angularZLimit = new SoftJointLimit() { limit = limits.ZAxisSymmetric};
+            }
+            if (limits.Axis != null)
+            {
+                joint.axis = (mirrored ? -1.0f : 1.0f) * limits.Axis.GetValueOrDefault();
+            }
+            if (limits.SecondaryAxis != null)
+            {
+                joint.secondaryAxis = (mirrored ? -1.0f : 1.0f) * limits.SecondaryAxis.GetValueOrDefault();
+            }
+        }
+
+        JointDrive slerp = new()
+        {
+            positionSpring = 10000.0f,
+            positionDamper = 500.0f,
+            maximumForce = float.MaxValue
+        };
+        joint.slerpDrive = slerp;
+        joint.rotationDriveMode = RotationDriveMode.Slerp;
     }
     private static GameObject toGameObject(BoneDefinition self, GameObject parentGo, GameObject rootGo, SkeletonSettings settings, DebugSettings debug) {
         bool isRoot = parentGo == null;
@@ -156,6 +159,7 @@ public class SkeletonAssembler {
 
         Bone bone = result.AddComponent<Bone>();
         bone.category = self.Category;
+        bone.subCategory = self.SubCategory;
         bone.length = self.Length;
         bone.mirrored = self.Mirrored;
         bone.thickness = self.Thickness;
@@ -166,16 +170,29 @@ public class SkeletonAssembler {
         if (isRoot) {
             result.AddComponent<Skeleton>();
         } else {
-            // Does reparenting change a transform? Maybe realign coordinate system
-            // aftwards again, if axis are not correct.
             Bone parentBone = parentGo.GetComponent<Bone>();
             result.transform.parent = parentGo.transform;
-
-            Vector3 pos = parentBone.LocalProximalPoint() +
-                self.AttachmentHint.Position.Proximal * self.ParentBone.Length * parentBone.LocalDistalAxis() +
-                self.AttachmentHint.Position.Lateral * self.ParentBone.Thickness * parentBone.LocalLateralAxis() +
-                self.AttachmentHint.Position.Ventral * self.ParentBone.Thickness * parentBone.LocalVentralAxis();
-            result.transform.localPosition = pos;
+            if (parentBone.category is BoneCategory.Foot or BoneCategory.Hand)
+            {
+                Vector3 pos = parentBone.LocalProximalPoint() +
+                    self.AttachmentHint.Position.Proximal * self.ParentBone.Length * parentBone.LocalDistalAxis() +
+                    self.AttachmentHint.Position.Lateral * self.ParentBone.Thickness * parentBone.LocalLateralAxis() +
+                    self.AttachmentHint.Position.Ventral * self.ParentBone.Thickness * parentBone.LocalVentralAxis();
+                result.transform.localPosition = pos;
+            }
+            else
+            {
+                // Parents thickness might have been clamped. Clamp here as well to ensure consistency.
+                // NOTE: This fixes the issue with weirdly placed limbs in #108 for now, but is not a very clean solution.
+                // We should probably instead insure that the generators don't produce bones that are thicker, than they are long.
+                // Ideally that should be done in the inspector, so that it is visible to the user.
+                float radius = Mathf.Clamp(parentBone.thickness, 0.0f, 0.5f * parentBone.length);
+                Vector3 pos = parentBone.LocalProximalPoint() +
+                    self.AttachmentHint.Position.Proximal * self.ParentBone.Length * parentBone.LocalDistalAxis() +
+                    self.AttachmentHint.Position.Lateral * radius * parentBone.LocalLateralAxis() +
+                    self.AttachmentHint.Position.Ventral * radius * parentBone.LocalVentralAxis();
+                result.transform.localPosition = pos;
+            }
 
             if (self.AttachmentHint.Offset != null) {
                 // Apply offset prescribed in AttachmentHint

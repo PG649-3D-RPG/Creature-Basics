@@ -22,7 +22,7 @@ public class BoneHeatMethodCalculator :IBoneWeightCalculator
         //List<List<double>> weights = new List<List<double>>();
         //List<List<Tuple<int, double>>> nzweights = new List<List<Tuple<int, double>>>();
 
-        VisibilityTester tester = new VisibilityTester(mesh);
+        VisibilityTester tester = new VisibilityTester(mesh, 64);
 
         // nv = numVertices
         int nv = mesh.vertices.Length;

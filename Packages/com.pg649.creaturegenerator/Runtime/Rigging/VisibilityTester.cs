@@ -7,7 +7,7 @@ public class VisibilityTester {
 
     private SignedDistanceField sdf;
 
-    public VisibilityTester(Mesh mesh, int sdfResolution=128) {
+    public VisibilityTester(Mesh mesh, int sdfResolution) {
         this.sdf = new SignedDistanceField(mesh, sdfResolution);
     }
 

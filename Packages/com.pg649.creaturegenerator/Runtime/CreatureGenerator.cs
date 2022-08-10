@@ -39,9 +39,8 @@ public class CreatureGenerator
                 segments_[i] = new Segment(segments[i].Item1, segments[i].Item2, .025f);
             }
             Metaball m = Metaball.BuildFromSegments(segments_, useCapsules: false);
-
             MeshGenerator meshGen = go.AddComponent<MeshGenerator>();
-            meshGen.ApplySettings(settings.MeshSettings);
+            meshGen.ApplySettings(settings.MeshSettings, settings.DebugSettings);
             meshGen.Generate(m);
         }
 
@@ -63,7 +62,7 @@ public class CreatureGenerator
         if (settings.MeshSettings.GenerateMetaballMesh)
         {
             var meshGen = go.AddComponent<MeshGenerator>();
-            meshGen.ApplySettings(settings.MeshSettings);
+            meshGen.ApplySettings(settings.MeshSettings, settings.DebugSettings);
             meshGen.Generate(Metaball.BuildFromSkeleton(rootBone.GetComponent<Skeleton>()));
         }
 

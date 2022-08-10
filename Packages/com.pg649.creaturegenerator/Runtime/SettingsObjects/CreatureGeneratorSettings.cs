@@ -57,5 +57,4 @@ public class MeshSettings
     public bool DrawNormals = false;
     public bool enableDQSkinner = false;
     public int GridResolution = 90;
-    public float Size = 20f;
 }

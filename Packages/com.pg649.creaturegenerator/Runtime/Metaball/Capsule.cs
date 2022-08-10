@@ -25,32 +25,32 @@ public class Capsule: Ball
         float dotEnd = Vector3.Dot(segmentFwd, endToPoint);
 
         float dist;
-
         if (dotEnd > 0)
         {
-
             // Finding the magnitude
             Vector3 offset = testPoint - segment.endPoint;
             dist = offset.magnitude;
         }
-
-        // Case 2
-        else if (dotStart < 0)
+        else if (dotStart < 0) // Case 2
         {
             Vector3 offset = testPoint - segment.startPoint;
             dist = offset.magnitude;
         }
-
-        // Case 3
-        else
+        else // Case 3
         {
-
             // Finding the perpendicular distance
             float mod = segmentFwd.magnitude;
             dist = (Vector3.Cross(segmentFwd, startToPoint) / mod).magnitude;
         }
 
         return base.Value(dist, 0, 0);
+    }
+    
+    public override Bounds GetBounds() {
+        Bounds bounds = new Bounds(segment.startPoint, new Vector3(segment.thickness*2, segment.thickness*2, segment.thickness*2));
+        bounds.Encapsulate(new Bounds(segment.endPoint, new Vector3(segment.thickness*2, segment.thickness*2, segment.thickness*2)));
+
+        return bounds;
     }
 
 }

@@ -41,6 +41,18 @@ public class Metaball
         return result;
     }
 
+    public Bounds GetBounds() {
+        if (balls.Count == 0)
+            return new Bounds(Vector3.zero, Vector3.zero);
+        
+        Bounds bounds = balls[0].GetBounds();
+        for (int i = 1; i < balls.Count; i++) {
+            bounds.Encapsulate(balls[i].GetBounds());
+        }
+
+        return bounds;
+    }
+
     /// <summary>
     /// Builds a metaball from the provided segments
     /// </summary>

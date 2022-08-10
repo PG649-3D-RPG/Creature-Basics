@@ -29,11 +29,6 @@ namespace MarchingCubesProject
         /// </summary>
         public int gridResolution = 32;
 
-        /// <summary>
-        /// size of the volume that marching cubes is performed in
-        /// </summary>
-        public float size = 1f;
-
         private List<GameObject> meshes = new List<GameObject>();
 
         private NormalRenderer normalRenderer;
@@ -56,7 +51,6 @@ namespace MarchingCubesProject
             drawNormals = settings.DrawNormals;
             enableDQSkinner = settings.enableDQSkinner;
             gridResolution = settings.GridResolution;
-            size = settings.Size;
         }
 
         void Clear() {
@@ -78,7 +72,6 @@ namespace MarchingCubesProject
 
         /// <summary>
         /// Generates a mesh from the given Metaball
-        /// within a box of dimensions size*size*size centered at (0,0,0)
         /// </summary>
         /// <param name="metaball"></param>
         public void Generate(Metaball metaball)
@@ -90,6 +83,13 @@ namespace MarchingCubesProject
             }
 
             this.metaball = metaball;
+
+            Bounds metaballBounds = metaball.GetBounds();
+            float maxSizeComp = Mathf.Max(metaballBounds.size.x, metaballBounds.size.y, metaballBounds.size.z);
+            float voxelSize = maxSizeComp / (gridResolution - 1.0f);
+            maxSizeComp += 3.0f * voxelSize;
+
+            Bounds voxelBounds = new Bounds(metaballBounds.center - new Vector3(voxelSize, voxelSize, voxelSize), new Vector3(maxSizeComp, maxSizeComp, maxSizeComp));
 
             //Set the mode used to create the mesh.
             //Cubes is faster and creates less verts, tetrahedrons is slower and creates more verts but better represents the mesh surface.
@@ -104,23 +104,18 @@ namespace MarchingCubesProject
             //The target value does not have to be the mid point it can be any value with in the range.
             marching.Surface = 1.0f;
 
-            //The size of voxel array.
-            int width = gridResolution;
-            int height = gridResolution;
-            int depth = gridResolution;
-
-            var voxels = new VoxelArray(width, height, depth);
+            var voxels = new VoxelArray(gridResolution, gridResolution, gridResolution);
 
             //Fill voxels with values.
-            for (int x = 0; x < width; x++)
+            for (int x = 0; x < gridResolution; x++)
             {
-                for (int y = 0; y < height; y++)
+                for (int y = 0; y < gridResolution; y++)
                 {
-                    for (int z = 0; z < depth; z++)
+                    for (int z = 0; z < gridResolution; z++)
                     {
-                        float u = (x / (width - 1.0f) - 0.5f) * size;
-                        float v = (y / (height - 1.0f) - 0.5f) * size;
-                        float w = (z / (depth - 1.0f) - 0.5f) * size;
+                        float u = (x / (gridResolution - 1.0f)) * voxelBounds.size.x + voxelBounds.min.x;
+                        float v = (y / (gridResolution - 1.0f)) * voxelBounds.size.y + voxelBounds.min.y;
+                        float w = (z / (gridResolution - 1.0f)) * voxelBounds.size.z + voxelBounds.min.z;
                         
                         voxels[x, y, z] = metaball.Value(u, v, w);
                     }
@@ -141,13 +136,11 @@ namespace MarchingCubesProject
             {
                 for (int i = 0; i < verts.Count; i++)
                 {
-                    //Presumes the vertex is in local space where
-                    //the min value is 0 and max is width/height/depth.
                     Vector3 p = verts[i];
 
-                    float u = p.x / (width - 1.0f);
-                    float v = p.y / (height - 1.0f);
-                    float w = p.z / (depth - 1.0f);
+                    float u = p.x / (gridResolution - 1.0f);
+                    float v = p.y / (gridResolution - 1.0f);
+                    float w = p.z / (gridResolution - 1.0f);
 
                     Vector3 n = voxels.GetNormal(u, v, w);
 
@@ -155,8 +148,8 @@ namespace MarchingCubesProject
                 }
             }
 
-            var position = this.transform.localPosition - (new Vector3(size, size, size)/ 2);
-            Matrix4x4 mat = Matrix4x4.Translate(position) * Matrix4x4.Scale(new Vector3(size, size, size) / gridResolution);
+            var position = this.transform.localPosition + (voxelBounds.min );
+            Matrix4x4 mat = Matrix4x4.Translate(position) * Matrix4x4.Scale(voxelBounds.size / gridResolution);
 
             for (int i = 0; i < verts.Count; i++)
             {

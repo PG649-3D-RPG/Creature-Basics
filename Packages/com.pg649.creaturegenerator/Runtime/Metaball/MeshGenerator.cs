@@ -1,9 +1,6 @@
-using Common.Unity.Drawing;
-using System.Collections;
 using System.Collections.Generic;
-using log4net.Appender;
+using Common.Unity.Drawing;
 using UnityEngine;
-
 using UnityEngine.Rendering;
 
 namespace MarchingCubesProject

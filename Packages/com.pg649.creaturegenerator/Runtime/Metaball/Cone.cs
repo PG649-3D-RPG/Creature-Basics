@@ -57,4 +57,6 @@ public class Cone: Ball
         return base.Value(dist, 0, 0);
     }
 
+    //TODO: Implement custom GetBounds method.
+
 }

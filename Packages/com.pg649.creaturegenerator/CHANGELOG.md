@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+## [3.2.0] - 2022-08-11
+### Added
+- Joint angle limits for quadruped creatures
+- MeshGenerator determines its bounding box by itself
+
+### Changed
+- CreatureGenerator now creates an empty GameObject above the root bone
+
+### Fixed
+- Removed unneeded import that broke project build
+
 ## [3.1.0] - 2022-08-09
 ### Added
 - Tooltips to most fields in CreatureGeneratorSettings and ParametricCreatureSettings

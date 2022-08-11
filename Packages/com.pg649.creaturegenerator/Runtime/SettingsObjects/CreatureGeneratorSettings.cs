@@ -65,5 +65,4 @@ public class MeshSettings
     [Tooltip("If set, enabled the dual quaternion skinner.")]
     public bool enableDQSkinner = false;
     public int GridResolution = 90;
-    public float Size = 20f;
 }

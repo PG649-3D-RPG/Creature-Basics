@@ -60,12 +60,12 @@ public class ParametricGenerator {
 
     private static readonly Dictionary<(BoneCategory, BoneCategory), JointLimits> HumanoidJointLimits = new Dictionary<(BoneCategory, BoneCategory), JointLimits>() {
         {(BoneCategory.Arm, BoneCategory.Arm), new JointLimits { XAxisMin = -10, XAxisMax = 160, Axis = Vector3.up, SecondaryAxis = Vector3.forward }},
-        {(BoneCategory.Shoulder, BoneCategory.Arm), new JointLimits { XAxisMin = -90, XAxisMax = 160, Axis = Vector3.up, SecondaryAxis = Vector3.forward }},
+        {(BoneCategory.Shoulder, BoneCategory.Arm), new JointLimits { XAxisMin = -90, XAxisMax = 160, ZAxisSymmetric = 90, Axis = Vector3.up, SecondaryAxis = Vector3.forward }},
         {(BoneCategory.Torso, BoneCategory.Torso), new JointLimits { XAxisMin = -10, XAxisMax = 10, YAxisSymmetric = 10 }},
         {(BoneCategory.Torso, BoneCategory.Hip), new JointLimits { XAxisMin = -10, XAxisMax = 10, YAxisSymmetric = 10 }},
         {(BoneCategory.Torso, BoneCategory.Head), new JointLimits() { XAxisMin = -90, XAxisMax = 90, YAxisSymmetric = 45 }},
-        {(BoneCategory.Hip, BoneCategory.Leg), new JointLimits() { XAxisMin = -90, XAxisMax = 45, YAxisSymmetric = 45 }},
-        {(BoneCategory.Leg, BoneCategory.Leg), new JointLimits() { XAxisMin = -10, XAxisMax = 90 }},
+        {(BoneCategory.Hip, BoneCategory.Leg), new JointLimits() { XAxisMin = -45, XAxisMax = 120, YAxisSymmetric = 45 }},
+        {(BoneCategory.Leg, BoneCategory.Leg), new JointLimits() { XAxisMin = -90, XAxisMax = 10 }},
         {(BoneCategory.Arm, BoneCategory.Hand), new JointLimits() { XAxisMin = -180, XAxisMax = 180, YAxisSymmetric = 45, ZAxisSymmetric = 90, Axis = Vector3.forward }},
         {(BoneCategory.Leg, BoneCategory.Foot), new JointLimits() { XAxisMin = -10, XAxisMax = 10, YAxisSymmetric = 45 }}
     };
@@ -362,10 +362,13 @@ public class ParametricGenerator {
         part.AttachmentHint = new();
         part.Thickness = thickness;
 
-        if (index == 1)
-            part.SubCategory = BoneCategory.LowerLeg1;
-        else if (index == 2)
-            part.SubCategory = BoneCategory.LowerLeg2;
+        if (mode == Mode.Quadruped)
+        {
+            if (index == 1)
+                part.SubCategory = BoneCategory.LowerLeg1;
+            else if (index == 2)
+                part.SubCategory = BoneCategory.LowerLeg2;
+        }
 
         return part;
     }

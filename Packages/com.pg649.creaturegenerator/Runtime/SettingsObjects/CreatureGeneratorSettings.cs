@@ -43,6 +43,8 @@ public class DebugSettings
 {
     [Tooltip("If set, bones are not affected by gravity.")]
     public bool DisableBoneGravity = false;
+    [Tooltip("If set, all bones will be kinematic rigid bodies.")]
+    public bool KinematicBones = false;
     [Tooltip("If set, physics simulation is stopped after creature generation. Allows inspecting result in its default pose.")]
     public bool DisablePhysics = false;
     [Tooltip("If set, capsule meshes matching the bone colliders will be added to the skeleton.")]

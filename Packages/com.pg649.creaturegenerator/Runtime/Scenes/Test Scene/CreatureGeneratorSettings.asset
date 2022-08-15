@@ -32,6 +32,7 @@ MonoBehaviour:
     enableDQSkinner: 0
     GridResolution: 90
   DebugSettings:
+    LogAdditionalInfo: 1
     DisableBoneGravity: 0
     DisablePhysics: 1
     AttachPrimitiveMesh: 1

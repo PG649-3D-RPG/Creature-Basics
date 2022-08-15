@@ -59,6 +59,8 @@ public class SkeletonSettings
 [Serializable]
 public class DebugSettings
 {
+    [Tooltip("If set, will log additional creature info in console")]
+    public bool LogAdditionalInfo = false;
     [Tooltip("If set, bones are not affected by gravity.")]
     public bool DisableBoneGravity = false;
     [Tooltip("If set, physics simulation is stopped after creature generation. Allows inspecting result in its default pose.")]

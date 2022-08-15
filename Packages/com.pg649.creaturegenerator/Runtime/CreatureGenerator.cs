@@ -1,7 +1,5 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using LSystem;
 using MarchingCubesProject;
 using UnityEngine;
@@ -68,6 +66,27 @@ public class CreatureGenerator
 
         Physics.autoSimulation = !settings.DebugSettings.DisablePhysics;
 
+        if (settings.DebugSettings.LogAdditionalInfo)
+        {
+            LogInfo(rootBone);
+        }
+
         return go;
+    }
+
+    private static void LogInfo(GameObject rootBone)
+    {
+        var mass = 0.0f;
+        var rbs = 0;
+        var skeleton = rootBone.GetComponent<Skeleton>();
+        foreach (var (_, _, rb, _) in skeleton.Iterator())
+        {
+            mass += rb.mass;
+            rbs++;
+        }
+        Debug.Log("===== Creature Stats =====\n");
+        Debug.Log("Mass:\n");
+        Debug.Log("\tTotal Mass: " + mass + "\n");
+        Debug.Log("\tAverage Bone Mass: " + (mass / (float)rbs) + "\n");
     }
 }

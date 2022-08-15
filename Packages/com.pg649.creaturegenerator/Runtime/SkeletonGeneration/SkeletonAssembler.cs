@@ -3,19 +3,15 @@ using UnityEngine;
 using System;
 
 public class SkeletonAssembler {
-    // Human density if apparently about 1000kg/m^3
-    static float BodyDensity = 1000.0f;
-
-    public static bool attachPrimitiveMesh = true;
-
     public static  GameObject Assemble(SkeletonDefinition skeleton, SkeletonSettings settings, DebugSettings debugSettings) {
         Dictionary<BoneDefinition, GameObject> objects = new();
         Dictionary<BoneCategory, int> nextIndices = new();
+        DensityTable densities = new(settings);
         // Walk over SkeletonDefinition to create gameobjects.
         pass(skeleton.RootBone, def => {
             GameObject parent = (def.ParentBone != null && objects.ContainsKey(def.ParentBone)) ? objects[def.ParentBone] : null;
             GameObject root = objects.ContainsKey(skeleton.RootBone) ? objects[skeleton.RootBone] : null;
-            GameObject current = toGameObject(def, parent, root, settings, debugSettings);
+            GameObject current = toGameObject(def, parent, root, densities, settings, debugSettings);
 
             Bone currentBone = current.GetComponent<Bone>();
             Bone parentBone = parent != null ? parent.GetComponent<Bone>() : null;
@@ -143,7 +139,7 @@ public class SkeletonAssembler {
         joint.slerpDrive = slerp;
         joint.rotationDriveMode = RotationDriveMode.Slerp;
     }
-    private static GameObject toGameObject(BoneDefinition self, GameObject parentGo, GameObject rootGo, SkeletonSettings settings, DebugSettings debug) {
+    private static GameObject toGameObject(BoneDefinition self, GameObject parentGo, GameObject rootGo, DensityTable densities, SkeletonSettings settings, DebugSettings debug) {
         bool isRoot = parentGo == null;
 
         GameObject result = new GameObject("");
@@ -219,7 +215,7 @@ public class SkeletonAssembler {
             float radius = self.Thickness;
             collider.radius = radius;
             collider.center = bone.LocalMidpoint();
-            rb.mass = BodyDensity * (3.0f * (float)Math.PI * radius * radius * radius) / 4.0f;
+            rb.mass = settings.MassMultiplier * densities[self.Category] * (3.0f * (float)Math.PI * radius * radius * radius) / 4.0f;
 
             if(debug.AttachPrimitiveMesh){
                 meshObject = GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -240,7 +236,7 @@ public class SkeletonAssembler {
             BoxCollider collider = result.AddComponent<BoxCollider>();
             collider.size = size;
             collider.center = bone.LocalMidpoint();
-            rb.mass = BodyDensity * (size.x * size.y * size.z);
+            rb.mass = settings.MassMultiplier * densities[self.Category] * (size.x * size.y * size.z);
 
             if(debug.AttachPrimitiveMesh){
                 meshObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -264,8 +260,10 @@ public class SkeletonAssembler {
             collider.center = bone.LocalMidpoint();
             // Colliders point along Proximal (Z) Axis
             collider.direction = 2;
-            // Ellipsoid Volume is 3/4 PI abc, with radii a, b, c
-            rb.mass = BodyDensity * (3.0f * (float)Math.PI * 0.1f * self.Length * 0.45f * 0.1f) / 4;
+            // Volume consists of two half spheres + plus one cylinder
+            var volume = (4.0f * (float)Math.PI * radius * radius * radius) / 3.0f +
+                           (height - 2.0f * radius) * ((float)Math.PI * radius * radius);
+            rb.mass = settings.MassMultiplier * densities[self.Category] * volume;
 
             if(debug.AttachPrimitiveMesh){
                 meshObject = GameObject.CreatePrimitive(PrimitiveType.Capsule);

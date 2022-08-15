@@ -14,6 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   SkeletonSettings:
     ConnectHips: 0
+    MassMultiplier: 1
+    MinimumDensity: 900
+    MaximumDensity: 1100
+    BoneDensityOverrides:
+    - Category: 0
+      MinimumDensity: 0
+      MaximumDensity: 0
     RigidbodyDrag: 0.05
     CollisionDetectionMode: 2
     PrimitiveMeshShadows: 0
@@ -22,12 +29,10 @@ MonoBehaviour:
     Mode: 0
     Material: {fileID: 0}
     SmoothNormals: 1
-    DrawNormals: 0
     enableDQSkinner: 0
     GridResolution: 90
-    Size: 20
   DebugSettings:
     DisableBoneGravity: 0
     DisablePhysics: 1
     AttachPrimitiveMesh: 1
-    DrawMeshNormals: 0
+    DrawNormals: 0

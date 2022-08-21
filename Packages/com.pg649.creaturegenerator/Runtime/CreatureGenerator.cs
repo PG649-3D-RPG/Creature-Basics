@@ -56,14 +56,15 @@ public class CreatureGenerator
 
         var g = new ParametricGenerator(creatureSettings);
         var skeletonDef = g.BuildCreature(mode, seed);
-        var rootBone = SkeletonAssembler.Assemble(skeletonDef, settings.SkeletonSettings, settings.DebugSettings);
-        rootBone.transform.parent = go.transform;
+        var skeleton = SkeletonAssembler.Assemble(skeletonDef, settings.SkeletonSettings, settings.DebugSettings);
+        SkeletonLinter.Lint(skeleton, settings.SkeletonLinterSettings);
+        skeleton.transform.parent = go.transform;
 
         if (settings.MeshSettings.GenerateMetaballMesh)
         {
             var meshGen = go.AddComponent<MeshGenerator>();
             meshGen.ApplySettings(settings.MeshSettings, settings.DebugSettings);
-            meshGen.Generate(Metaball.BuildFromSkeleton(rootBone.GetComponent<Skeleton>()));
+            meshGen.Generate(Metaball.BuildFromSkeleton(skeleton));
         }
 
         Physics.autoSimulation = !settings.DebugSettings.DisablePhysics;

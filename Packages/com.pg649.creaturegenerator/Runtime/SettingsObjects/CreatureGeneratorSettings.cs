@@ -6,6 +6,7 @@ using UnityEngine.Rendering;
 public class CreatureGeneratorSettings : ScriptableObject
 {
     public SkeletonSettings SkeletonSettings = new();
+    public SkeletonLinterSettings SkeletonLinterSettings = new();
     public MeshSettings MeshSettings = new();
     public DebugSettings DebugSettings = new();
 
@@ -36,6 +37,18 @@ public class SkeletonSettings
     
     [Tooltip("Determines how the primitive mesh casts shadows. Primitive mesh can be enabled in the Debug Settings.")]
     public ShadowCastingMode PrimitiveMeshShadows = ShadowCastingMode.Off;
+}
+
+[System.Serializable]
+public class SkeletonLinterSettings
+{
+    [Header("Warnings")]
+    [Tooltip("Warn if non parent-child colliders penetrate in default pose.")]
+    public bool WarnOnColliderPenetration = true;
+
+    [Header("Autofixes")]
+    [Tooltip("Automatically move penetrating colliders out of each other. May produce non symmetrical creatures.")]
+    public bool FixColliderPenetrations = false;
 }
 
 [System.Serializable]

@@ -1,6 +1,10 @@
 ﻿# Changelog
 
 ## Unreleased
+### Added
+- Debug setting to make all bones kinematic
+### Fixed
+- Reversed biped leg angle limits
 
 ## [3.2.0] - 2022-08-11
 ### Added

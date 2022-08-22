@@ -64,6 +64,15 @@ public class Skeleton : MonoBehaviour
             }
         }
     }
+    
+    public IEnumerable<((GameObject, Bone, Rigidbody, ConfigurableJoint), (GameObject, Bone, Rigidbody, ConfigurableJoint))> UnrelatedPairs()
+    {
+        foreach (var (a, b) in Pairs())
+        {
+                if (b.Item1.transform.parent == a.Item1.transform || a.Item1.transform.parent == b.Item1.transform) continue;
+                yield return (a, b);
+        }
+    }
 
     public GameObject FindLimbRoot(GameObject go)
     {

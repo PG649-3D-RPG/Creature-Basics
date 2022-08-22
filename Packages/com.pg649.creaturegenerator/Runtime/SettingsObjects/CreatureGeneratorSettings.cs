@@ -49,6 +49,9 @@ public class SkeletonLinterSettings
     [Header("Autofixes")]
     [Tooltip("Automatically move penetrating colliders out of each other. May produce non symmetrical creatures.")]
     public bool FixColliderPenetrations = false;
+
+    [Tooltip("Fix identical bone positions by moving one bone slightly.")]
+    public bool FixIdenticalBonePositions = true;
 }
 
 [System.Serializable]

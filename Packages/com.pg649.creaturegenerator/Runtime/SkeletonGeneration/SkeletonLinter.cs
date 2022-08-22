@@ -17,14 +17,28 @@ public class SkeletonLinter
         {
             WarnOnColliderPenetration(skeleton);
         }
+        if (settings.FixIdenticalBonePositions)
+        {
+            FixIdenticalBonePositions(skeleton);
+        }
     }
 
-    
-    private static void WarnOnColliderPenetration(Skeleton skeleton)
+    private static void FixIdenticalBonePositions(Skeleton skeleton)
     {
         foreach (var ((a, boneA, _, _), (b, boneB, _, _)) in skeleton.Pairs())
         {
-            if (a == b || b.transform.parent == a.transform || a.transform.parent == b.transform) continue;
+            if (a.transform.position == b.transform.position)
+            {
+                b.transform.position += boneB.WorldDistalAxis() * 0.01f;
+            }
+        }
+    }
+
+
+    private static void WarnOnColliderPenetration(Skeleton skeleton)
+    {
+        foreach (var ((a, boneA, _, _), (b, boneB, _, _)) in skeleton.UnrelatedPairs())
+        {
             var penetration = Physics.ComputePenetration(
                 a.GetComponent<Collider>(),
                 a.transform.position,
@@ -48,9 +62,8 @@ public class SkeletonLinter
         do
         {
             penetrationFound = false;
-            foreach (var ((a, boneA, _, _), (b, boneB, _, _)) in skeleton.Pairs())
+            foreach (var ((a, boneA, _, _), (b, boneB, _, _)) in skeleton.UnrelatedPairs())
             {
-                if (a == b || b.transform.parent == a.transform || a.transform.parent == b.transform) continue;
                 var penetration = Physics.ComputePenetration(
                     a.GetComponent<Collider>(),
                     a.transform.position,

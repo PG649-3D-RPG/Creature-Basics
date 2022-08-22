@@ -52,6 +52,11 @@ public class Skeleton : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Iterates over pairs of bones.
+    /// If a and b are bones, it does generate (a, b), but not (a, a) or (b, a).
+    /// </summary>
+    /// <returns></returns>
     public IEnumerable<((GameObject, Bone, Rigidbody, ConfigurableJoint), (GameObject, Bone, Rigidbody, ConfigurableJoint))> Pairs()
     {
         foreach (var a in Iterator())
@@ -65,6 +70,10 @@ public class Skeleton : MonoBehaviour
         }
     }
     
+    /// <summary>
+    /// Iterates similar to Pairs(), but also discards all tuples where bones are directly linked.
+    /// </summary>
+    /// <returns></returns>
     public IEnumerable<((GameObject, Bone, Rigidbody, ConfigurableJoint), (GameObject, Bone, Rigidbody, ConfigurableJoint))> UnrelatedPairs()
     {
         foreach (var (a, b) in Pairs())

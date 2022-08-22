@@ -1,6 +1,9 @@
 ﻿# Changelog
 
 ## Unreleased
+### Added
+- Made bone densities configurable. Allows for both a default setting and per bone category overrides
+- Extra logging to CreatureGenerator
 
 ## [3.2.0] - 2022-08-11
 ### Added

@@ -1,56 +1,15 @@
 {
-    "name": "com.pg649.creaturegenerator",
-    "version": "3.2.0",
-    "displayName": "PG649 Creature Generator",
-    "description": "Creature Generation for the PG649.",
-    "unity": "2021.3",
-    "unityRelease": "3f1",
-
-    "samples": [
-      {
-          "displayName": "Old Creatures",
-          "description": "Prefabs of old generated creatures.",
-          "path": "Samples~/CreaturesOld"
-      },
-      {
-          "displayName": "Human Creature 0",
-          "description": "Prefab of slightly less old creature.",
-          "path": "Samples~/HumanCreature0"
-      },
-      {
-          "displayName": "Generator Example",
-          "description": "Example of how to generate creatures.",
-          "path": "Samples~/GeneratorExample"
-      },
-      {
-        "displayName": "Human Creature 3",
-        "description": "Prefab of less old creature.",
-        "path": "Samples~/HumanCreature3"
-    },
+  "name": "com.pg649.creaturegenerator",
+  "version": "3.3.0",
+  "displayName": "PG649 Creature Generator",
+  "description": "Creature Generation for the PG649.",
+  "unity": "2021.3",
+  "unityRelease": "3f1",
+  "samples": [
     {
-      "displayName": "Human Creature 2 Torso Segments",
-      "description": "Prefab HumanCreature with two torso segments.",
-      "path": "Samples~/HumanCreature2TorsoSegments"
-  },
-    {
-      "displayName": "Human Creature 4 Torso Segments",
-      "description": "Prefab HumanCreature with four torso segments.",
-      "path": "Samples~/HumanCreature4TorsoSegments"
-  },
-  {
-    "displayName": "20-07-L-HumanOneHip",
-    "description": "one hip, updated colliders",
-    "path": "Samples~/20-07-L-HumanOneHip"
-},
-{
-  "displayName": "20-07-L-HumanTwoHips",
-  "description": "two hips, updated colliders",
-  "path": "Samples~/20-07-L-HumanTwoHips"
-},
-{
-  "displayName": "20-07-L-HumanOneHipOneShoulder",
-  "description": "one hip, one shoulder, updated colliders",
-  "path": "Samples~/20-07-L-HumanOneHipOneShoulder"
-}
+      "displayName": "Creature Parameters",
+      "description": "Example Creature Parameters",
+      "path": "Samples~/CreatureParameters"
+    }
   ]
 }

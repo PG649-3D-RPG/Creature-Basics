@@ -17,13 +17,14 @@ MonoBehaviour:
     MassMultiplier: 1
     MinimumDensity: 900
     MaximumDensity: 1100
-    BoneDensityOverrides:
-    - Category: 0
-      MinimumDensity: 0
-      MaximumDensity: 0
+    BoneDensityOverrides: []
     RigidbodyDrag: 0.05
     CollisionDetectionMode: 2
     PrimitiveMeshShadows: 0
+  SkeletonLinterSettings:
+    WarnOnColliderPenetration: 1
+    FixColliderPenetrations: 0
+    FixIdenticalBonePositions: 1
   MeshSettings:
     GenerateMetaballMesh: 0
     Mode: 0
@@ -34,6 +35,7 @@ MonoBehaviour:
   DebugSettings:
     LogAdditionalInfo: 1
     DisableBoneGravity: 0
+    KinematicBones: 0
     DisablePhysics: 1
     AttachPrimitiveMesh: 1
     DrawNormals: 0

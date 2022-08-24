@@ -163,13 +163,13 @@ public class ParametricGenerator {
 
     public ParametricGenerator(ParametricCreatureSettings settings) {
         this.settings = settings;
-        this.bipedSettings = RollBipedSettings(settings);
     }
 
     public SkeletonDefinition BuildCreature(Mode mode, int seed = 0) {
         if (seed != 0) {
             Random.InitState(seed);
         }
+        bipedSettings = RollBipedSettings(settings);
 
         this.mode = mode;
         List<BoneDefinition> legs = buildLegs();

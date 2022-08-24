@@ -2,8 +2,20 @@
 
 ## Unreleased
 ### Added
+- Debug setting to make all bones kinematic
 - Made bone densities configurable. Allows for both a default setting and per bone category overrides
 - Extra logging to CreatureGenerator
+- Skeleton linter. Warns about problems and auto fixes some issues
+- Warning: Overlapping colliders
+- Autofix: Overlapping colliders. May produce non symmetric creatures
+- Autofix: Bones with identical positions
+- Pairwise iterators for Skeleton
+
+### Fixed
+- Reversed biped leg angle limits
+
+### Removed
+- Broken samples
 
 ## [3.2.0] - 2022-08-11
 ### Added

@@ -7,6 +7,7 @@ using UnityEngine.Rendering;
 public class CreatureGeneratorSettings : ScriptableObject
 {
     public SkeletonSettings SkeletonSettings = new();
+    public SkeletonLinterSettings SkeletonLinterSettings = new();
     public MeshSettings MeshSettings = new();
     public DebugSettings DebugSettings = new();
 
@@ -57,12 +58,29 @@ public class SkeletonSettings
 }
 
 [Serializable]
+public class SkeletonLinterSettings
+{
+    [Header("Warnings")]
+    [Tooltip("Warn if non parent-child colliders penetrate in default pose.")]
+    public bool WarnOnColliderPenetration = true;
+
+    [Header("Autofixes")]
+    [Tooltip("Automatically move penetrating colliders out of each other. May produce non symmetrical creatures.")]
+    public bool FixColliderPenetrations = false;
+
+    [Tooltip("Fix identical bone positions by moving one bone slightly.")]
+    public bool FixIdenticalBonePositions = true;
+}
+
+[Serializable]
 public class DebugSettings
 {
     [Tooltip("If set, will log additional creature info in console")]
     public bool LogAdditionalInfo = false;
     [Tooltip("If set, bones are not affected by gravity.")]
     public bool DisableBoneGravity = false;
+    [Tooltip("If set, all bones will be kinematic rigid bodies.")]
+    public bool KinematicBones = false;
     [Tooltip("If set, physics simulation is stopped after creature generation. Allows inspecting result in its default pose.")]
     public bool DisablePhysics = false;
     [Tooltip("If set, capsule meshes matching the bone colliders will be added to the skeleton.")]

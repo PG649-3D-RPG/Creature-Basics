@@ -3,7 +3,7 @@ using UnityEngine;
 using System;
 
 public class SkeletonAssembler {
-    public static  GameObject Assemble(SkeletonDefinition skeleton, SkeletonSettings settings, DebugSettings debugSettings) {
+    public static Skeleton Assemble(SkeletonDefinition skeleton, SkeletonSettings settings, DebugSettings debugSettings) {
         Dictionary<BoneDefinition, GameObject> objects = new();
         Dictionary<BoneCategory, int> nextIndices = new();
         DensityTable densities = new(settings);
@@ -35,7 +35,7 @@ public class SkeletonAssembler {
         });
 
         objects[skeleton.RootBone].GetComponent<Bone>().isRoot = true;
-        return objects[skeleton.RootBone];
+        return objects[skeleton.RootBone].GetComponent<Skeleton>();
     }
 
     private static void pass(BoneDefinition root, Action<BoneDefinition> f) {
@@ -148,10 +148,8 @@ public class SkeletonAssembler {
         Rigidbody rb = result.AddComponent<Rigidbody>();
         rb.drag = settings.RigidbodyDrag;
         rb.collisionDetectionMode = settings.CollisionDetectionMode;
-        if (debug.DisableBoneGravity)
-        {
-            rb.useGravity = false;
-        }
+        rb.useGravity = !debug.DisableBoneGravity;
+        rb.isKinematic = debug.KinematicBones;
 
         Bone bone = result.AddComponent<Bone>();
         bone.category = self.Category;

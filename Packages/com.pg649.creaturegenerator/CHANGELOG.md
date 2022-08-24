@@ -1,6 +1,8 @@
 ﻿# Changelog
 
 ## Unreleased
+
+## [3.3.0] - 2022-08-24
 ### Added
 - Debug setting to make all bones kinematic
 - Made bone densities configurable. Allows for both a default setting and per bone category overrides

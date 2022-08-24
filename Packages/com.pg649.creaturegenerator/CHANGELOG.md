@@ -1,6 +1,10 @@
 ﻿# Changelog
 
 ## Unreleased
+### Added
+- Debug setting to make all bones kinematic
+### Fixed
+- Reversed biped leg angle limits
 
 ### Added
 - Skeleton linter. Warns about problems and auto fixes some issues

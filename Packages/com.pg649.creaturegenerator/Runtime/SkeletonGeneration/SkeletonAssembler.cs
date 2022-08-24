@@ -152,10 +152,8 @@ public class SkeletonAssembler {
         Rigidbody rb = result.AddComponent<Rigidbody>();
         rb.drag = settings.RigidbodyDrag;
         rb.collisionDetectionMode = settings.CollisionDetectionMode;
-        if (debug.DisableBoneGravity)
-        {
-            rb.useGravity = false;
-        }
+        rb.useGravity = !debug.DisableBoneGravity;
+        rb.isKinematic = debug.KinematicBones;
 
         Bone bone = result.AddComponent<Bone>();
         bone.category = self.Category;

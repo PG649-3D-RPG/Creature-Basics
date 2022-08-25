@@ -7,9 +7,12 @@ public class SkeletonDefinition
     public BoneDefinition RootBone;
 
     public LimitTable JointLimits;
-    public SkeletonDefinition(BoneDefinition root, LimitTable limits) {
+
+    public ISettingsInstance SettingsInstance;
+    public SkeletonDefinition(BoneDefinition root, LimitTable limits, ISettingsInstance instance) {
         this.RootBone = root;
         this.JointLimits = limits;
+        this.SettingsInstance = instance;
     }
 }
 

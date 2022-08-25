@@ -34,8 +34,10 @@ public class SkeletonAssembler {
                 LinkWithJoint(objects[def.ParentBone], current, skeleton.JointLimits, settings);
         });
 
-        objects[skeleton.RootBone].GetComponent<Bone>().isRoot = true;
-        return objects[skeleton.RootBone].GetComponent<Skeleton>();
+        var root = objects[skeleton.RootBone];
+        root.GetComponent<Bone>().isRoot = true;
+        root.GetComponent<Skeleton>().SettingsInstance = skeleton.SettingsInstance;
+        return root.GetComponent<Skeleton>();
     }
 
     private static void pass(BoneDefinition root, Action<BoneDefinition> f) {

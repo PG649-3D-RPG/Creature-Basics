@@ -7,15 +7,19 @@ using UnityEngine;
 public class CreatureGenerator
 {
     public static GameObject ParametricBiped(CreatureGeneratorSettings settings, ParametricCreatureSettings creatureSettings,
-        int seed = 0)
+        int? seed)
     {
-        return Parametric(ParametricGenerator.Mode.Biped, settings, creatureSettings, seed);
+        var gen = new BipedGenerator();
+        var def = gen.BuildCreature(creatureSettings, seed);
+        return Parametric(settings, def);
     }
 
     public static GameObject ParametricQuadruped(CreatureGeneratorSettings settings,
         ParametricCreatureSettings creatureSettings, int seed = 0)
     {
-        return Parametric(ParametricGenerator.Mode.Quadruped, settings, creatureSettings, seed);
+        var gen = new QuadrupedGenerator();
+        var def = gen.BuildCreature(creatureSettings, seed);
+        return Parametric(settings, def);
     }
 
     public static GameObject LSystem(CreatureGeneratorSettings settings, LSystemSettings lSystemSettings)
@@ -45,15 +49,10 @@ public class CreatureGenerator
         return go;
     }
 
-    private static GameObject Parametric(
-        ParametricGenerator.Mode mode,
-        CreatureGeneratorSettings settings,
-        ParametricCreatureSettings creatureSettings, int seed = 0)
+    private static GameObject Parametric(CreatureGeneratorSettings settings, SkeletonDefinition skeletonDef)
     {
         GameObject go = new GameObject("creature");
 
-        var g = new ParametricGenerator(creatureSettings);
-        var skeletonDef = g.BuildCreature(mode, seed);
         var skeleton = SkeletonAssembler.Assemble(skeletonDef, settings.SkeletonSettings, settings.DebugSettings);
         SkeletonLinter.Lint(skeleton, settings.SkeletonLinterSettings);
         skeleton.transform.parent = go.transform;

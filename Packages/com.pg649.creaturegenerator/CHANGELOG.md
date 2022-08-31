@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## [3.4.0] - 2022-08-31
+### Added
+- ISettingsInstance field to Skeleton. Exposes raw skeleton data as list of floats.
+
 ## [3.3.1] - 2022-08-24
 ### Fixed
 - Broken generator seeding

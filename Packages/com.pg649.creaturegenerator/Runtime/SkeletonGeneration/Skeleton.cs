@@ -7,6 +7,8 @@ public class Skeleton : MonoBehaviour
 {
     public Dictionary<BoneCategory, List<GameObject>> bonesByCategory;
 
+    public ISettingsInstance SettingsInstance;
+
     public int nBones;
     public int nAngXMotLimited;
     public int nAngYMotLimited;

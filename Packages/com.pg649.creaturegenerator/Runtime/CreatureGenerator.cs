@@ -15,7 +15,7 @@ public class CreatureGenerator
     }
 
     public static GameObject ParametricQuadruped(CreatureGeneratorSettings settings,
-        ParametricCreatureSettings creatureSettings, int seed = 0)
+        ParametricCreatureSettings creatureSettings, int? seed)
     {
         var gen = new QuadrupedGenerator();
         var def = gen.BuildCreature(creatureSettings, seed);

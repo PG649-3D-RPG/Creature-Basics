@@ -1,7 +1,5 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using LSystem;
 using MarchingCubesProject;
 using UnityEngine;
@@ -9,15 +7,19 @@ using UnityEngine;
 public class CreatureGenerator
 {
     public static GameObject ParametricBiped(CreatureGeneratorSettings settings, ParametricCreatureSettings creatureSettings,
-        int seed = 0)
+        int? seed)
     {
-        return Parametric(ParametricGenerator.Mode.Biped, settings, creatureSettings, seed);
+        var gen = new BipedGenerator();
+        var def = gen.BuildCreature(creatureSettings, seed);
+        return Parametric(settings, def);
     }
 
     public static GameObject ParametricQuadruped(CreatureGeneratorSettings settings,
         ParametricCreatureSettings creatureSettings, int seed = 0)
     {
-        return Parametric(ParametricGenerator.Mode.Quadruped, settings, creatureSettings, seed);
+        var gen = new QuadrupedGenerator();
+        var def = gen.BuildCreature(creatureSettings, seed);
+        return Parametric(settings, def);
     }
 
     public static GameObject LSystem(CreatureGeneratorSettings settings, LSystemSettings lSystemSettings)
@@ -47,27 +49,44 @@ public class CreatureGenerator
         return go;
     }
 
-    private static GameObject Parametric(
-        ParametricGenerator.Mode mode,
-        CreatureGeneratorSettings settings,
-        ParametricCreatureSettings creatureSettings, int seed = 0)
+    private static GameObject Parametric(CreatureGeneratorSettings settings, SkeletonDefinition skeletonDef)
     {
         GameObject go = new GameObject("creature");
 
-        var g = new ParametricGenerator(creatureSettings);
-        var skeletonDef = g.BuildCreature(mode, seed);
-        var rootBone = SkeletonAssembler.Assemble(skeletonDef, settings.SkeletonSettings, settings.DebugSettings);
-        rootBone.transform.parent = go.transform;
+        var skeleton = SkeletonAssembler.Assemble(skeletonDef, settings.SkeletonSettings, settings.DebugSettings);
+        SkeletonLinter.Lint(skeleton, settings.SkeletonLinterSettings);
+        skeleton.transform.parent = go.transform;
 
         if (settings.MeshSettings.GenerateMetaballMesh)
         {
             var meshGen = go.AddComponent<MeshGenerator>();
             meshGen.ApplySettings(settings.MeshSettings, settings.DebugSettings);
-            meshGen.Generate(Metaball.BuildFromSkeleton(rootBone.GetComponent<Skeleton>()));
+            meshGen.Generate(Metaball.BuildFromSkeleton(skeleton));
         }
 
         Physics.autoSimulation = !settings.DebugSettings.DisablePhysics;
 
+        if (settings.DebugSettings.LogAdditionalInfo)
+        {
+            LogInfo(skeleton.gameObject);
+        }
+
         return go;
+    }
+
+    private static void LogInfo(GameObject rootBone)
+    {
+        var mass = 0.0f;
+        var rbs = 0;
+        var skeleton = rootBone.GetComponent<Skeleton>();
+        foreach (var (_, _, rb, _) in skeleton.Iterator())
+        {
+            mass += rb.mass;
+            rbs++;
+        }
+        Debug.Log("===== Creature Stats =====\n");
+        Debug.Log("Mass:\n");
+        Debug.Log("\tTotal Mass: " + mass + "\n");
+        Debug.Log("\tAverage Bone Mass: " + (mass / (float)rbs) + "\n");
     }
 }

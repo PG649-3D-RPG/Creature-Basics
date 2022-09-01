@@ -23,10 +23,13 @@ public class BoneHeatMethodCalculator :IBoneWeightCalculator
         //List<List<Tuple<int, double>>> nzweights = new List<List<Tuple<int, double>>>();
 
         VisibilityTester tester = new VisibilityTester(mesh, 64);
-
+        
         // nv = numVertices
         int nv = mesh.vertices.Length;
 
+        // create a timer
+        System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
+        stopwatch.Start();
         //compute edges of adjacent triangles
         //first index: vertex i
         //second index: jth edge adjacent to vertex i
@@ -53,10 +56,12 @@ public class BoneHeatMethodCalculator :IBoneWeightCalculator
                 edges[mesh.triangles[j]].Add(mesh.triangles[j - 1]);
             }
         }
+        stopwatch.Stop();
+        Debug.Log($"Edge calculation took: {stopwatch.Elapsed.TotalSeconds} seconds.");
 
+        stopwatch.Restart();
         double[,] boneDists = new double[nv, bones.Length];
         bool[,] boneVis = new bool[nv, bones.Length];
-
         //Calculate bone distances and bone visibilities
         for (int i = 0; i < nv; ++i)
         {
@@ -128,6 +133,8 @@ public class BoneHeatMethodCalculator :IBoneWeightCalculator
                 boneVis[i,j] = tester.CanSee(cPos, projToSeg) && vectorInCone(cPos - projToSeg , normals);
             }
         }
+        stopwatch.Stop();
+        Debug.Log($"Bone distance and visibility calculation took: {stopwatch.Elapsed.TotalSeconds} seconds.");
 
         //stolen from TrivialBoneWeightCalculator to test if boneDists is correct
         //TODO: only temporary to test part 1

@@ -2,12 +2,21 @@
 
 NATIVEPLUGIN_API int get_life()
 {
-    MatrixXd m(2,2);
-    m(0,0) = 3;
-    m(1,0) = 2.5;
-    m(0,1) = -1;
-    m(1,1) = m(1,0) + m(0,1);
-    std::cout << m << std::endl;
-    return 42;
+    Eigen::SparseMatrix<float> inputMatrix(100, 100);
+    inputMatrix.insert(4, 5) = 42;
+
+    Eigen::VectorXf b, x;
+
+    Eigen::SimplicialLLT<Eigen::SparseMatrix<float>, Eigen::Lower> solver;
+    solver.compute(inputMatrix);
+    if(solver.info() != Eigen::Success) {
+        // decomposition failed
+    }
+    //x = solver.solve(b);
+    if(solver.info() != Eigen::Success) {
+        // solving failed
+    }
+
+    return 42; //le magique
 }
 

@@ -35,10 +35,10 @@ public class BoneHeatMethodCalculator :IBoneWeightCalculator
         //compute edges of adjacent triangles
         //first index: vertex i
         //second index: jth edge adjacent to vertex i
-        List<List<int>> edges = new List<List<int>>(nv);
+        List<int>[] edges = new List<int>[nv];
         for (int i = 0; i < nv; ++i)
         {
-            edges.Add(new List<int>());
+            edges[i] = new List<int>(16);
         }
         for (int j = 0; j < mesh.triangles.Length; ++j)
         {
@@ -132,21 +132,22 @@ public class BoneHeatMethodCalculator :IBoneWeightCalculator
                 else
                     projToSeg = v1 + Vector3.Dot((cPos - v1), dir) / dir.sqrMagnitude * dir;
 
-                boneVis[i,j] = tester.CanSee(cPos, projToSeg) && vectorInCone(cPos - projToSeg , normals);
+                boneVis[i,j] = tester.CanSee(cPos, projToSeg) && vectorInCone(cPos - projToSeg, normals);
             }
         }
         stopwatch.Stop();
         Debug.Log($"Bone distance and visibility calculation took: {stopwatch.Elapsed.TotalSeconds} seconds.");
 
         stopwatch.Restart();
-        List<List<Tuple<int, float>>> valueLists = new List<List<Tuple<int, float>>>();
+        // Heat matrix. First index is the vertex idx (the row index). This is a sparse lower triangular matrix representation!
+        List<Tuple<int, float>>[] values = new List<Tuple<int, float>>[nv];
         float[] distance = new float[nv];
         float[] heat = new float[nv];
         int[] closest = new int[nv];
         for (int i = 0; i < nv; ++i)
         {
             List<Tuple<int, float>> valueList = new List<Tuple<int, float>>();
-            valueLists.Add(valueList);
+            values[i] = valueList;
 
             //get areas
             for (int j = 0; j < edges[i].Count; ++j)
@@ -202,7 +203,6 @@ public class BoneHeatMethodCalculator :IBoneWeightCalculator
         }
         stopwatch.Stop();
         Debug.Log($"Heat and laplacian calculation took: {stopwatch.Elapsed.TotalSeconds} seconds.");
-        
        
        
         //stolen from TrivialBoneWeightCalculator to test if boneDists is correct

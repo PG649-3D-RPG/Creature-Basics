@@ -18,7 +18,7 @@ public class BoneHeatMethodCalculator :IBoneWeightCalculator
     // TODO meshTransform must be respected when accessing mesh.vertices because bone position might not be in the same coordinate system as vertices
     public BoneWeight[] CalcBoneWeights(Mesh mesh, Transform[] bones, Transform meshTransform)
     {
-        double initialHeatWeight = 1;
+        float initialHeatWeight = 1;
         //List<List<double>> weights = new List<List<double>>();
         //List<List<Tuple<int, double>>> nzweights = new List<List<Tuple<int, double>>>();
 
@@ -26,6 +26,8 @@ public class BoneHeatMethodCalculator :IBoneWeightCalculator
         
         // nv = numVertices
         int nv = mesh.vertices.Length;
+
+        Debug.Log($"Starting Bone Heat Weighting with {nv} vertices...");
 
         // create a timer
         System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
@@ -60,7 +62,7 @@ public class BoneHeatMethodCalculator :IBoneWeightCalculator
         Debug.Log($"Edge calculation took: {stopwatch.Elapsed.TotalSeconds} seconds.");
 
         stopwatch.Restart();
-        double[,] boneDists = new double[nv, bones.Length];
+        float[,] boneDists = new float[nv, bones.Length];
         bool[,] boneVis = new bool[nv, bones.Length];
         //Calculate bone distances and bone visibilities
         for (int i = 0; i < nv; ++i)
@@ -80,7 +82,7 @@ public class BoneHeatMethodCalculator :IBoneWeightCalculator
             }
 
             //calculate boneDists and minDist
-            double minDist = double.PositiveInfinity;
+            float minDist = float.PositiveInfinity;
             for (int j = 1; j < bones.Length; ++j)
             {
                 //weights[i].Add(-1);
@@ -107,7 +109,7 @@ public class BoneHeatMethodCalculator :IBoneWeightCalculator
                 }
 
                 boneDists[i,j] = distToSeg;
-                minDist = Math.Min(boneDists[i,j], minDist);
+                minDist = Mathf.Min(boneDists[i,j], minDist);
             }
 
             // project cPos on the segment and test if the projected point is visible from cPos
@@ -136,6 +138,73 @@ public class BoneHeatMethodCalculator :IBoneWeightCalculator
         stopwatch.Stop();
         Debug.Log($"Bone distance and visibility calculation took: {stopwatch.Elapsed.TotalSeconds} seconds.");
 
+        stopwatch.Restart();
+        List<List<Tuple<int, float>>> valueLists = new List<List<Tuple<int, float>>>();
+        float[] distance = new float[nv];
+        float[] heat = new float[nv];
+        int[] closest = new int[nv];
+        for (int i = 0; i < nv; ++i)
+        {
+            List<Tuple<int, float>> valueList = new List<Tuple<int, float>>();
+            valueLists.Add(valueList);
+
+            //get areas
+            for (int j = 0; j < edges[i].Count; ++j)
+            {
+                int nj = (j + 1) % edges[i].Count;
+
+                distance[i] += (Vector3.Cross((mesh.vertices[edges[i][j]] - mesh.vertices[i]), (mesh.vertices[edges[i][nj]] - mesh.vertices[i]))).magnitude;
+            }
+            distance[i] = 1 / (1e-6f + distance[i]);
+
+            //get bones
+            float minDist = float.PositiveInfinity;
+            for (int j = 0; j < bones.Length; ++j)
+            {
+                if (boneDists[i,j] < minDist)
+                {
+                    closest[i] = j;
+                    minDist = boneDists[i,j];
+                }
+            }
+            for (int j = 0; j < bones.Length; ++j)
+            {
+                if (boneVis[i,j] && boneDists[i,j] <= minDist * 1.00001)
+                    heat[i] += initialHeatWeight / Mathf.Pow(1e-8f + boneDists[i,closest[i]], 2);
+            }
+
+            //get laplacian
+            float sum = 0;
+            for (int j = 0; j < edges[i].Count; ++j)
+            {
+                int nj = (j + 1) % edges[i].Count;
+                int pj = (j + edges[i].Count - 1) % edges[i].Count;
+
+                Vector3 v1 = mesh.vertices[i] - mesh.vertices[edges[i][pj]];
+                Vector3 v2 = mesh.vertices[edges[i][j]] - mesh.vertices[edges[i][pj]];
+                Vector3 v3 = mesh.vertices[i] - mesh.vertices[edges[i][nj]];
+                Vector3 v4 = mesh.vertices[edges[i][j]] - mesh.vertices[edges[i][nj]];
+
+                float cot1 = (Vector3.Dot(v1,v2)) / (1e-6f + (Vector3.Cross(v1, v2)).magnitude);
+                float cot2 = (Vector3.Dot(v3,v4)) / (1e-6f + (Vector3.Cross(v3, v4)).magnitude);
+                sum += (cot1 + cot2);
+
+                if (edges[i][j] > i)
+                    continue;
+                valueList.Add(new Tuple<int, float>(edges[i][j], -cot1 - cot2));
+            }
+            valueList.Add(new Tuple<int, float>(i, sum + heat[i] / distance[i]));
+
+            valueList.Sort(delegate (Tuple<int, float> x, Tuple<int, float> y) //TODO check if this is correct order????
+            {
+                return x.Item2.CompareTo(y.Item2);
+            });
+        }
+        stopwatch.Stop();
+        Debug.Log($"Heat and laplacian calculation took: {stopwatch.Elapsed.TotalSeconds} seconds.");
+        
+       
+       
         //stolen from TrivialBoneWeightCalculator to test if boneDists is correct
         //TODO: only temporary to test part 1
         BoneWeight[] boneWeights = new BoneWeight[nv];
@@ -156,78 +225,13 @@ public class BoneHeatMethodCalculator :IBoneWeightCalculator
         }
         return boneWeights;
 
-
-        //Part 2
-        /*List<List<Tuple<int, double>>> valueLists = new List<List<Tuple<int, double>>>();
-        double[] distance = new double[nv];
-        double[] heat = new double[nv];
-        int[] closest = new int[nv];
-
-        //F�r alle Vertices
-        for (int i = 0; i < nv; ++i)
-        {
-            List < Tuple<int, double>> valueList = new List<Tuple<int, double>>();
-            //get areas
-            for (int j = 0; j < edges[i].Count; ++j)
-            {
-                int nj = (j + 1) % edges[i].Count;
-
-                distance[i] += (Vector3.Cross((mesh.vertices[edges[i][j]] - mesh.vertices[i]),
-                         (mesh.vertices[edges[i][nj]] - mesh.vertices[i]))).magnitude;
-            }
-            distance[i] = 1 / (1e-10 + distance[i]);
-
-            //get bones
-            double minDist = 1e37;
-            for (int j = 0; j < bones.Length; ++j)
-            {
-                closest[i] = -1;
-                if (boneDists[i,j] < minDist)
-                {
-                    closest[i] = j;
-                    minDist = boneDists[i,j];
-                }
-            }
-            for (int j = 0; j < bones.Length; ++j)
-                //Needs the Ray-Tracing Input
-                if (boneVis[i,j] && boneDists[i,j] <= minDist * 1.00001)
-                    heat[i] += initialHeatWeight / ((1e-8 + boneDists[i,closest[i]]) * (1e-8 + boneDists[i,closest[i]]));
-                else
-                    heat[i] = 0;
-
-            //get laplacian
-            double sum = 0;
-            for (int j = 0; j < edges[i].Count; ++j)
-            {
-                int nj = (j + 1) % edges[i].Count;
-                int pj = (j + edges[i].Count - 1) % edges[i].Count;
-
-                Vector3 v1 = mesh.vertices[i] - mesh.vertices[edges[i][pj]];
-                Vector3 v2 = mesh.vertices[edges[i][j]] - mesh.vertices[edges[i][pj]];
-                Vector3 v3 = mesh.vertices[i] - mesh.vertices[edges[i][nj]];
-                Vector3 v4 = mesh.vertices[edges[i][j]] - mesh.vertices[edges[i][nj]];
-
-                double cot1 = (Vector3.Dot(v1,v2)) / (1e-6 + (Vector3.Cross(v1, v2)).magnitude);
-                double cot2 = (Vector3.Dot(v3,v4)) / (1e-6 + (Vector3.Cross(v3, v4)).magnitude);
-                sum += (cot1 + cot2);
-
-                if (edges[i][j] > i)
-                    continue;
-                valueList.Add(new Tuple<int, double>(edges[i][j], -cot1 - cot2));
-            }
-            valueList.Add(new Tuple<int, double>(i, sum + heat[i] / distance[i]));
-            valueList.Sort(delegate (Tuple<int, double> x, Tuple< int, double > y)
-            {
-                return x.Item2.CompareTo(y.Item2);
-            });
-        }
         // Needs some kind of Matrix computation
         //SPDMatrix Am(A);
         //LLTMatrix* Ainv = Am.factor();
         //if (Ainv == NULL)
         //    return;
         //
-        for (int j = 0; j < bones.Length; ++j)
+        /*for (int j = 0; j < bones.Length; ++j)
         {
             List<double> rhs = new List<double>(); ;
             for (int i = 0; i < nv; ++i)

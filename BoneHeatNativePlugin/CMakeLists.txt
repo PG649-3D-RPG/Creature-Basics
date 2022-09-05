@@ -12,6 +12,8 @@ file(GLOB_RECURSE SRC_FILES
 
 include_directories (${SourceDir})
 
+include_directories(Eigen)
+
 # create a shared library (.dll/.so)
 add_library(BoneHeat SHARED ${SRC_FILES})
 

@@ -10,4 +10,10 @@
     #define NATIVEPLUGIN_API extern "C"
 #endif
 
+#include<iostream>
+#include<Dense>
+ 
+using Eigen::MatrixXd;
+using Eigen::VectorXd;
+
 NATIVEPLUGIN_API int get_life();

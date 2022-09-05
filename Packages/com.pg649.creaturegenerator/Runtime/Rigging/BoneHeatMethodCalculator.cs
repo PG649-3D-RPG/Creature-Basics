@@ -140,14 +140,14 @@ public class BoneHeatMethodCalculator :IBoneWeightCalculator
 
         stopwatch.Restart();
         // Heat matrix. First index is the vertex idx (the row index). This is a sparse lower triangular matrix representation!
-        List<Tuple<int, float>>[] values = new List<Tuple<int, float>>[nv];
+        List<Tuple<int, float>>[] matrix = new List<Tuple<int, float>>[nv];
         float[] distance = new float[nv];
         float[] heat = new float[nv];
         int[] closest = new int[nv];
         for (int i = 0; i < nv; ++i)
         {
-            List<Tuple<int, float>> valueList = new List<Tuple<int, float>>();
-            values[i] = valueList;
+            List<Tuple<int, float>> row = new List<Tuple<int, float>>();
+            matrix[i] = row;
 
             //get areas
             for (int j = 0; j < edges[i].Count; ++j)
@@ -192,11 +192,11 @@ public class BoneHeatMethodCalculator :IBoneWeightCalculator
 
                 if (edges[i][j] > i)
                     continue;
-                valueList.Add(new Tuple<int, float>(edges[i][j], -cot1 - cot2));
+                row.Add(new Tuple<int, float>(edges[i][j], -cot1 - cot2));
             }
-            valueList.Add(new Tuple<int, float>(i, sum + heat[i] / distance[i]));
+            row.Add(new Tuple<int, float>(i, sum + heat[i] / distance[i]));
 
-            valueList.Sort(delegate (Tuple<int, float> x, Tuple<int, float> y) //TODO check if this is correct order????
+            row.Sort(delegate (Tuple<int, float> x, Tuple<int, float> y) //TODO check if this is correct order????
             {
                 return x.Item2.CompareTo(y.Item2);
             });

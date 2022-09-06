@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-public class BoneHeatMethodCalculator :IBoneWeightCalculator
+public class BoneHeatRigSolver : IRigSolver
 {
 
     private bool vectorInCone(Vector3 v, List<Vector3> cone)

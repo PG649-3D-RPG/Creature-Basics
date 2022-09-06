@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TrivialBoneWeightCalculator : IBoneWeightCalculator
+public class ClosestBoneRigSolver : IRigSolver
 {
 
     public BoneWeight[] CalcBoneWeights(Mesh mesh, Transform[] bones, Transform meshTransform) {

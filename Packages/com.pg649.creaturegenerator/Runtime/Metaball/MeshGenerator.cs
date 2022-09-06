@@ -31,7 +31,7 @@ namespace MarchingCubesProject
 
         private NormalRenderer normalRenderer;
 
-        private IBoneWeightCalculator boneWeightCalculator = new BoneHeatMethodCalculator();
+        private IRigSolver rigSolver;
 
         void Start() 
         {
@@ -44,6 +44,7 @@ namespace MarchingCubesProject
         public void ApplySettings(MeshSettings settings, DebugSettings debugSettings)
         {
             mode = settings.Mode;
+            rigSolver = IRigSolver.Get(settings.RigSolver);
             material = settings.Material;
             smoothNormals = settings.SmoothNormals;
             drawNormals = debugSettings.DrawNormals;
@@ -184,7 +185,7 @@ namespace MarchingCubesProject
             }
             mesh.bindposes = bindPoses.ToArray();
 
-            mesh.boneWeights = boneWeightCalculator.CalcBoneWeights(mesh, bones, transform);
+            mesh.boneWeights = rigSolver.CalcBoneWeights(mesh, bones, transform);
 
             go.AddComponent<MeshFilter>();
             go.AddComponent<MeshRenderer>();

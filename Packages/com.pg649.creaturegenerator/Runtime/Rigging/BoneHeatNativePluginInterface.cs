@@ -6,24 +6,12 @@ using Unity.Collections;
 public class BoneHeatNativePluginInterface
 {
 
-    public struct Triplet {
-        int i;
-        int j;
-        float value;
-
-        public Triplet(int i, int j, float value) {
-            this.i = i;
-            this.j = j;
-            this.value = value;
-        }
-    }
-
     public static void Example() {
-        List<Triplet> triplets = new List<Triplet>();
-        triplets.Add(new Triplet(0, 0, 1));
-        triplets.Add(new Triplet(1, 1, 1));
-        Triplet[] tripletsArray = triplets.ToArray();
-        
+        SparseMatrix matrix = new SparseMatrix(2, 2);
+        matrix.triplets.Add(new SparseMatrix.Triplet(0, 0, 1));
+        matrix.triplets.Add(new SparseMatrix.Triplet(1, 1, 1));
+
+        SparseMatrix.Triplet[] tripletsArray = matrix.triplets.ToArray();
         float[] rhsArray = new float[] {69.2f, 42.9f};
         float[] resultArray = new float[rhsArray.Length];
 
@@ -32,8 +20,8 @@ public class BoneHeatNativePluginInterface
         GCHandle resultArrayHandle = GCHandle.Alloc(resultArray, GCHandleType.Pinned);
 
         int code = solveSPDMatrix(
-                2, 
-                2, 
+                matrix.rows, 
+                matrix.cols, 
                 tripletsArrayHandle.AddrOfPinnedObject(), 
                 tripletsArray.Length, 
                 rhsArrayHandle.AddrOfPinnedObject(), 

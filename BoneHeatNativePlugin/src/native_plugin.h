@@ -12,5 +12,6 @@
 
 #include<SparseCore>
 #include<SparseCholesky>
- 
-NATIVEPLUGIN_API int get_life();
+
+
+NATIVEPLUGIN_API int solveSPDMatrix(int rows, int cols, Eigen::Triplet<float>* triplets, int tripletsLength, float* rhs, int rhsLength, float* result);

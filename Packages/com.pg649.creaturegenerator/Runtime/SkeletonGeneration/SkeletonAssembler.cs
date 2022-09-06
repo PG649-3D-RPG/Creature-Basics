@@ -162,7 +162,13 @@ public class SkeletonAssembler {
 
         // Align local coordinate system to chosen proximal and ventral axis.
         result.transform.rotation = Quaternion.LookRotation(self.DistalAxis, self.VentralAxis);
-        
+
+        if (self.AttachmentHint.Offset != null)
+        {
+            // Apply offset prescribed in AttachmentHint
+            result.transform.position += self.AttachmentHint.Offset.GetValueOrDefault();
+        }
+
         if (isRoot) {
             result.AddComponent<Skeleton>();
         } else {
@@ -188,11 +194,6 @@ public class SkeletonAssembler {
                     self.AttachmentHint.Position.Lateral * radius * parentBone.LocalLateralAxis() +
                     self.AttachmentHint.Position.Ventral * radius * parentBone.LocalVentralAxis();
                 result.transform.localPosition = pos;
-            }
-
-            if (self.AttachmentHint.Offset != null) {
-                // Apply offset prescribed in AttachmentHint
-                result.transform.position += self.AttachmentHint.Offset.GetValueOrDefault();
             }
 
             if (self.AttachmentHint.VentralDirection != null) {
@@ -230,7 +231,7 @@ public class SkeletonAssembler {
                 UnityEngine.Object.Destroy(meshObject.GetComponent<Collider>());
             }
         }
-        else if (self.Category == BoneCategory.Foot) {
+        else if (self.Category == BoneCategory.Foot && self.SubCategory != BoneCategory.Leg) {
             Vector3 size = new Vector3(self.Thickness, 0.05f, self.Length * 0.9f);
 
             BoxCollider collider = result.AddComponent<BoxCollider>();

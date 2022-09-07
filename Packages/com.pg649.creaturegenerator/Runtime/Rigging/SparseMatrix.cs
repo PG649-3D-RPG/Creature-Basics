@@ -26,5 +26,4 @@ public class SparseMatrix
         this.triplets = new List<Triplet>();
     }
 
-
 }

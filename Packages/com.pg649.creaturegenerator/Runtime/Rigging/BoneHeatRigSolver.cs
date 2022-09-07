@@ -18,44 +18,47 @@ public class BoneHeatRigSolver : IRigSolver
     // TODO meshTransform must be respected when accessing mesh.vertices because bone position might not be in the same coordinate system as vertices
     public BoneWeight[] CalcBoneWeights(Mesh mesh, Transform[] bones, Transform meshTransform)
     {
-        float initialHeatWeight = 1;
-        //List<List<double>> weights = new List<List<double>>();
-        //List<List<Tuple<int, double>>> nzweights = new List<List<Tuple<int, double>>>();
-
-        VisibilityTester tester = new VisibilityTester(mesh, 64);
-        
         // nv = numVertices
         int nv = mesh.vertices.Length;
 
         Debug.Log($"Starting Bone Heat Weighting with {nv} vertices...");
 
+        VisibilityTester tester = new VisibilityTester(mesh, 64);
+        
+        float initialHeatWeight = 1;
+
         // create a timer
         System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
         stopwatch.Start();
-        //compute edges of adjacent triangles
         //first index: vertex i
         //second index: jth edge adjacent to vertex i
         List<int>[] edges = new List<int>[nv];
         for (int i = 0; i < nv; ++i)
         {
-            edges[i] = new List<int>(16);
+            edges[i] = new List<int>(8);
         }
         for (int j = 0; j < mesh.triangles.Length; ++j)
         {
             if (j % 3 == 0)
             {
-                edges[mesh.triangles[j]].Add(mesh.triangles[j + 1]);
-                edges[mesh.triangles[j]].Add(mesh.triangles[j + 2]);
+                if (!edges[mesh.triangles[j]].Contains(mesh.triangles[j + 1])) 
+                    edges[mesh.triangles[j]].Add(mesh.triangles[j + 1]);
+                if (!edges[mesh.triangles[j]].Contains(mesh.triangles[j + 2])) 
+                    edges[mesh.triangles[j]].Add(mesh.triangles[j + 2]);
             }
             else if (j % 3 == 1)
             {
-                edges[mesh.triangles[j]].Add(mesh.triangles[j - 1]);
-                edges[mesh.triangles[j]].Add(mesh.triangles[j + 1]);
+                if (!edges[mesh.triangles[j]].Contains(mesh.triangles[j - 1])) 
+                    edges[mesh.triangles[j]].Add(mesh.triangles[j - 1]);
+                if (!edges[mesh.triangles[j]].Contains(mesh.triangles[j + 1])) 
+                    edges[mesh.triangles[j]].Add(mesh.triangles[j + 1]);
             }
             else
             {
-                edges[mesh.triangles[j]].Add(mesh.triangles[j - 2]);
-                edges[mesh.triangles[j]].Add(mesh.triangles[j - 1]);
+                if (!edges[mesh.triangles[j]].Contains(mesh.triangles[j - 2])) 
+                    edges[mesh.triangles[j]].Add(mesh.triangles[j - 2]);
+                if (!edges[mesh.triangles[j]].Contains(mesh.triangles[j - 1])) 
+                    edges[mesh.triangles[j]].Add(mesh.triangles[j - 1]);
             }
         }
         stopwatch.Stop();
@@ -68,8 +71,6 @@ public class BoneHeatRigSolver : IRigSolver
         for (int i = 0; i < nv; ++i)
         {
             Vector3 cPos = mesh.vertices[i];
-            //weights.Add(new List<double>());
-            //nzweights.Add(new List<Tuple<int, double>>());
 
             // calculate normal vectors of all adjacent triangles
             List<Vector3> normals = new List<Vector3>(edges[i].Count);
@@ -108,8 +109,8 @@ public class BoneHeatRigSolver : IRigSolver
                     Mathf.Max(0, distToSeg);//TODO: ??? why should distance be negative
                 }
 
-                boneDists[i,j] = distToSeg;
-                minDist = Mathf.Min(boneDists[i,j], minDist);
+                boneDists[i, j] = distToSeg;
+                minDist = Mathf.Min(boneDists[i, j], minDist);
             }
 
             // project cPos on the segment and test if the projected point is visible from cPos
@@ -117,7 +118,7 @@ public class BoneHeatRigSolver : IRigSolver
             {
                 //the reason we don't just pick the closest bone is so that if two are
                 //equally close, both are factored in.
-                if (boneDists[i,j] > minDist * 1.0001)
+                if (boneDists[i, j] > minDist * 1.0001)
                     continue;
 
                 Vector3 v1 = bones[j].position;
@@ -132,23 +133,20 @@ public class BoneHeatRigSolver : IRigSolver
                 else
                     projToSeg = v1 + Vector3.Dot((cPos - v1), dir) / dir.sqrMagnitude * dir;
 
-                boneVis[i,j] = tester.CanSee(cPos, projToSeg) && vectorInCone(cPos - projToSeg, normals);
+                boneVis[i, j] = tester.CanSee(cPos, projToSeg) ;//&& vectorInCone(cPos - projToSeg, normals);
+                //TODO why is vector in cone broken???????
             }
         }
         stopwatch.Stop();
         Debug.Log($"Bone distance and visibility calculation took: {stopwatch.Elapsed.TotalSeconds} seconds.");
 
         stopwatch.Restart();
-        // Heat matrix. First index is the vertex idx (the row index). This is a sparse lower triangular matrix representation!
-        List<Tuple<int, float>>[] matrix = new List<Tuple<int, float>>[nv];
+        SparseMatrix matrix = new SparseMatrix(nv, nv); // The heat matrix to solve.
         float[] distance = new float[nv];
         float[] heat = new float[nv];
         int[] closest = new int[nv];
         for (int i = 0; i < nv; ++i)
         {
-            List<Tuple<int, float>> row = new List<Tuple<int, float>>();
-            matrix[i] = row;
-
             //get areas
             for (int j = 0; j < edges[i].Count; ++j)
             {
@@ -156,11 +154,11 @@ public class BoneHeatRigSolver : IRigSolver
 
                 distance[i] += (Vector3.Cross((mesh.vertices[edges[i][j]] - mesh.vertices[i]), (mesh.vertices[edges[i][nj]] - mesh.vertices[i]))).magnitude;
             }
-            distance[i] = 1 / (1e-6f + distance[i]);
+            distance[i] = 1 / (1e-10f + distance[i]);
 
             //get bones
             float minDist = float.PositiveInfinity;
-            for (int j = 0; j < bones.Length; ++j)
+            for (int j = 1; j < bones.Length; ++j)
             {
                 if (boneDists[i,j] < minDist)
                 {
@@ -168,10 +166,12 @@ public class BoneHeatRigSolver : IRigSolver
                     minDist = boneDists[i,j];
                 }
             }
-            for (int j = 0; j < bones.Length; ++j)
+            for (int j = 1; j < bones.Length; ++j)
             {
-                if (boneVis[i,j] && boneDists[i,j] <= minDist * 1.00001)
-                    heat[i] += initialHeatWeight / Mathf.Pow(1e-8f + boneDists[i,closest[i]], 2);
+                if (boneVis[i,j] && boneDists[i,j] <= minDist * 1.001)
+                {
+                    heat[i] += initialHeatWeight / Mathf.Pow(1e-8f + boneDists[i, closest[i]], 2);
+                }
             }
 
             //get laplacian
@@ -186,27 +186,63 @@ public class BoneHeatRigSolver : IRigSolver
                 Vector3 v3 = mesh.vertices[i] - mesh.vertices[edges[i][nj]];
                 Vector3 v4 = mesh.vertices[edges[i][j]] - mesh.vertices[edges[i][nj]];
 
-                float cot1 = (Vector3.Dot(v1,v2)) / (1e-6f + (Vector3.Cross(v1, v2)).magnitude);
-                float cot2 = (Vector3.Dot(v3,v4)) / (1e-6f + (Vector3.Cross(v3, v4)).magnitude);
+                float cot1 = (Vector3.Dot(v1, v2)) / (1e-6f + (Vector3.Cross(v1, v2)).magnitude);
+                float cot2 = (Vector3.Dot(v3, v4)) / (1e-6f + (Vector3.Cross(v3, v4)).magnitude);
                 sum += (cot1 + cot2);
 
                 if (edges[i][j] > i)
                     continue;
-                row.Add(new Tuple<int, float>(edges[i][j], -cot1 - cot2));
+                matrix.triplets.Add(new SparseMatrix.Triplet(i, edges[i][j], -cot1 - cot2));
             }
-            row.Add(new Tuple<int, float>(i, sum + heat[i] / distance[i]));
-
-            row.Sort(delegate (Tuple<int, float> x, Tuple<int, float> y) //TODO check if this is correct order????
-            {
-                return x.Item2.CompareTo(y.Item2);
-            });
+            matrix.triplets.Add(new SparseMatrix.Triplet(i, i, sum + heat[i] / distance[i]));
+            Debug.Log($"Sum {sum}   Heat {heat[i]}   Closest {closest[i]}   Distance {distance[i]}");
         }
         stopwatch.Stop();
         Debug.Log($"Heat and laplacian calculation took: {stopwatch.Elapsed.TotalSeconds} seconds.");
+
+        stopwatch.Restart();
+        List<Tuple<int, float>>[] weights = new List<Tuple<int, float>>[nv];
+        for (int i = 0; i < nv; ++i) {
+            weights[i] = new List<Tuple<int, float>>();
+        }
+
+        for (int j = 1; j < bones.Length; ++j)
+        {
+            float[] rhs = new float[nv];
+            for (int i = 0; i < nv; ++i)
+            {
+                if (boneVis[i,j] && boneDists[i,j] <= boneDists[i, closest[i]] * 1.001)
+                    rhs[i] = heat[i] / distance[i];
+            }
+
+            float[] solved = BoneHeatNativePluginInterface.SolveSPDMatrix(matrix, rhs);
+            for (int i = 0; i < nv; ++i)
+            {
+                if (solved[i] > 1)
+                    solved[i] = 1; //clip just in case
+                if (solved[i] > 1e-8)
+                    weights[i].Add(new Tuple<int, float>(j, solved[i]));
+            }
+        }
+        stopwatch.Stop();
+        Debug.Log($"Matrix solving took: {stopwatch.Elapsed.TotalSeconds} seconds.");
+
+        /*for(int i = 0; i < nv; ++i) {
+            float sum = 0;
+            for(int j = 0; j < weights[i].Count; ++j)
+                sum += weights[i][j].Item2;
+
+            for(int j = 0; j < weights[i].Count; ++j) {
+                float helper = weights[i][j].Item2 / sum;
+                weights[i][j] = new Tuple<int, double>(nzweights[i][j].Item1, helper);
+                weights[i][nzweights[i][j].Item1] = nzweights[i][j].Item2;
+            }
+        }*/
+
+        
        
        
-        //stolen from TrivialBoneWeightCalculator to test if boneDists is correct
-        //TODO: only temporary to test part 1
+        //TODO: only temporary to test
         BoneWeight[] boneWeights = new BoneWeight[nv];
         for (int i = 0; i < nv; ++i)
         {

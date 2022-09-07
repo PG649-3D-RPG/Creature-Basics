@@ -2,32 +2,32 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class BipedInstance : ISettingsInstance
-{
-    public readonly float ShoulderThickness;
-    public readonly float ShoulderLength;
+{ 
+    [ObservationOrder(0)] public readonly float ShoulderThickness;
+    [ObservationOrder(1)] public readonly float ShoulderLength;
 
-    public readonly List<float> ArmThicknesses;
-    public readonly List<float> ArmLengths;
+    [ObservationOrder(2)] public readonly List<float> ArmThicknesses;
+    [ObservationOrder(3)] public readonly List<float> ArmLengths;
 
-    public readonly float HandRadius;
+    [ObservationOrder(4)] public readonly float HandRadius;
 
-    public readonly List<float> LegLengths;
-    public readonly List<float> LegThicknesses;
+    [ObservationOrder(5)] public readonly List<float> LegLengths;
+    [ObservationOrder(6)] public readonly List<float> LegThicknesses;
 
-    public readonly float FeetWidth;
-    public readonly float FeetLength;
+    [ObservationOrder(7)] public readonly float FeetWidth;
+    [ObservationOrder(8)] public readonly float FeetLength;
 
-    public readonly List<float> TorsoThicknesses;
-    public readonly List<float> TorsoLengths;
+    [ObservationOrder(9)] public readonly List<float> TorsoThicknesses;
+    [ObservationOrder(10)] public readonly List<float> TorsoLengths;
 
-    public readonly int NeckBones;
-    public readonly float NeckBoneLength;
-    public readonly float NeckThickness;
+    [ObservationOrder(11)] public readonly int NeckBones;
+    [ObservationOrder(12)] public readonly float NeckBoneLength;
+    [ObservationOrder(13)] public readonly float NeckThickness;
 
-    public readonly float HeadSize;
+    [ObservationOrder(14)] public readonly float HeadSize;
 
-    public readonly float HipThickness;
-    public readonly float HipLength;
+    [ObservationOrder(15)] public readonly float HipThickness;
+    [ObservationOrder(16)] public readonly float HipLength;
 
     private static (List<float>, List<float>) InstanceLimb(ParametricCreatureSettings settings)
     {

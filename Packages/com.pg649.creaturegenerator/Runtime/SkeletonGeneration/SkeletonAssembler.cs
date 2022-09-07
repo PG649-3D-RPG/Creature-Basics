@@ -3,6 +3,8 @@ using UnityEngine;
 using System;
 
 public class SkeletonAssembler {
+
+    public const float FootHeight = 0.05f;
     public static Skeleton Assemble(SkeletonDefinition skeleton, SkeletonSettings settings, DebugSettings debugSettings) {
         Dictionary<BoneDefinition, GameObject> objects = new();
         Dictionary<BoneCategory, int> nextIndices = new();
@@ -232,7 +234,7 @@ public class SkeletonAssembler {
             }
         }
         else if (self.Category == BoneCategory.Foot && self.SubCategory != BoneCategory.Leg) {
-            Vector3 size = new Vector3(self.Thickness, 0.05f, self.Length * 0.9f);
+            Vector3 size = new Vector3(self.Thickness, FootHeight, self.Length * 0.9f);
 
             BoxCollider collider = result.AddComponent<BoxCollider>();
             collider.size = size;

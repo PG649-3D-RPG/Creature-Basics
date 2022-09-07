@@ -1,6 +1,12 @@
 ﻿# Changelog
 
 ## Unreleased
+### Changed
+- set category of lowest quadruped leg part to foot
+- offset root bone of biped and quadruped so that creature is standing on ground (height of base transform)
+
+### Fixed
+- quadruped feet are on same level by default
 
 ## [3.4.0] - 2022-08-31
 ### Added

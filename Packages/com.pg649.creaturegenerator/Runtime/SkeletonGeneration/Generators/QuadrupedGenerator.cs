@@ -15,7 +15,7 @@ public class QuadrupedGenerator {
         {(BoneCategory.Hip, BoneCategory.Leg), new JointLimits { XAxisMin = -90, XAxisMax = 0, YAxisSymmetric = 0, ZAxisSymmetric = 0}},
         {(BoneCategory.Leg, BoneCategory.LowerLeg1), new JointLimits { XAxisMin = 0, XAxisMax = 90, YAxisSymmetric = 0, ZAxisSymmetric = 0}},
         {(BoneCategory.LowerLeg1, BoneCategory.LowerLeg2), new JointLimits { XAxisMin = -90, XAxisMax = 0, YAxisSymmetric = 0, ZAxisSymmetric = 0}},
-        {(BoneCategory.LowerLeg2, BoneCategory.Leg), new JointLimits { XAxisMin = 0, XAxisMax = 90, YAxisSymmetric = 0, ZAxisSymmetric = 0}}
+        {(BoneCategory.LowerLeg2, BoneCategory.Foot), new JointLimits { XAxisMin = 0, XAxisMax = 90, YAxisSymmetric = 0, ZAxisSymmetric = 0}}
     };
 
     public SkeletonDefinition BuildCreature(ParametricCreatureSettings settings, int? seed) {
@@ -27,6 +27,10 @@ public class QuadrupedGenerator {
 
         var neck = buildNeck(neckAttachmentBone);
         buildHead(neck);
+
+        // Offset root bone so that feet are at ground level
+        root.AttachmentHint.Offset = new Vector3(0, instance.TotalHindLegHeight + (instance.TotalHindLegHeight < instance.TotalFrontLegHeight ? 1f: -1f)
+            * Mathf.Sqrt(instance.HipLength * instance.HipLength * 0.25f - Mathf.Pow(instance.HipLength* 0.5f * Mathf.Cos(root.AttachmentHint.Rotation.GetValueOrDefault().x), 2f)), 0);
 
         return new SkeletonDefinition(root, new LimitTable(quadrupedJointLimits), instance);
     }
@@ -44,14 +48,20 @@ public class QuadrupedGenerator {
 
     private BoneDefinition buildLeg(List<float> lengths, List<float> thicknesses)
     {
+        Dictionary<int, (BoneCategory, BoneCategory?)> indexMap = new() {
+            { 0, (BoneCategory.Leg, null) },
+            { 1, (BoneCategory.Leg, BoneCategory.LowerLeg1) },
+            { 2, (BoneCategory.Leg, BoneCategory.LowerLeg2) },
+            { 3, (BoneCategory.Foot, BoneCategory.Leg) }
+        };
         return GeneratorUtils.BuildLimb(lengths, thicknesses, (length, thickness, index) => new BoneDefinition()
         {
             Length = length,
             Thickness = thickness,
             DistalAxis = Vector3.down,
             VentralAxis = Vector3.forward,
-            Category = BoneCategory.Leg,
-            SubCategory = index == 1 ? BoneCategory.LowerLeg1 : BoneCategory.LowerLeg2,
+            Category = indexMap[index].Item1,
+            SubCategory = indexMap[index].Item2,
             AttachmentHint = new AttachmentHint(),
         }).Item1;
     }
@@ -126,7 +136,7 @@ public class QuadrupedGenerator {
 
         // rotate torso
         var legDiff = instance.TotalHindLegHeight - instance.TotalFrontLegHeight;
-        var angle = - Mathf.Atan(legDiff / instance.TotalTorsoLength) * Mathf.Rad2Deg;
+        var angle = - Mathf.Atan(legDiff / (instance.TotalTorsoLength + instance.HipLength)) * Mathf.Rad2Deg;
         torso.AttachmentHint.Rotation = Quaternion.Euler(angle, 0.0f, 0.0f);
 
         foreach (var leg in legs)

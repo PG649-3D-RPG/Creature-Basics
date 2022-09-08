@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using LSystem;
 using MarchingCubesProject;
 using UnityEngine;
@@ -15,7 +16,7 @@ public class CreatureGenerator
     }
 
     public static GameObject ParametricQuadruped(CreatureGeneratorSettings settings,
-        ParametricCreatureSettings creatureSettings, int seed = 0)
+        ParametricCreatureSettings creatureSettings, int? seed)
     {
         var gen = new QuadrupedGenerator();
         var def = gen.BuildCreature(creatureSettings, seed);
@@ -68,17 +69,16 @@ public class CreatureGenerator
 
         if (settings.DebugSettings.LogAdditionalInfo)
         {
-            LogInfo(skeleton.gameObject);
+            LogInfo(skeleton);
         }
 
         return go;
     }
 
-    private static void LogInfo(GameObject rootBone)
+    private static void LogInfo(Skeleton skeleton)
     {
         var mass = 0.0f;
         var rbs = 0;
-        var skeleton = rootBone.GetComponent<Skeleton>();
         foreach (var (_, _, rb, _) in skeleton.Iterator())
         {
             mass += rb.mass;
@@ -88,5 +88,14 @@ public class CreatureGenerator
         Debug.Log("Mass:\n");
         Debug.Log("\tTotal Mass: " + mass + "\n");
         Debug.Log("\tAverage Bone Mass: " + (mass / (float)rbs) + "\n");
+        Debug.Log("Skeleton:\n");
+        Debug.Log("\tTotal Observations: " + skeleton.SettingsInstance.Observations().Count + "\n");
+        StringBuilder observation = new();
+        observation.Append("\tObservations: ");
+        foreach (var f in skeleton.SettingsInstance.Observations())
+        {
+            observation.Append(f + ", ");
+        }
+        Debug.Log(observation + "\n");
     }
 }

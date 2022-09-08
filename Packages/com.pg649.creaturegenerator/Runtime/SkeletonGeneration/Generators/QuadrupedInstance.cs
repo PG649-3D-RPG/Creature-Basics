@@ -3,26 +3,26 @@ using UnityEngine;
 
 public class QuadrupedInstance : ISettingsInstance
 {
-    public readonly float TotalFrontLegHeight;
-    public readonly List<float> FrontLegHeights;
-    public readonly List<float> FrontLegThicknesses;
+    [ObservationOrder(0)] public readonly float TotalFrontLegHeight;
+    [ObservationOrder(1)] public readonly List<float> FrontLegHeights;
+    [ObservationOrder(2)] public readonly List<float> FrontLegThicknesses;
 
-    public readonly float TotalHindLegHeight;
-    public readonly List<float> HindLegHeights;
-    public readonly List<float> HindLegThicknesses;
+    [ObservationOrder(3)] public readonly float TotalHindLegHeight;
+    [ObservationOrder(4)] public readonly List<float> HindLegHeights;
+    [ObservationOrder(5)] public readonly List<float> HindLegThicknesses;
 
-    public readonly float TotalTorsoLength;
-    public readonly List<float> TorsoThicknesses;
-    public readonly List<float> TorsoLengths;
+    [ObservationOrder(6)] public readonly float TotalTorsoLength;
+    [ObservationOrder(7)] public readonly List<float> TorsoThicknesses;
+    [ObservationOrder(8)] public readonly List<float> TorsoLengths;
 
-    public readonly int NeckBones;
-    public readonly float NeckBoneLength;
-    public readonly float NeckThickness;
+    [ObservationOrder(9)] public readonly int NeckBones;
+    [ObservationOrder(10)] public readonly float NeckBoneLength;
+    [ObservationOrder(11)] public readonly float NeckThickness;
 
-    public readonly float HeadSize;
+    [ObservationOrder(12)] public readonly float HeadSize;
 
-    public readonly float HipThickness;
-    public readonly float HipLength;
+    [ObservationOrder(13)] public readonly float HipThickness;
+    [ObservationOrder(14)] public readonly float HipLength;
 
     private static (float, List<float>, List<float>) InstanceLeg(ParametricCreatureSettings settings)
     {

@@ -3,6 +3,8 @@ using UnityEngine;
 using System;
 
 public class SkeletonAssembler {
+
+    public const float FootHeight = 0.05f;
     public static Skeleton Assemble(SkeletonDefinition skeleton, SkeletonSettings settings, DebugSettings debugSettings) {
         Dictionary<BoneDefinition, GameObject> objects = new();
         Dictionary<BoneCategory, int> nextIndices = new();
@@ -162,7 +164,13 @@ public class SkeletonAssembler {
 
         // Align local coordinate system to chosen proximal and ventral axis.
         result.transform.rotation = Quaternion.LookRotation(self.DistalAxis, self.VentralAxis);
-        
+
+        if (self.AttachmentHint.Offset != null)
+        {
+            // Apply offset prescribed in AttachmentHint
+            result.transform.position += self.AttachmentHint.Offset.GetValueOrDefault();
+        }
+
         if (isRoot) {
             result.AddComponent<Skeleton>();
         } else {
@@ -188,11 +196,6 @@ public class SkeletonAssembler {
                     self.AttachmentHint.Position.Lateral * radius * parentBone.LocalLateralAxis() +
                     self.AttachmentHint.Position.Ventral * radius * parentBone.LocalVentralAxis();
                 result.transform.localPosition = pos;
-            }
-
-            if (self.AttachmentHint.Offset != null) {
-                // Apply offset prescribed in AttachmentHint
-                result.transform.position += self.AttachmentHint.Offset.GetValueOrDefault();
             }
 
             if (self.AttachmentHint.VentralDirection != null) {
@@ -230,8 +233,8 @@ public class SkeletonAssembler {
                 UnityEngine.Object.Destroy(meshObject.GetComponent<Collider>());
             }
         }
-        else if (self.Category == BoneCategory.Foot) {
-            Vector3 size = new Vector3(self.Thickness, 0.05f, self.Length * 0.9f);
+        else if (self.Category == BoneCategory.Foot && self.SubCategory != BoneCategory.Leg) {
+            Vector3 size = new Vector3(self.Thickness, FootHeight, self.Length * 0.9f);
 
             BoxCollider collider = result.AddComponent<BoxCollider>();
             collider.size = size;

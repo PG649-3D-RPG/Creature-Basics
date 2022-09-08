@@ -37,6 +37,8 @@ public class BipedGenerator {
         foreach (var arm in arms)
             armAttachmentBone.LinkChild(arm);
 
+        root.AttachmentHint.Offset = new(0, instance.LegLengths.Sum() + instance.HipLength * 0.5f + SkeletonAssembler.FootHeight, 0);
+
         return new SkeletonDefinition(root, new LimitTable(HumanoidJointLimits), instance);
     }
 

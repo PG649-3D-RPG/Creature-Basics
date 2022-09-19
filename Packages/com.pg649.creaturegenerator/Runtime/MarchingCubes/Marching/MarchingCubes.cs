@@ -19,9 +19,9 @@ namespace MarchingCubesProject
         /// <summary>
         /// MarchCube performs the Marching Cubes algorithm on a single cube
         /// </summary>
-        protected override void March(float x, float y, float z, float[] cube, IList<Vector3> vertList, IList<int> indexList)
+        protected override void March(float x, float y, float z, float[] cube, IndexedMeshBuilder meshBuilder)
         {
-            int i, j, vert, idx;
+            int i, j, vert;
             int flagIndex = 0;
             float offset = 0.0f;
 
@@ -53,13 +53,10 @@ namespace MarchingCubesProject
             {
                 if (TriangleConnectionTable[flagIndex, 3 * i] < 0) break;
 
-                idx = vertList.Count;
-
                 for (j = 0; j < 3; j++)
                 {
-                    vert = TriangleConnectionTable[flagIndex, 3 * i + j];
-                    indexList.Add(idx + WindingOrder[j]);
-                    vertList.Add(EdgeVertex[vert]);
+                    vert = TriangleConnectionTable[flagIndex, 3 * i + WindingOrder[j]];
+					meshBuilder.Push(EdgeVertex[vert]);
                 }
             }
         }

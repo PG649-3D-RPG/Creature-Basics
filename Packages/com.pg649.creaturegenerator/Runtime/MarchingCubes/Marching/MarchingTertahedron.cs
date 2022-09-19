@@ -29,7 +29,7 @@ namespace MarchingCubesProject
         /// <summary>
         /// MarchCubeTetrahedron performs the Marching Tetrahedrons algorithm on a single cube
         /// </summary>
-        protected override void March(float x, float y, float z, float[] cube, IList<Vector3> vertList, IList<int> indexList)
+        protected override void March(float x, float y, float z, float[] cube, IndexedMeshBuilder meshBuilder)
         {
             int i, j, vertexInACube;
 
@@ -50,16 +50,16 @@ namespace MarchingCubesProject
                     TetrahedronValue[j] = cube[vertexInACube];
                 }
 
-                MarchTetrahedron(vertList, indexList);
+                MarchTetrahedron(meshBuilder);
             }
         }
 
         /// <summary>
         /// MarchTetrahedron performs the Marching Tetrahedrons algorithm on a single tetrahedron
         /// </summary>
-        private void MarchTetrahedron(IList<Vector3> vertList, IList<int> indexList)
+        private void MarchTetrahedron(IndexedMeshBuilder meshBuilder)
         {
-            int i, j, vert, vert0, vert1, idx;
+            int i, j, vert, vert0, vert1;
             int flagIndex = 0, edgeFlags;
             float offset, invOffset;
 
@@ -94,13 +94,10 @@ namespace MarchingCubesProject
             {
                 if (TetrahedronTriangles[flagIndex, 3 * i] < 0) break;
 
-                idx = vertList.Count;
-
                 for (j = 0; j < 3; j++)
                 {
-                    vert = TetrahedronTriangles[flagIndex, 3 * i + j];
-                    indexList.Add(idx + WindingOrder[j]);
-                    vertList.Add(EdgeVertex[vert]);
+                    vert = TetrahedronTriangles[flagIndex, 3 * i + WindingOrder[j]];
+					meshBuilder.Push(EdgeVertex[vert]);
                 }
             }
         }

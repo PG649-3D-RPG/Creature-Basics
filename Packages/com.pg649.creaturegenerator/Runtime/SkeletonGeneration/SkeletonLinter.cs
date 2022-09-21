@@ -25,11 +25,13 @@ public class SkeletonLinter
 
     private static void FixIdenticalBonePositions(Skeleton skeleton)
     {
-        foreach (var ((a, boneA, _, _), (b, boneB, _, _)) in skeleton.Pairs())
+        foreach (var (obj, bone, _, _) in skeleton.Iterator())
         {
-            if (a.transform.position == b.transform.position)
+            if (obj.transform.parent == null) continue;
+
+            if (obj.transform.position == obj.transform.parent.position)
             {
-                b.transform.position += boneB.WorldDistalAxis() * 0.01f;
+                obj.transform.position += bone.WorldDistalAxis() * 0.01f;
             }
         }
     }

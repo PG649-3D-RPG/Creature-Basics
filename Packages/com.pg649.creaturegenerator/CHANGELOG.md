@@ -1,6 +1,17 @@
 ﻿# Changelog
 
+
 ## Unreleased
+
+## [3.5.0] - 2022-09-21
+### Changed
+- Set category of lowest quadruped leg part to foot
+- Offset root bone of biped and quadruped so that creature is standing on ground (height of base transform)
+- Ordering of skeleton observations is now fixed
+
+### Fixed
+- Quadruped feet are on same level by default
+- Seed of quadruped creature is now nullable
 
 ## [3.4.0] - 2022-08-31
 ### Added

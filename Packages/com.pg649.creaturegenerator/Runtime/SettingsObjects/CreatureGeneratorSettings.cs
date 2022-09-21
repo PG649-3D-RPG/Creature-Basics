@@ -94,6 +94,8 @@ public class MeshSettings
 {
     [Tooltip("If set, a single mesh will be generated around the skeleton.")]
     public bool GenerateMetaballMesh = false;
+    [Tooltip("Select the algorithm for attaching the mesh to the skeleton.")]
+    public IRigSolver.RigSolverType RigSolver = IRigSolver.RigSolverType.ClosestBone;
     [Tooltip("Choose whether the marching cubes algorithm should sample space via cubes or tetrahedons. Tetrahedons will better approximate the isosurface, but generate more vertices.")]
     public MeshGenerator.MARCHING_MODE Mode = MeshGenerator.MARCHING_MODE.CUBES;
     [Tooltip("Choose the default material of the generated mesh.")]

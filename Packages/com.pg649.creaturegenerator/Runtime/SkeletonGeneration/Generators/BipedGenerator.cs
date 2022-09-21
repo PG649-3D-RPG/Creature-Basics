@@ -136,7 +136,7 @@ public class BipedGenerator {
             Category = BoneCategory.Foot,
             AttachmentHint = new AttachmentHint
             {
-                Offset = new Vector3(0.0f, 0.0f, -0.5f)
+                Position = new RelativePosition(0.0f, -1.0f, 1.05f),
             }
         };
 

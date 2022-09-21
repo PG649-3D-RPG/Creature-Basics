@@ -165,14 +165,13 @@ public class SkeletonAssembler {
         // Align local coordinate system to chosen proximal and ventral axis.
         result.transform.rotation = Quaternion.LookRotation(self.DistalAxis, self.VentralAxis);
 
-        if (self.AttachmentHint.Offset != null)
-        {
-            // Apply offset prescribed in AttachmentHint
-            result.transform.position += self.AttachmentHint.Offset.GetValueOrDefault();
-        }
-
         if (isRoot) {
             result.AddComponent<Skeleton>();
+            if (self.AttachmentHint.Offset != null)
+            {
+                // Apply offset prescribed in AttachmentHint
+                result.transform.position += self.AttachmentHint.Offset.GetValueOrDefault();
+            }
         } else {
             Bone parentBone = parentGo.GetComponent<Bone>();
             result.transform.parent = parentGo.transform;
@@ -206,8 +205,14 @@ public class SkeletonAssembler {
                 result.transform.rotation = target;
                 var delta = target * Quaternion.Inverse(current);
                 self.PropagateAttachmentRotation(delta);
-
             }
+            
+            if (self.AttachmentHint.Offset != null)
+            {
+                // Apply offset prescribed in AttachmentHint
+                result.transform.position += self.AttachmentHint.Offset.GetValueOrDefault();
+            }
+            
             Skeleton skeleton = rootGo.GetComponent<Skeleton>();
             skeleton.bonesByCategory[self.Category].Add(result);
         }

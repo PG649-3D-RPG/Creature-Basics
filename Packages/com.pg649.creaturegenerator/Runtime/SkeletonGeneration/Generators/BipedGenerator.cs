@@ -136,7 +136,7 @@ public class BipedGenerator {
             Category = BoneCategory.Foot,
             AttachmentHint = new AttachmentHint
             {
-                Position = new RelativePosition(0.0f, -1.0f, 1.05f),
+                Position = new RelativePosition(0.0f, 0.0f, 1.05f),
             }
         };
 

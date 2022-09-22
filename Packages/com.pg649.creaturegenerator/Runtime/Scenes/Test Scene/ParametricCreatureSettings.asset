@@ -21,7 +21,7 @@ MonoBehaviour:
   minimumTotalLegLength: 2
   maximumTotalLegLength: 6
   minimumFeetWidth: 1
-  maximumFeetWidth: 4
+  maximumFeetWidth: 1.23
   minimumFeetLength: 1
   maximumFeetLength: 2
   minimumShoulderThickness: 0.1

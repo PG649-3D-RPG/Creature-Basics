@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
+// for reference see: https://people.csail.mit.edu/ibaran/papers/2007-SIGGRAPH-Pinocchio.pdf
 public class BoneHeatRigSolver : IRigSolver
 {
 
@@ -25,7 +26,8 @@ public class BoneHeatRigSolver : IRigSolver
 
         VisibilityTester tester = new VisibilityTester(mesh, 64);
         
-        float initialHeatWeight = 1;
+        //float initialHeatWeight = 0.22f;
+        float initialHeatWeight = 1f;
 
         // create a timer
         System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
@@ -104,9 +106,9 @@ public class BoneHeatRigSolver : IRigSolver
                 }
                 else
                 {
-                    distToSeg = Vector3.Magnitude(Vector3.Cross((cPos - v1), (cPos - v2)));
-                    distToSeg = distToSeg / Vector3.Magnitude(v2 - v1);
-                    Mathf.Max(0, distToSeg);//TODO: ??? why should distance be negative
+                    distToSeg = Vector3.Cross((cPos - v1), (cPos - v2)).magnitude;
+                    distToSeg = distToSeg / (v2 - v1).magnitude;
+                    distToSeg = Mathf.Max(0, distToSeg);//TODO: why would distance be negative???
                 }
 
                 boneDists[i, j] = distToSeg;
@@ -118,7 +120,7 @@ public class BoneHeatRigSolver : IRigSolver
             {
                 //the reason we don't just pick the closest bone is so that if two are
                 //equally close, both are factored in.
-                if (boneDists[i, j] > minDist * 1.0001)
+                if (boneDists[i, j] > minDist * 1.001f)
                     continue;
 
                 Vector3 v1 = bones[j].position;
@@ -142,8 +144,8 @@ public class BoneHeatRigSolver : IRigSolver
 
         stopwatch.Restart();
         SparseMatrix matrix = new SparseMatrix(nv, nv); // The heat matrix to solve.
-        float[] distance = new float[nv];
-        float[] heat = new float[nv];
+        float[] D = new float[nv];
+        float[] H = new float[nv];
         int[] closest = new int[nv];
         for (int i = 0; i < nv; ++i)
         {
@@ -152,9 +154,9 @@ public class BoneHeatRigSolver : IRigSolver
             {
                 int nj = (j + 1) % edges[i].Count;
 
-                distance[i] += (Vector3.Cross((mesh.vertices[edges[i][j]] - mesh.vertices[i]), (mesh.vertices[edges[i][nj]] - mesh.vertices[i]))).magnitude;
+                D[i] += (Vector3.Cross((mesh.vertices[edges[i][j]] - mesh.vertices[i]), (mesh.vertices[edges[i][nj]] - mesh.vertices[i]))).magnitude;
             }
-            distance[i] = 1 / (1e-10f + distance[i]);
+            D[i] = 1 / (1e-8f + D[i]);
 
             //get bones
             float minDist = float.PositiveInfinity;
@@ -168,13 +170,14 @@ public class BoneHeatRigSolver : IRigSolver
             }
             for (int j = 1; j < bones.Length; ++j)
             {
-                if (boneVis[i,j] && boneDists[i,j] <= minDist * 1.001)
+                if (boneVis[i,j] && boneDists[i,j] <= minDist * 1.001f)
                 {
-                    heat[i] += initialHeatWeight / Mathf.Pow(1e-8f + boneDists[i, closest[i]], 2);
+                    H[i] += initialHeatWeight / Mathf.Pow(1e-6f + boneDists[i, closest[i]], 2);
                 }
             }
 
             //get laplacian
+            //for reference see: https://en.wikipedia.org/wiki/Discrete_Laplace_operator#Mesh_Laplacians
             float sum = 0;
             for (int j = 0; j < edges[i].Count; ++j)
             {
@@ -186,16 +189,17 @@ public class BoneHeatRigSolver : IRigSolver
                 Vector3 v3 = mesh.vertices[i] - mesh.vertices[edges[i][nj]];
                 Vector3 v4 = mesh.vertices[edges[i][j]] - mesh.vertices[edges[i][nj]];
 
-                float cot1 = (Vector3.Dot(v1, v2)) / (1e-6f + (Vector3.Cross(v1, v2)).magnitude);
-                float cot2 = (Vector3.Dot(v3, v4)) / (1e-6f + (Vector3.Cross(v3, v4)).magnitude);
+                // these are the cotangents of the two interior angles opposite to the edge
+                float cot1 = Vector3.Dot(v1, v2) / (1e-6f + Vector3.Cross(v1, v2).magnitude);
+                float cot2 = Vector3.Dot(v3, v4) / (1e-6f + Vector3.Cross(v3, v4).magnitude);
                 sum += (cot1 + cot2);
 
                 if (edges[i][j] > i)
                     continue;
                 matrix.triplets.Add(new SparseMatrix.Triplet(i, edges[i][j], -cot1 - cot2));
             }
-            matrix.triplets.Add(new SparseMatrix.Triplet(i, i, sum + heat[i] / distance[i]));
-            //Debug.Log($"Sum {sum}   Heat {heat[i]}   Closest {closest[i]}   Distance {distance[i]}");
+            matrix.triplets.Add(new SparseMatrix.Triplet(i, i, sum + H[i] / D[i]));
+            //Debug.Log($"Sum {sum}   H {H[i]}   Closest {closest[i]}   D {D[i]}");
         }
         stopwatch.Stop();
         Debug.Log($"Heat and laplacian calculation took: {stopwatch.Elapsed.TotalSeconds} seconds.");
@@ -211,8 +215,8 @@ public class BoneHeatRigSolver : IRigSolver
             float[] rhs = new float[nv];
             for (int i = 0; i < nv; ++i)
             {
-                if (boneVis[i,j] && boneDists[i,j] <= boneDists[i, closest[i]] * 1.001)
-                    rhs[i] = heat[i] / distance[i];
+                if (boneVis[i,j] && boneDists[i,j] <= boneDists[i, closest[i]] * 1.001f)
+                    rhs[i] = H[i] / D[i];
             }
 
             float[] solved = BoneHeatNativePluginInterface.SolveSPDMatrix(matrix, rhs);

@@ -14,7 +14,8 @@ public class ClosestBoneRigSolver : IRigSolver
             int jMin = 0;
             for (int j = 0; j < bones.Length; j++) {
                 Vector3 bonePos = bones[j].position;
-                Vector3 vertexPos = meshTransform.TransformPoint(vertices[i]);
+                Vector3 vertexPos = vertices[i];
+                //Vector3 vertexPos = meshTransform.TransformPoint(vertices[i]);
 
                 float dist = Vector3.Distance(bonePos, vertexPos);
                 if (dist < distMin) {

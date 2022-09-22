@@ -195,7 +195,7 @@ public class BoneHeatRigSolver : IRigSolver
                 matrix.triplets.Add(new SparseMatrix.Triplet(i, edges[i][j], -cot1 - cot2));
             }
             matrix.triplets.Add(new SparseMatrix.Triplet(i, i, sum + heat[i] / distance[i]));
-            Debug.Log($"Sum {sum}   Heat {heat[i]}   Closest {closest[i]}   Distance {distance[i]}");
+            //Debug.Log($"Sum {sum}   Heat {heat[i]}   Closest {closest[i]}   Distance {distance[i]}");
         }
         stopwatch.Stop();
         Debug.Log($"Heat and laplacian calculation took: {stopwatch.Elapsed.TotalSeconds} seconds.");

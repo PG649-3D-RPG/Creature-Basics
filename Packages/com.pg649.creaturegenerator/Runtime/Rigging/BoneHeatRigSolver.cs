@@ -184,19 +184,28 @@ public class BoneHeatRigSolver : IRigSolver
                 int nj = (j + 1) % edges[i].Count;
                 int pj = (j + edges[i].Count - 1) % edges[i].Count;
 
-                Vector3 v1 = mesh.vertices[i] - mesh.vertices[edges[i][pj]];
-                Vector3 v2 = mesh.vertices[edges[i][j]] - mesh.vertices[edges[i][pj]];
-                Vector3 v3 = mesh.vertices[i] - mesh.vertices[edges[i][nj]];
-                Vector3 v4 = mesh.vertices[edges[i][j]] - mesh.vertices[edges[i][nj]];
-
                 // these are the cotangents of the two interior angles opposite to the edge
-                float cot1 = Vector3.Dot(v1, v2) / (1e-6f + Vector3.Cross(v1, v2).magnitude);
-                float cot2 = Vector3.Dot(v3, v4) / (1e-6f + Vector3.Cross(v3, v4).magnitude);
+                float cot1 = 0.0f;
+                float cot2 = 0.0f;
+                if (edges[edges[i][j]].Contains(edges[i][pj]))
+                {
+                    Vector3 v1 = mesh.vertices[i] - mesh.vertices[edges[i][pj]];
+                    Vector3 v2 = mesh.vertices[edges[i][j]] - mesh.vertices[edges[i][pj]];
+                    
+                    cot1 = Vector3.Dot(v1, v2) / (1e-6f + Vector3.Cross(v1, v2).magnitude);
+                }
+                if (edges[edges[i][j]].Contains(edges[i][nj]))
+                {
+                    Vector3 v3 = mesh.vertices[i] - mesh.vertices[edges[i][nj]];
+                    Vector3 v4 = mesh.vertices[edges[i][j]] - mesh.vertices[edges[i][nj]];
+                    cot2 = Vector3.Dot(v3, v4) / (1e-6f + Vector3.Cross(v3, v4).magnitude);
+                }
+
                 sum += (cot1 + cot2);
 
                 if (edges[i][j] > i)
                     continue;
-                matrix.triplets.Add(new SparseMatrix.Triplet(i, edges[i][j], -cot1 - cot2));
+                matrix.triplets.Add(new SparseMatrix.Triplet(i, edges[i][j], -(cot1 + cot2)));
             }
             matrix.triplets.Add(new SparseMatrix.Triplet(i, i, sum + H[i] / D[i]));
             //Debug.Log($"Sum {sum}   H {H[i]}   Closest {closest[i]}   D {D[i]}");

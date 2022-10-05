@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using System.Linq;
 
 // for reference see: https://people.csail.mit.edu/ibaran/papers/2007-SIGGRAPH-Pinocchio.pdf
 public class BoneHeatRigSolver : IRigSolver
@@ -65,6 +66,54 @@ public class BoneHeatRigSolver : IRigSolver
         }
         stopwatch.Stop();
         Debug.Log($"Edge calculation took: {stopwatch.Elapsed.TotalSeconds} seconds.");
+
+        // delaunay edge flipping
+        /*stopwatch.Restart();
+        bool isDelaunay = false;
+        //while (!isDelaunay)
+        {
+            isDelaunay = true;
+            for (int i = 0; i < mesh.triangles.Length; i += 3)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    int idx1 = mesh.triangles[i + j];
+                    int idx2 = mesh.triangles[i + (j + 1) % 3];
+
+                    int idx3 = mesh.triangles[i + (j + 2) % 3];
+
+                    List<int> commonVerts = edges[idx1].Intersect(edges[idx2]).ToList();
+                    if (commonVerts.Count > 2) 
+                        throw new Exception("Mesh is not a valid 2-manifold!!!");
+
+                    //Debug.Log(commonVerts.Count);
+                    if (commonVerts.Count == 2) { // checks for a non-boundary edge
+                        bool found = commonVerts.Remove(idx3);
+                        if (!found)
+                            throw new Exception("Mesh is not valid !!!");
+                        
+                        int idx4 = commonVerts[0];
+                        
+                        Vector3 v1 = mesh.vertices[idx1] - mesh.vertices[idx3];
+                        Vector3 v2 = mesh.vertices[idx2] - mesh.vertices[idx3];
+                        Vector3 v3 = mesh.vertices[idx1] - mesh.vertices[idx4];
+                        Vector3 v4 = mesh.vertices[idx2] - mesh.vertices[idx4];
+
+                        float alpha = Vector3.Angle(v1, v2);
+                        float beta = Vector3.Angle(v3, v4);
+
+                        if (alpha + beta > 180.0f) {
+                            isDelaunay = false;
+
+                            
+                        }
+                    }
+                }
+            }
+        }
+        Debug.Log("isDelaunay: " + isDelaunay);
+        stopwatch.Stop();
+        Debug.Log($"Delaunay edge flipping took: {stopwatch.Elapsed.TotalSeconds} seconds.");*/
 
         stopwatch.Restart();
         float[,] boneDists = new float[nv, bones.Length];

@@ -165,14 +165,13 @@ public class SkeletonAssembler {
         // Align local coordinate system to chosen proximal and ventral axis.
         result.transform.rotation = Quaternion.LookRotation(self.DistalAxis, self.VentralAxis);
 
-        if (self.AttachmentHint.Offset != null)
-        {
-            // Apply offset prescribed in AttachmentHint
-            result.transform.position += self.AttachmentHint.Offset.GetValueOrDefault();
-        }
-
         if (isRoot) {
             result.AddComponent<Skeleton>();
+            if (self.AttachmentHint.Offset != null)
+            {
+                // Apply offset prescribed in AttachmentHint
+                result.transform.position += self.AttachmentHint.Offset.GetValueOrDefault();
+            }
         } else {
             Bone parentBone = parentGo.GetComponent<Bone>();
             result.transform.parent = parentGo.transform;
@@ -206,8 +205,14 @@ public class SkeletonAssembler {
                 result.transform.rotation = target;
                 var delta = target * Quaternion.Inverse(current);
                 self.PropagateAttachmentRotation(delta);
-
             }
+            
+            if (self.AttachmentHint.Offset != null)
+            {
+                // Apply offset prescribed in AttachmentHint
+                result.transform.position += self.AttachmentHint.Offset.GetValueOrDefault();
+            }
+            
             Skeleton skeleton = rootGo.GetComponent<Skeleton>();
             skeleton.bonesByCategory[self.Category].Add(result);
         }
@@ -238,14 +243,15 @@ public class SkeletonAssembler {
 
             BoxCollider collider = result.AddComponent<BoxCollider>();
             collider.size = size;
-            collider.center = bone.LocalMidpoint();
+            Vector3 pos = 0.25f * bone.length * (bone.LocalDistalPoint() - bone.LocalProximalPoint());
+            collider.center = pos;
             rb.mass = settings.MassMultiplier * densities[self.Category] * (size.x * size.y * size.z);
 
             if(debug.AttachPrimitiveMesh){
                 meshObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 meshObject.tag = "Agent";
                 meshObject.transform.parent = result.transform;
-                meshObject.transform.localPosition = bone.LocalMidpoint();
+                meshObject.transform.localPosition = pos;
                 meshObject.transform.localScale = size;
                 meshObject.transform.rotation = Quaternion.LookRotation(bone.WorldDistalAxis(), bone.WorldVentralAxis());
                 //meshObject.transform.rotation = Quaternion.LookRotation(bone.WorldVentralAxis(), bone.WorldProximalAxis());

@@ -40,9 +40,8 @@ namespace MarchingCubesProject
         /// <param name="voxels"></param>
         /// <param name="verts"></param>
         /// <param name="indices"></param>
-        public virtual void Generate(float[,,] voxels, IList<Vector3> verts, IList<int> indices)
+        public virtual void Generate(float[,,] voxels, IndexedMeshBuilder meshBuilder)
         {
-
             int width = voxels.GetLength(0);
             int height = voxels.GetLength(1);
             int depth = voxels.GetLength(2);
@@ -68,7 +67,7 @@ namespace MarchingCubesProject
                         }
 
                         //Perform algorithm
-                        March(x, y, z, Cube, verts, indices);
+                        March(x, y, z, Cube, meshBuilder);
                     }
                 }
             }
@@ -84,9 +83,8 @@ namespace MarchingCubesProject
         /// <param name="depth"></param>
         /// <param name="verts"></param>
         /// <param name="indices"></param>
-        public virtual void Generate(IList<float> voxels, int width, int height, int depth, IList<Vector3> verts, IList<int> indices)
+        public virtual void Generate(IList<float> voxels, int width, int height, int depth, IndexedMeshBuilder meshBuilder)
         {
-
             UpdateWindingOrder();
 
             int x, y, z, i;
@@ -108,7 +106,7 @@ namespace MarchingCubesProject
                         }
 
                         //Perform algorithm
-                        March(x, y, z, Cube, verts, indices);
+                        March(x, y, z, Cube, meshBuilder);
                     }
                 }
             }
@@ -138,7 +136,7 @@ namespace MarchingCubesProject
          /// <summary>
         /// MarchCube performs the Marching algorithm on a single cube
         /// </summary>
-        protected abstract void March(float x, float y, float z, float[] cube, IList<Vector3> vertList, IList<int> indexList);
+        protected abstract void March(float x, float y, float z, float[] cube, IndexedMeshBuilder meshBuilder);
 
         /// <summary>
         /// GetOffset finds the approximate point of intersection of the surface

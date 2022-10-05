@@ -1,13 +1,15 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 public class SparseMatrix
 {
 
+    [StructLayout(LayoutKind.Sequential)]
     public struct Triplet {
-        int i;
-        int j;
-        float value;
+        public int i;
+        public int j;
+        public float value;
 
         public Triplet(int i, int j, float value) {
             this.i = i;
@@ -25,6 +27,5 @@ public class SparseMatrix
         this.cols = cols;
         this.triplets = new List<Triplet>();
     }
-
 
 }

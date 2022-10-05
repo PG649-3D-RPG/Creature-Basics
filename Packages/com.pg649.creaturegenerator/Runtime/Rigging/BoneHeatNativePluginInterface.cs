@@ -1,3 +1,4 @@
+using System;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,13 +7,9 @@ using Unity.Collections;
 public class BoneHeatNativePluginInterface
 {
 
-    public static void Example() {
-        SparseMatrix matrix = new SparseMatrix(2, 2);
-        matrix.triplets.Add(new SparseMatrix.Triplet(0, 0, 1));
-        matrix.triplets.Add(new SparseMatrix.Triplet(1, 1, 1));
-
+    public static float[] SolveSPDMatrix(SparseMatrix matrix, float[] rhsArray) {
         SparseMatrix.Triplet[] tripletsArray = matrix.triplets.ToArray();
-        float[] rhsArray = new float[] {69.2f, 42.9f};
+
         float[] resultArray = new float[rhsArray.Length];
 
         GCHandle tripletsArrayHandle = GCHandle.Alloc(tripletsArray, GCHandleType.Pinned);
@@ -28,13 +25,15 @@ public class BoneHeatNativePluginInterface
                 rhsArray.Length, 
                 resultArrayHandle.AddrOfPinnedObject());
 
-        if (code == 0) {
-            Debug.Log(resultArray[0]); // should be 69.2
-        }
-
         tripletsArrayHandle.Free();
         rhsArrayHandle.Free();
         resultArrayHandle.Free();
+
+        if (code == 0) {
+            return resultArray;
+        } else {
+            throw new Exception($"Failed to solve matrix! Error code {code}");
+        }
     }
 
     [DllImport("BoneHeat")]

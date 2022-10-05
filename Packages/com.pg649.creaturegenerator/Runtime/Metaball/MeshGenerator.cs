@@ -121,21 +121,20 @@ namespace MarchingCubesProject
                 }
             }
 
-            List<Vector3> verts = new List<Vector3>();
+            IndexedMeshBuilder meshBuilder = new IndexedMeshBuilder();
             List<Vector3> normals = new List<Vector3>();
-            List<int> indices = new List<int>();
 
             //The mesh produced is not optimal. There is one vert for each index.
             //Would need to weld vertices for better quality mesh.
-            marching.Generate(voxels.Voxels, verts, indices);
-            indices.Reverse();
+            marching.Generate(voxels.Voxels, meshBuilder);
+            meshBuilder.indices.Reverse();
 
             //Create the normals from the voxel.
             if (smoothNormals)
             {
-                for (int i = 0; i < verts.Count; i++)
+                for (int i = 0; i < meshBuilder.verts.Count; i++)
                 {
-                    Vector3 p = verts[i];
+                    Vector3 p = meshBuilder.verts[i];
 
                     float u = p.x / (gridResolution - 1.0f);
                     float v = p.y / (gridResolution - 1.0f);
@@ -147,15 +146,15 @@ namespace MarchingCubesProject
                 }
             }
 
-            var position = this.transform.localPosition + (voxelBounds.min );
+            var position = this.transform.localPosition + (voxelBounds.min);
             Matrix4x4 mat = Matrix4x4.Translate(position) * Matrix4x4.Scale(voxelBounds.size / gridResolution);
 
-            for (int i = 0; i < verts.Count; i++)
+            for (int i = 0; i < meshBuilder.verts.Count; i++)
             {
-                verts[i] = mat.MultiplyPoint3x4(verts[i]);
+                meshBuilder.verts[i] = mat.MultiplyPoint3x4(meshBuilder.verts[i]);
             }
 
-            CreateMesh32(verts, normals, indices, position);
+            CreateMesh32(meshBuilder.verts, normals, meshBuilder.indices, position);
         }
 
         private void CreateMesh32(List<Vector3> verts, List<Vector3> normals, List<int> indices, Vector3 position)

@@ -3,6 +3,10 @@
 
 ## Unreleased
 
+## [3.6.0] - 2022-10-12
+### Changed
+- Moved quadruped legs slightly down
+
 ## [3.5.0] - 2022-09-21
 ### Changed
 - Set category of lowest quadruped leg part to foot

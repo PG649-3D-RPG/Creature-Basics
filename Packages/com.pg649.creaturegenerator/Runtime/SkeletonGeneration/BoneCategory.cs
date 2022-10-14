@@ -11,5 +11,6 @@ public enum BoneCategory
     Foot,
     Shoulder,
     Hip,
+    Paw,
     Other
 }

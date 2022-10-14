@@ -15,7 +15,7 @@ public class QuadrupedGenerator {
         {(BoneCategory.Hip, BoneCategory.Leg), new JointLimits { XAxisMin = -90, XAxisMax = 0, YAxisSymmetric = 0, ZAxisSymmetric = 0}},
         {(BoneCategory.Leg, BoneCategory.LowerLeg1), new JointLimits { XAxisMin = 0, XAxisMax = 90, YAxisSymmetric = 0, ZAxisSymmetric = 0}},
         {(BoneCategory.LowerLeg1, BoneCategory.LowerLeg2), new JointLimits { XAxisMin = -90, XAxisMax = 0, YAxisSymmetric = 0, ZAxisSymmetric = 0}},
-        {(BoneCategory.LowerLeg2, BoneCategory.Foot), new JointLimits { XAxisMin = 0, XAxisMax = 90, YAxisSymmetric = 0, ZAxisSymmetric = 0}}
+        {(BoneCategory.LowerLeg2, BoneCategory.Paw), new JointLimits { XAxisMin = 0, XAxisMax = 90, YAxisSymmetric = 0, ZAxisSymmetric = 0}}
     };
 
     public SkeletonDefinition BuildCreature(ParametricCreatureSettings settings, int? seed) {
@@ -52,7 +52,7 @@ public class QuadrupedGenerator {
             { 0, (BoneCategory.Leg, null) },
             { 1, (BoneCategory.Leg, BoneCategory.LowerLeg1) },
             { 2, (BoneCategory.Leg, BoneCategory.LowerLeg2) },
-            { 3, (BoneCategory.Foot, BoneCategory.Leg) }
+            { 3, (BoneCategory.Foot, BoneCategory.Paw) }
         };
         return GeneratorUtils.BuildLimb(lengths, thicknesses, (length, thickness, index) => new BoneDefinition()
         {

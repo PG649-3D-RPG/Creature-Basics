@@ -10,37 +10,65 @@ public class QuadrupedInstance : ISettingsInstance
     [ObservationOrder(3)] public readonly float TotalHindLegHeight;
     [ObservationOrder(4)] public readonly List<float> HindLegHeights;
     [ObservationOrder(5)] public readonly List<float> HindLegThicknesses;
+    [ObservationOrder(6)] public readonly int NumLegSegments;
 
-    [ObservationOrder(6)] public readonly float TotalTorsoLength;
-    [ObservationOrder(7)] public readonly List<float> TorsoThicknesses;
-    [ObservationOrder(8)] public readonly List<float> TorsoLengths;
+    [ObservationOrder(7)] public readonly int NumTorsoSegments;
+    [ObservationOrder(8)] public readonly float TotalTorsoLength;
+    [ObservationOrder(9)] public readonly List<float> TorsoThicknesses;
+    [ObservationOrder(10)] public readonly List<float> TorsoLengths;
 
-    [ObservationOrder(9)] public readonly int NeckBones;
-    [ObservationOrder(10)] public readonly float NeckBoneLength;
-    [ObservationOrder(11)] public readonly float NeckThickness;
+    [ObservationOrder(11)] public readonly int NeckBones;
+    [ObservationOrder(12)] public readonly float NeckBoneLength;
+    [ObservationOrder(13)] public readonly float NeckThickness;
 
-    [ObservationOrder(12)] public readonly float HeadSize;
+    [ObservationOrder(14)] public readonly float HeadSize;
 
-    [ObservationOrder(13)] public readonly float HipThickness;
-    [ObservationOrder(14)] public readonly float HipLength;
+    [ObservationOrder(15)] public readonly float HipThickness;
+    [ObservationOrder(16)] public readonly float HipLength;
 
-    private static (float, List<float>, List<float>) InstanceLeg(ParametricCreatureSettings settings)
+    private static (float, List<float>, List<float>) InstanceLeg(ParametricCreatureSettings settings, int numLegSegments)
     {
         var height = Random.Range(settings.minimumTotalLegLength, settings.maximumTotalLegLength);
-        var split = Random.Range(0.1f * height, 0.5f * height);
-        var lowerLegSplit = Random.Range(split + 0.25f * (height - split),
-            split + 0.75f * (height - split));
-        var upperLegSplit = Random.Range(0.25f * split, 0.75f * split);
 
-        List<float> heights = new()
+        List<float> legSplits = new();
+        while (legSplits.Count < numLegSegments - 1)
         {
-            upperLegSplit, split - upperLegSplit, lowerLegSplit - split,
-            height - lowerLegSplit
-        };
+            var split = Random.Range(0.1f * height, 0.9f * height);
+
+            // Make sure splits are not too close to each other
+            bool tooClose = false;
+            foreach (var s in legSplits)
+            {
+                if (Mathf.Abs(split - legSplits[0]) < 0.1f * height)
+                {
+                    tooClose = true;
+                    break;
+                }
+            }
+            if (!tooClose)
+                legSplits.Add(split);
+        }
+
+        legSplits.Sort();
+
+        List<float> heights = new();
+
+        if (numLegSegments > 1)
+            heights.Add(legSplits[0]);
+        else
+            heights.Add(height);
+
+        for (int i = 1; i < numLegSegments - 1; i++)
+            heights.Add(legSplits[i] - legSplits[i - 1]);
+
+        if (numLegSegments > 1)
+            heights.Add(height - legSplits[legSplits.Count - 1]);
 
         var thicknesses =
             InstanceUtils.ClampedLimbThicknesses(settings.minimumLegThickness, settings.maximumLegThickness, heights);
         thicknesses.Sort();
+
+        var numSegments = Random.Range(settings.minimumLegSegments, settings.maximumLegSegments + 1);
         return (height, heights, thicknesses);
     }
 
@@ -51,9 +79,12 @@ public class QuadrupedInstance : ISettingsInstance
             Random.InitState(seed.Value);
         }
 
-        var (hindLegHeight, hindLegHeights, hindLegThicknesses) = InstanceLeg(settings);
-        var (frontLegHeight, frontLegHeights, frontLegThicknesses) = InstanceLeg(settings);
-        var (totalTorsoLength, torsoLengths, torsoThicknesses) = InstanceUtils.InstanceTorso(settings);
+        var numLegSegments = Random.Range(settings.minimumLegSegments, settings.maximumLegSegments + 1);
+
+        var (hindLegHeight, hindLegHeights, hindLegThicknesses) = InstanceLeg(settings, numLegSegments);
+        var (frontLegHeight, frontLegHeights, frontLegThicknesses) = InstanceLeg(settings, numLegSegments);
+        var (totalTorsoLength, torsoLengths, torsoThicknesses, numTorsoSegments) = InstanceUtils.InstanceTorso(settings);
+
 
         var neckBones = Random.Range(settings.minimumNeckBones, settings.maximumNeckBones + 1);
         var totalNeckLength = Random.Range(settings.minimumNeckLength, settings.maximumNeckLength);
@@ -66,6 +97,7 @@ public class QuadrupedInstance : ISettingsInstance
         var hipLength = Random.Range(settings.minimumHipLength, settings.maximumHipLength);
         var hipThickness = InstanceUtils.ClampedThickness(settings.minimumHipThickness, settings.maximumHipThickness, hipLength);
 
+        NumTorsoSegments = numTorsoSegments;
         TotalTorsoLength = totalTorsoLength;
         TorsoThicknesses = torsoThicknesses;
         TorsoLengths = torsoLengths;
@@ -76,6 +108,7 @@ public class QuadrupedInstance : ISettingsInstance
         HipLength = hipLength;
         HipThickness = hipThickness;
 
+        NumLegSegments = numLegSegments;
         TotalFrontLegHeight = frontLegHeight;
         FrontLegHeights = frontLegHeights;
         FrontLegThicknesses = frontLegThicknesses;

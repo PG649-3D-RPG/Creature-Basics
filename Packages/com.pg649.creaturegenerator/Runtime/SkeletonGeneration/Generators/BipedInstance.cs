@@ -17,17 +17,18 @@ public class BipedInstance : ISettingsInstance
     [ObservationOrder(7)] public readonly float FeetWidth;
     [ObservationOrder(8)] public readonly float FeetLength;
 
-    [ObservationOrder(9)] public readonly List<float> TorsoThicknesses;
-    [ObservationOrder(10)] public readonly List<float> TorsoLengths;
+    [ObservationOrder(9)] public readonly int NumTorsoSegments;
+    [ObservationOrder(10)] public readonly List<float> TorsoThicknesses;
+    [ObservationOrder(11)] public readonly List<float> TorsoLengths;
 
-    [ObservationOrder(11)] public readonly int NeckBones;
-    [ObservationOrder(12)] public readonly float NeckBoneLength;
-    [ObservationOrder(13)] public readonly float NeckThickness;
+    [ObservationOrder(12)] public readonly int NeckBones;
+    [ObservationOrder(13)] public readonly float NeckBoneLength;
+    [ObservationOrder(14)] public readonly float NeckThickness;
 
-    [ObservationOrder(14)] public readonly float HeadSize;
+    [ObservationOrder(15)] public readonly float HeadSize;
 
-    [ObservationOrder(15)] public readonly float HipThickness;
-    [ObservationOrder(16)] public readonly float HipLength;
+    [ObservationOrder(16)] public readonly float HipThickness;
+    [ObservationOrder(17)] public readonly float HipLength;
 
     private static (List<float>, List<float>) InstanceLimb(ParametricCreatureSettings settings)
     {
@@ -47,7 +48,7 @@ public class BipedInstance : ISettingsInstance
         }
         var (armLengths, armThicknesses) = InstanceLimb(settings);
         var (legLengths, legThicknesses) = InstanceLimb(settings);
-        var (_, torsoLengths, torsoThicknesses) = InstanceUtils.InstanceTorso(settings);
+        var (_, torsoLengths, torsoThicknesses, numTorsoSegments) = InstanceUtils.InstanceTorso(settings);
         
         var neckBones = Random.Range(settings.minimumNeckBones, settings.maximumNeckBones + 1);
         var totalNeckLength = Random.Range(settings.minimumNeckLength, settings.maximumNeckLength);
@@ -73,6 +74,7 @@ public class BipedInstance : ISettingsInstance
         LegThicknesses = legThicknesses;
         FeetWidth = Random.Range(settings.minimumFeetWidth, settings.maximumFeetWidth);
         FeetLength = Random.Range(settings.minimumFeetLength, settings.maximumFeetLength);
+        NumTorsoSegments = numTorsoSegments;
         TorsoThicknesses = torsoThicknesses;
         TorsoLengths = torsoLengths;
         NeckBones = neckBones;

@@ -17,6 +17,7 @@ public class BipedInstance : ISettingsInstance
     [ObservationOrder(7)] public readonly float FeetWidth;
     [ObservationOrder(8)] public readonly float FeetLength;
 
+    [ObservationOrder(17)] public readonly int NumTorsoSegments;
     [ObservationOrder(9)] public readonly List<float> TorsoThicknesses;
     [ObservationOrder(10)] public readonly List<float> TorsoLengths;
 
@@ -47,7 +48,7 @@ public class BipedInstance : ISettingsInstance
         }
         var (armLengths, armThicknesses) = InstanceLimb(settings);
         var (legLengths, legThicknesses) = InstanceLimb(settings);
-        var (_, torsoLengths, torsoThicknesses) = InstanceUtils.InstanceTorso(settings);
+        var (_, torsoLengths, torsoThicknesses, numTorsoSegments) = InstanceUtils.InstanceTorso(settings);
         
         var neckBones = Random.Range(settings.minimumNeckBones, settings.maximumNeckBones + 1);
         var totalNeckLength = Random.Range(settings.minimumNeckLength, settings.maximumNeckLength);
@@ -73,6 +74,7 @@ public class BipedInstance : ISettingsInstance
         LegThicknesses = legThicknesses;
         FeetWidth = Random.Range(settings.minimumFeetWidth, settings.maximumFeetWidth);
         FeetLength = Random.Range(settings.minimumFeetLength, settings.maximumFeetLength);
+        NumTorsoSegments = numTorsoSegments;
         TorsoThicknesses = torsoThicknesses;
         TorsoLengths = torsoLengths;
         NeckBones = neckBones;

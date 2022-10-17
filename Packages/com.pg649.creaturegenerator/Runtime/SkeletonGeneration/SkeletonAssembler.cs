@@ -238,7 +238,7 @@ public class SkeletonAssembler {
                 UnityEngine.Object.Destroy(meshObject.GetComponent<Collider>());
             }
         }
-        else if (self.Category == BoneCategory.Foot && self.SubCategory != BoneCategory.Leg) {
+        else if (self.Category == BoneCategory.Foot && self.SubCategory != BoneCategory.Paw) {
             Vector3 size = new Vector3(self.Thickness, FootHeight, self.Length * 0.9f);
 
             BoxCollider collider = result.AddComponent<BoxCollider>();

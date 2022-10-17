@@ -16,6 +16,8 @@ MonoBehaviour:
   maximumHipThickness: 1.5
   minimumHipLength: 1
   maximumHipLength: 2
+  minimumLegSegments: 2
+  maximumLegSegments: 4
   minimumLegThickness: 0.1
   maximumLegThickness: 0.5
   minimumTotalLegLength: 2
@@ -34,6 +36,8 @@ MonoBehaviour:
   maximumTotalArmLength: 6
   minimumHandRadius: 0.5
   maximumHandRadius: 1
+  minimumTorsoSegments: 1
+  maximumTorsoSegments: 3
   minimumTorsoThickness: 0.4
   maximumTorsoThickness: 1.5
   minimumTotalTorsoLength: 4

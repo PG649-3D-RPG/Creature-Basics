@@ -18,6 +18,11 @@ public class ParametricCreatureSettings : ScriptableObject
     public float maximumHipLength = 2.0f;
     
     [Header("Legs")]
+    [Tooltip("Minimum number of bones the legs are made up of (quadruped only)")]
+    public int minimumLegSegments = 2;
+    [Tooltip("Minimum number of bones the legs are made up of (quadruped only)")]
+    public int maximumLegSegments = 4;
+    [Space(10)]
     [Tooltip("Leg bones will be at least this thick.")]
     public float minimumLegThickness = 0.1f;
     [Tooltip("Leg bones will be at most this thick.")]
@@ -68,6 +73,11 @@ public class ParametricCreatureSettings : ScriptableObject
     public float maximumHandRadius = 1.0f;
 
     [Header("Torso")]
+    [Tooltip("Minimum number of bones the torso is made up of")]
+    public int minimumTorsoSegments = 1;
+    [Tooltip("Minimum number of bones the torso is made up of")]
+    public int maximumTorsoSegments = 3;
+    [Space(10)]
     [Tooltip("Torso bones will be at least this thick.")]
     public float minimumTorsoThickness = 0.4f;
     [Tooltip("Torso bones will be at most this thick.")]

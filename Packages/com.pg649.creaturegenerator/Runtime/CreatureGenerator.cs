@@ -9,7 +9,7 @@ public class CreatureGenerator
 {
     public static GameObject ParametricBiped(CreatureGeneratorSettings settings,
         ParametricCreatureSettings creatureSettings, int? seed,
-        Dictionary<(BoneCategory, BoneCategory), JointLimits> limitOverrides)
+        JointLimitOverrides limitOverrides = null)
     {
         var gen = new BipedGenerator();
         var def = gen.BuildCreature(creatureSettings, seed, limitOverrides);
@@ -18,7 +18,7 @@ public class CreatureGenerator
 
     public static GameObject ParametricQuadruped(CreatureGeneratorSettings settings,
         ParametricCreatureSettings creatureSettings, int? seed,
-        Dictionary<(BoneCategory, BoneCategory), JointLimits> limitOverrides)
+        JointLimitOverrides limitOverrides)
     {
         var gen = new QuadrupedGenerator();
         var def = gen.BuildCreature(creatureSettings, seed, limitOverrides);

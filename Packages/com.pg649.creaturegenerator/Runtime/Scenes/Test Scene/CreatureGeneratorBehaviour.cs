@@ -22,9 +22,6 @@ public class CreatureGeneratorBehaviour : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Dictionary< (BoneCategory, BoneCategory), JointLimits > limitOverrides = null;
-        if (JointLimitOverrides != null)
-            limitOverrides = JointLimitOverrides.ToDict();
 
         GameObject creature = null;
         switch (Target)
@@ -33,10 +30,10 @@ public class CreatureGeneratorBehaviour : MonoBehaviour
                 creature = CreatureGenerator.LSystem(Settings, LSystemSettings);
                 break;
             case TargetCreature.ParametricBiped:
-                creature = CreatureGenerator.ParametricBiped(Settings, CreatureSettings, Seed, limitOverrides);
+                creature = CreatureGenerator.ParametricBiped(Settings, CreatureSettings, Seed, JointLimitOverrides);
                 break;
             case TargetCreature.ParametricQuadruped:
-                creature = CreatureGenerator.ParametricQuadruped(Settings, CreatureSettings, Seed, limitOverrides); 
+                creature = CreatureGenerator.ParametricQuadruped(Settings, CreatureSettings, Seed, JointLimitOverrides); 
                 break;
             default: break;
         }

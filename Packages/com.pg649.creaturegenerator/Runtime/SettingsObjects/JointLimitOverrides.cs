@@ -18,13 +18,13 @@ public class JointLimitOverrides : ScriptableObject
 
     public JointTypeLimit[] limitOverrides;
 
-    public Dictionary<(BoneCategory, BoneCategory), JointLimits> ToDict()
+    public LimitTable ToLimitTable()
     {
-        Dictionary<(BoneCategory, BoneCategory), JointLimits> dict = new();
+        LimitTable table = new();
         foreach (var l in limitOverrides)
         {
-            dict.Add((l.parentBone, l.childBone), new JointLimits { XAxisMin = l.XAxisMin, XAxisMax = l.XAxisMax, YAxisSymmetric = l.YAxisSymmetric, ZAxisSymmetric = l.ZAxisSymmetric });
+            table.Add((l.parentBone, l.childBone), new JointLimits { XAxisMin = l.XAxisMin, XAxisMax = l.XAxisMax, YAxisSymmetric = l.YAxisSymmetric, ZAxisSymmetric = l.ZAxisSymmetric });
         }
-        return dict;
+        return table;
     }
 }

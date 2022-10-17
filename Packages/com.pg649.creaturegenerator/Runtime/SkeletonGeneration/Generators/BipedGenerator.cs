@@ -22,7 +22,7 @@ public class BipedGenerator {
         {(BoneCategory.Leg, BoneCategory.Foot), new JointLimits() { XAxisMin = -10, XAxisMax = 10, YAxisSymmetric = 45 }}
     };
 
-    public SkeletonDefinition BuildCreature(ParametricCreatureSettings settings, int? seed, Dictionary<(BoneCategory, BoneCategory), JointLimits> limitOverrides) {
+    public SkeletonDefinition BuildCreature(ParametricCreatureSettings settings, int? seed, JointLimitOverrides limitOverrides) {
         instance = new BipedInstance(settings, seed);
         List<BoneDefinition> legs = buildLegs();
         List<BoneDefinition> arms = buildArms();
@@ -39,11 +39,10 @@ public class BipedGenerator {
 
         root.AttachmentHint.Offset = new(0, instance.LegLengths.Sum() + instance.HipLength * 0.5f + SkeletonAssembler.FootHeight, 0);
 
-        Dictionary<(BoneCategory, BoneCategory), JointLimits> jointLimits = HumanoidJointLimits;
+        LimitTable jointLimits = new(HumanoidJointLimits);
         if (limitOverrides != null)
-            foreach (var o in limitOverrides)
-                jointLimits[o.Key] = o.Value;
-        return new SkeletonDefinition(root, new LimitTable(jointLimits), instance);
+            jointLimits.Add(limitOverrides.ToLimitTable());
+        return new SkeletonDefinition(root, jointLimits, instance);
     }
 
     private List<BoneDefinition> buildArms() {

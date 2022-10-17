@@ -21,7 +21,7 @@ public class QuadrupedGenerator {
         {(BoneCategory.Hip, BoneCategory.Paw), new JointLimits { XAxisMin = 0, XAxisMax = -90, YAxisSymmetric = 0, ZAxisSymmetric = 0}}
     };
 
-    public SkeletonDefinition BuildCreature(ParametricCreatureSettings settings, int? seed, Dictionary<(BoneCategory, BoneCategory), JointLimits> limitOverrides) {
+    public SkeletonDefinition BuildCreature(ParametricCreatureSettings settings, int? seed, JointLimitOverrides limitOverrides) {
         instance = new QuadrupedInstance(settings, seed);
         var legs = buildLegs();
 
@@ -35,11 +35,10 @@ public class QuadrupedGenerator {
         root.AttachmentHint.Offset = new Vector3(0, instance.TotalHindLegHeight + (instance.TotalHindLegHeight < instance.TotalFrontLegHeight ? 1f: -1f)
             * Mathf.Sqrt(instance.HipLength * instance.HipLength * 0.25f - Mathf.Pow(instance.HipLength* 0.5f * Mathf.Cos(root.AttachmentHint.Rotation.GetValueOrDefault().x), 2f)), 0);
 
-        Dictionary<(BoneCategory, BoneCategory), JointLimits> jointLimits = quadrupedJointLimits;
+        LimitTable jointLimits = new(quadrupedJointLimits);
         if (limitOverrides != null)
-            foreach (var o in limitOverrides)
-                jointLimits[o.Key] = o.Value;
-        return new SkeletonDefinition(root, new LimitTable(jointLimits), instance);
+            jointLimits.Add(limitOverrides.ToLimitTable());
+        return new SkeletonDefinition(root, jointLimits, instance);
     }
 
     private List<BoneDefinition> buildLegs() {

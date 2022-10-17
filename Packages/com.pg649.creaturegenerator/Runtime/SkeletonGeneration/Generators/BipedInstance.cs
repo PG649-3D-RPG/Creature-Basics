@@ -17,18 +17,18 @@ public class BipedInstance : ISettingsInstance
     [ObservationOrder(7)] public readonly float FeetWidth;
     [ObservationOrder(8)] public readonly float FeetLength;
 
-    [ObservationOrder(9)] public readonly int NumTorsoSegments;
-    [ObservationOrder(10)] public readonly List<float> TorsoThicknesses;
-    [ObservationOrder(11)] public readonly List<float> TorsoLengths;
+    [ObservationOrder(17)] public readonly int NumTorsoSegments;
+    [ObservationOrder(9)] public readonly List<float> TorsoThicknesses;
+    [ObservationOrder(10)] public readonly List<float> TorsoLengths;
 
-    [ObservationOrder(12)] public readonly int NeckBones;
-    [ObservationOrder(13)] public readonly float NeckBoneLength;
-    [ObservationOrder(14)] public readonly float NeckThickness;
+    [ObservationOrder(11)] public readonly int NeckBones;
+    [ObservationOrder(12)] public readonly float NeckBoneLength;
+    [ObservationOrder(13)] public readonly float NeckThickness;
 
-    [ObservationOrder(15)] public readonly float HeadSize;
+    [ObservationOrder(14)] public readonly float HeadSize;
 
-    [ObservationOrder(16)] public readonly float HipThickness;
-    [ObservationOrder(17)] public readonly float HipLength;
+    [ObservationOrder(15)] public readonly float HipThickness;
+    [ObservationOrder(16)] public readonly float HipLength;
 
     private static (List<float>, List<float>) InstanceLimb(ParametricCreatureSettings settings)
     {

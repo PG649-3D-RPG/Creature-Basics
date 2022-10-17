@@ -10,21 +10,21 @@ public class QuadrupedInstance : ISettingsInstance
     [ObservationOrder(3)] public readonly float TotalHindLegHeight;
     [ObservationOrder(4)] public readonly List<float> HindLegHeights;
     [ObservationOrder(5)] public readonly List<float> HindLegThicknesses;
-    [ObservationOrder(6)] public readonly int NumLegSegments;
+    [ObservationOrder(15)] public readonly int NumLegSegments;
 
-    [ObservationOrder(7)] public readonly int NumTorsoSegments;
-    [ObservationOrder(8)] public readonly float TotalTorsoLength;
-    [ObservationOrder(9)] public readonly List<float> TorsoThicknesses;
-    [ObservationOrder(10)] public readonly List<float> TorsoLengths;
+    [ObservationOrder(16)] public readonly int NumTorsoSegments;
+    [ObservationOrder(6)] public readonly float TotalTorsoLength;
+    [ObservationOrder(7)] public readonly List<float> TorsoThicknesses;
+    [ObservationOrder(8)] public readonly List<float> TorsoLengths;
 
-    [ObservationOrder(11)] public readonly int NeckBones;
-    [ObservationOrder(12)] public readonly float NeckBoneLength;
-    [ObservationOrder(13)] public readonly float NeckThickness;
+    [ObservationOrder(9)] public readonly int NeckBones;
+    [ObservationOrder(10)] public readonly float NeckBoneLength;
+    [ObservationOrder(11)] public readonly float NeckThickness;
 
-    [ObservationOrder(14)] public readonly float HeadSize;
+    [ObservationOrder(12)] public readonly float HeadSize;
 
-    [ObservationOrder(15)] public readonly float HipThickness;
-    [ObservationOrder(16)] public readonly float HipLength;
+    [ObservationOrder(13)] public readonly float HipThickness;
+    [ObservationOrder(14)] public readonly float HipLength;
 
     private static (float, List<float>, List<float>) InstanceLeg(ParametricCreatureSettings settings, int numLegSegments)
     {

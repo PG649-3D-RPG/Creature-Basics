@@ -261,14 +261,24 @@ public class SkeletonAssembler {
             }
         } else {
             float height = self.Length;
-            float radius = Mathf.Clamp(self.Thickness, 0.0f, 0.5f * height);
-            CapsuleCollider collider = result.AddComponent<CapsuleCollider>();
-            collider.height = height;
-            collider.radius = radius;
-            //collider.radius = 0.25f;
-            collider.center = bone.LocalMidpoint();
-            // Colliders point along Proximal (Z) Axis
-            collider.direction = 2;
+            float radius = self.Thickness;
+            if (2f * radius > height)
+            {
+                float width = 1.77245f * radius; // 1.77245 = sqrt(pi)
+                BoxCollider box = result.AddComponent<BoxCollider>();
+                box.size = new(width, width, height);
+                box.center = bone.LocalMidpoint();
+            }
+            else
+            {
+                CapsuleCollider collider = result.AddComponent<CapsuleCollider>();
+                collider.height = height;
+                collider.radius = radius;
+                //collider.radius = 0.25f;
+                collider.center = bone.LocalMidpoint();
+                // Colliders point along Proximal (Z) Axis
+                collider.direction = 2;
+            }
             // Volume consists of two half spheres + plus one cylinder
             var volume = (4.0f * (float)Math.PI * radius * radius * radius) / 3.0f +
                            (height - 2.0f * radius) * ((float)Math.PI * radius * radius);

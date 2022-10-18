@@ -268,7 +268,6 @@ public class SkeletonAssembler {
                 BoxCollider box = result.AddComponent<BoxCollider>();
                 box.size = new(width, width, height);
                 box.center = bone.LocalMidpoint();
-                Debug.Log("AKFDLHNLKFJ");
             }
             else
             {

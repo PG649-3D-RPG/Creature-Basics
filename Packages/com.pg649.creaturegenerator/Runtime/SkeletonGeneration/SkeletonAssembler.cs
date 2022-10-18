@@ -261,11 +261,12 @@ public class SkeletonAssembler {
             }
         } else {
             float height = self.Length;
-            float radius = self.Thickness;//Mathf.Clamp(self.Thickness, 0.0f, 0.5f * height);
+            float radius = self.Thickness;
             if (2f * radius > height)
             {
+                float width = 1.77245f * radius; // 1.77245 = sqrt(pi)
                 BoxCollider box = result.AddComponent<BoxCollider>();
-                box.size = new(radius, radius, height);
+                box.size = new(width, width, height);
                 box.center = bone.LocalMidpoint();
                 Debug.Log("AKFDLHNLKFJ");
             }

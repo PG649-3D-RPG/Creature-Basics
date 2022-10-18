@@ -61,9 +61,9 @@ public class UniformIntegerDistributionDrawer : PropertyDrawer
         };
         
         EditorGUI.LabelField(minLabelRect, "Min:", style);
-        min.floatValue = EditorGUI.FloatField(minValueRect, min.floatValue);
+        min.floatValue = EditorGUI.IntField(minValueRect, min.intValue);
         EditorGUI.LabelField(maxLabelRect, "Max:", style);
-        max.floatValue = EditorGUI.FloatField(maxValueRect, max.floatValue);
+        max.floatValue = EditorGUI.IntField(maxValueRect, max.intValue);
 
         EditorGUI.EndProperty();
     } 

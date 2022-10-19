@@ -50,6 +50,12 @@ public class SkeletonSettings
     public float RigidbodyDrag = 0.05f;
     [Tooltip("Collision Detection Mode of each Rigidbody in the Skeleton.")]
     public CollisionDetectionMode CollisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+
+    public float MaxDepenetrationVelocity = 1.0f;
+
+    public bool JointPreprocessing = false;
+
+    public bool BoneIntercollision = true;
     
     [Header("Rendering")]
     

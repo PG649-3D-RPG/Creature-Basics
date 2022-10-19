@@ -39,6 +39,16 @@ public class SkeletonAssembler {
         var root = objects[skeleton.RootBone];
         root.GetComponent<Bone>().isRoot = true;
         root.GetComponent<Skeleton>().SettingsInstance = skeleton.SettingsInstance;
+
+        if (!settings.BoneIntercollision)
+        {
+            foreach (var ((a, _, _, _), (b, _, _, _)) in root.GetComponent<Skeleton>().Pairs())
+            {
+                var ca = a.GetComponent<Collider>();
+                var cb = b.GetComponent<Collider>();
+                Physics.IgnoreCollision(ca, cb);
+            }
+        }
         return root.GetComponent<Skeleton>();
     }
 
@@ -91,6 +101,7 @@ public class SkeletonAssembler {
         joint.connectedBody = parent.GetComponent<Rigidbody>();
         joint.connectedAnchor = parent.transform.position;
         joint.projectionMode = JointProjectionMode.PositionAndRotation;
+        joint.enablePreprocessing = settings.JointPreprocessing;
 
         joint.xMotion = ConfigurableJointMotion.Locked;
         joint.yMotion = ConfigurableJointMotion.Locked;
@@ -154,6 +165,7 @@ public class SkeletonAssembler {
         rb.collisionDetectionMode = settings.CollisionDetectionMode;
         rb.useGravity = !debug.DisableBoneGravity;
         rb.isKinematic = debug.KinematicBones;
+        rb.maxDepenetrationVelocity = settings.MaxDepenetrationVelocity;
 
         Bone bone = result.AddComponent<Bone>();
         bone.category = self.Category;
@@ -175,27 +187,11 @@ public class SkeletonAssembler {
         } else {
             Bone parentBone = parentGo.GetComponent<Bone>();
             result.transform.parent = parentGo.transform;
-            if (parentBone.category is BoneCategory.Foot or BoneCategory.Hand)
-            {
-                Vector3 pos = parentBone.LocalProximalPoint() +
-                    self.AttachmentHint.Position.Proximal * self.ParentBone.Length * parentBone.LocalDistalAxis() +
-                    self.AttachmentHint.Position.Lateral * self.ParentBone.Thickness * parentBone.LocalLateralAxis() +
-                    self.AttachmentHint.Position.Ventral * self.ParentBone.Thickness * parentBone.LocalVentralAxis();
-                result.transform.localPosition = pos;
-            }
-            else
-            {
-                // Parents thickness might have been clamped. Clamp here as well to ensure consistency.
-                // NOTE: This fixes the issue with weirdly placed limbs in #108 for now, but is not a very clean solution.
-                // We should probably instead insure that the generators don't produce bones that are thicker, than they are long.
-                // Ideally that should be done in the inspector, so that it is visible to the user.
-                float radius = Mathf.Clamp(parentBone.thickness, 0.0f, 0.5f * parentBone.length);
-                Vector3 pos = parentBone.LocalProximalPoint() +
-                    self.AttachmentHint.Position.Proximal * self.ParentBone.Length * parentBone.LocalDistalAxis() +
-                    self.AttachmentHint.Position.Lateral * radius * parentBone.LocalLateralAxis() +
-                    self.AttachmentHint.Position.Ventral * radius * parentBone.LocalVentralAxis();
-                result.transform.localPosition = pos;
-            }
+            Vector3 pos = parentBone.LocalProximalPoint() +
+                self.AttachmentHint.Position.Proximal * self.ParentBone.Length * parentBone.LocalDistalAxis() +
+                self.AttachmentHint.Position.Lateral * self.ParentBone.Thickness * parentBone.LocalLateralAxis() +
+                self.AttachmentHint.Position.Ventral * self.ParentBone.Thickness * parentBone.LocalVentralAxis();
+            result.transform.localPosition = pos;
 
             if (self.AttachmentHint.VentralDirection != null) {
                 // Rotate so that the world-space ventral axis matches

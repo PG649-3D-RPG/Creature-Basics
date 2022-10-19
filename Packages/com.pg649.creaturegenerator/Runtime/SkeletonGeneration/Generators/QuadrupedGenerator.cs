@@ -59,7 +59,7 @@ public class QuadrupedGenerator {
             { 1, (BoneCategory.Leg, BoneCategory.LowerLeg1) },
             { 2, (BoneCategory.Leg, BoneCategory.LowerLeg2) }
         };
-        indexMap[instance.NumLegSegments - 1] = (BoneCategory.Foot, BoneCategory.Paw);
+        indexMap[instance.NumLegBones - 1] = (BoneCategory.Foot, BoneCategory.Paw);
 
         return GeneratorUtils.BuildLimb(lengths, thicknesses, (length, thickness, index) => new BoneDefinition()
         {

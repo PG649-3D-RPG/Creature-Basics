@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,114 +7,42 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "ParametricCreatureSettings", menuName = "PG649-CreatureGenerator/Parametric Creature Settings")]
 public class ParametricCreatureSettings : ScriptableObject
 {
-    [Header("Hips")]
-    [Tooltip("Hip bones will be at least this thick.")]
-    public float minimumHipThickness = 0.4f;
-    [Tooltip("Hip bones will be at most this thick.")]
-    public float maximumHipThickness = 1.5f;
-    [Space(10)]
-    [Tooltip("Hip bones will be at least this long.")]
-    public float minimumHipLength = 1.0f;
-    [Tooltip("Hip bones will be at most this long.")]
-    public float maximumHipLength = 2.0f;
-    
-    [Header("Legs")]
-    [Tooltip("Minimum number of bones the legs are made up of (quadruped only)")]
-    public int minimumLegSegments = 2;
-    [Tooltip("Minimum number of bones the legs are made up of (quadruped only)")]
-    public int maximumLegSegments = 4;
-    [Space(10)]
-    [Tooltip("Leg bones will be at least this thick.")]
-    public float minimumLegThickness = 0.1f;
-    [Tooltip("Leg bones will be at most this thick.")]
-    public float maximumLegThickness = 0.5f;
-    [Space(10)]
-    [Tooltip("Leg limbs will be at least this long, excluding hips and feet.")] 
-    public float minimumTotalLegLength = 2f;
-    [Tooltip("Leg limbs will be at most this long, excluding hips and feet.")] 
-    public float maximumTotalLegLength = 6f;
+    [Header("Arms")]
+    public NormalDistribution ArmThickness = new(0.3f, 0.2f, 0.0f, float.MaxValue);
+    public NormalDistribution ArmLength = new(3.0f, 1.0f, 0.0f, float.MaxValue);
+    public UniformIntegerDistribution ArmBones = new(2, 2);
     
     [Header("Feet")]
-    [Tooltip("Feet will be at least this wide.")]
-    public float minimumFeetWidth = 0.4f;
-    [Tooltip("Feet will be at most this wide.")]
-    public float maximumFeetWidth = 1.5f;
-    [Space(10)]
-    [Tooltip("Feet will be at least this long.")]
-    public float minimumFeetLength = 1.0f;
-    [Tooltip("Feet will be at most this long.")]
-    public float maximumFeetLength = 2.0f;
+    public NormalDistribution FeetWidth = new(1.0f, 0.5f, 0.0f, float.MaxValue);
+    public NormalDistribution FeetLength = new(1.5f, 0.5f, 0.0f, float.MaxValue);
+    
+    [Header("Hands")]
+    public NormalDistribution HandRadius = new(0.75f, 0.25f, 0.0f, float.MaxValue);
+    
+    [Header("Head")]
+    public NormalDistribution HeadSize = new(0.9f, 0.6f, 0.0f, float.MaxValue);
+    
+    [Header("Hips")] 
+    public NormalDistribution HipThickness = new(1.0f, 0.6f, 0.0f, float.MaxValue);
+    public NormalDistribution HipLength = new(1.5f, 0.5f, 0.0f, float.MaxValue);
 
-    [Header("Shoulders")] 
-    [Tooltip("Shoulder bones will be at least this thick.")]
-    public float minimumShoulderThickness = 0.1f;
-    [Tooltip("Shoulder bones will be at most this thick.")]
-    public float maximumShoulderThickness = 0.5f;
-    [Space(10)]
-    [Tooltip("Shoulder bones will be at least this long.")]
-    public float minimumShoulderLength = 0.5f;
-    [Tooltip("Shoulder bones will be at most this long.")]
-    public float maximumShoulderLength = 1.0f;
+    [Header("Legs")] 
+    public NormalDistribution LegLength = new(3.0f, 2.0f, 0.0f, float.MaxValue);
+    public NormalDistribution LegThickness = new(0.3f, 0.2f, 0.0f, float.MaxValue);
+    public UniformIntegerDistribution LegBones = new(2, 4);
+    
+    [Header("Neck")]
+    public NormalDistribution NeckThickness = new(0.3f, 0.2f, 0.0f, float.MaxValue);
+    public NormalDistribution NeckLength = new(0.8f, 0.2f, 0.0f, float.MaxValue);
+    public UniformIntegerDistribution NeckBones = new(1, 4);
 
-    [Header("Arms")]
-    [Tooltip("Arm bones will be at least this thick.")]
-    public float minimumArmThickness = 0.1f;
-    [Tooltip("Arm bones will be at most this thick.")]
-    public float maximumArmThickness = 0.5f;
-    [Space(10)]
-    [Tooltip("Arm limbs will be at least this long, excluding shoulders and hands.")]
-    public float minimumTotalArmLength = 2f;
-    [Tooltip("Arm limbs will be at most this long, excluding shoulders and hands.")]
-    public float maximumTotalArmLength = 6f;
-
-    [Header("Hands")] 
-    [Tooltip("Hand bones will be at least this radius.")]
-    public float minimumHandRadius = 0.5f;
-    [Tooltip("Hand bones will be at most this radius.")]
-    public float maximumHandRadius = 1.0f;
+    [Header("Shoulders")]
+    public NormalDistribution ShoulderThickness = new(0.3f, 0.2f, 0.0f, float.MaxValue);
+    public NormalDistribution ShoulderLength = new(0.75f, 0.25f, 0.0f, float.MaxValue);
 
     [Header("Torso")]
-    [Tooltip("Minimum number of bones the torso is made up of")]
-    public int minimumTorsoSegments = 1;
-    [Tooltip("Minimum number of bones the torso is made up of")]
-    public int maximumTorsoSegments = 3;
-    [Space(10)]
-    [Tooltip("Torso bones will be at least this thick.")]
-    public float minimumTorsoThickness = 0.4f;
-    [Tooltip("Torso bones will be at most this thick.")]
-    public float maximumTorsoThickness = 1.5f;
-    [Space(10)]
-    [Tooltip("Complete torso will be at least this long, excluding neck and hips.")]
-    public float minimumTotalTorsoLength = 4f;
-    [Tooltip("Complete torso will be at most this long, excluding neck and hips.")]
-    public float maximumTotalTorsoLength = 8f;
+    public NormalDistribution TorsoThickness = new(1.0f, 0.5f, 0.0f, float.MaxValue);
+    public NormalDistribution TorsoLength = new(2.0f, 1.0f, 0.0f, float.MaxValue);
+    public UniformIntegerDistribution TorsoBones = new(1, 3);
 
-    [Header("Neck")] 
-    [Tooltip("Neck bones will be at least this thick.")]
-    public float minimumNeckThickness = 0.1f;
-    [Tooltip("Neck bones will be at most this thick.")]
-    public float maximumNeckThickness = 0.5f;
-    [Space(10)]
-    [Tooltip("Complete neck will be at least this long.")]
-    public float minimumNeckLength = 1f;
-    [Tooltip("Complete neck will be at most this long.")]
-    public float maximumNeckLength = 3f;
-    [Space(10)]
-    [Tooltip("Neck will be divided into at least this many bones.")]
-    public int minimumNeckBones = 1;
-    [Tooltip("Neck will be divided into at most this many bones.")]
-    public int maximumNeckBones = 4;
-
-    [Header("Head")]
-    [Tooltip("Head will be at least this long and thick.")]
-    public float minimumHeadSize = 0.3f;
-    [Tooltip("Head will be at most this long and thick.")]
-    public float maximumHeadSize = 1.5f;
-
-    [Header("Snout")]
-    public float minSnoutSize = 1.2f;
-    public float maxSnoutSize = 4f;
-    [Space(10)]
-    public float minSnoutThickness = 0.1f;
-    public float maxSnoutThickness = 0.5f;
 }

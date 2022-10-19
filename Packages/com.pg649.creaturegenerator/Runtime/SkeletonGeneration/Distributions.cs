@@ -8,10 +8,14 @@ public class NormalDistribution
 {
     public float Mean, StandardDeviation;
 
-    public NormalDistribution(float mean, float standardDeviation)
+    public float Min, Max;
+
+    public NormalDistribution(float mean, float standardDeviation, float min, float max)
     {
         Mean = mean;
         StandardDeviation = standardDeviation;
+        Min = min;
+        Max = max;
     }
     
     private static float BoxMuller()
@@ -24,11 +28,11 @@ public class NormalDistribution
     
     public float Sample()
     {
-        var result = -1.0f;
+        float result;
         do
         {
             result = Mean + BoxMuller() * StandardDeviation;
-        } while (result < 0.0f);
+        } while (Min > result || Max < result);
 
         return result;
     }

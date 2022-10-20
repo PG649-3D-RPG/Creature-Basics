@@ -25,6 +25,9 @@ public class BoneHeatRigSolver : IRigSolver
 
         Debug.Log($"Starting Bone Heat Weighting with {nv} vertices...");
 
+        //BoneHeatNativePluginInterface.CalcBoneWeights(mesh);
+        //return null; //TESTING ONLY
+
         VisibilityTester tester = new VisibilityTester(mesh, 64);
         
         //float initialHeatWeight = 0.22f;

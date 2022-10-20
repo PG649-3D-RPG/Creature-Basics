@@ -26,8 +26,8 @@ MonoBehaviour:
     FixColliderPenetrations: 0
     FixIdenticalBonePositions: 1
   MeshSettings:
-    GenerateMetaballMesh: 0
-    RigSolver: 0
+    GenerateMetaballMesh: 1
+    RigSolver: 1
     Mode: 0
     Material: {fileID: 0}
     SmoothNormals: 1

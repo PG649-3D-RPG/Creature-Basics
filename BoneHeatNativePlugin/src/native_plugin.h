@@ -5,8 +5,11 @@
     #define NATIVEPLUGIN_API extern "C"
 #endif
 
-#include<SparseCore>
-#include<SparseCholesky>
+#include<Eigen/SparseCore>
+#include<Eigen/SparseCholesky>
 
+#include <pmp/SurfaceMesh.h>
+
+NATIVEPLUGIN_API int calcBoneWeights(float* vertexBuffer, int vertexCount, int* indexBuffer, int indexCount);
 
 NATIVEPLUGIN_API int solveSPDMatrix(int rows, int cols, Eigen::Triplet<float>* triplets, int tripletsLength, float* rhs, int rhsLength, float* result);

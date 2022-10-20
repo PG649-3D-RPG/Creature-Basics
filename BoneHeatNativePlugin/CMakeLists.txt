@@ -1,5 +1,7 @@
-cmake_minimum_required(VERSION 3.3)
-project(BoneHeatNativePlugin)
+cmake_minimum_required(VERSION 3.16.3)
+project(
+	BoneHeatNativePlugin
+	VERSION 0.1)
 
 # set source code directory
 set(SourceDir src)
@@ -12,8 +14,24 @@ file(GLOB_RECURSE SRC_FILES
 
 include_directories (${SourceDir})
 
-include_directories(Eigen)
+set(PMP_SOURCE_DIR "external/pmp-library")
+
+set(PMP_BUILD_EXAMPLES OFF)
+set(PMP_BUILD_TESTS OFF)
+set(PMP_BUILD_DOCS OFF)
+set(PMP_BUILD_VIS OFF)
+set(PMP_INSTALL OFF)
+set(PROJECT_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR})
+set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR})
+set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR})
+
+include_directories(${PMP_SOURCE_DIR}/src)
+add_subdirectory(${PMP_SOURCE_DIR})
+
+set(EIGEN_SOURCE_DIR ${PMP_SOURCE_DIR}/external/eigen)
+include_directories(${EIGEN_SOURCE_DIR})
 
 # create a shared library (.dll/.so)
 add_library(BoneHeat SHARED ${SRC_FILES})
 
+target_link_libraries(BoneHeat pmp)

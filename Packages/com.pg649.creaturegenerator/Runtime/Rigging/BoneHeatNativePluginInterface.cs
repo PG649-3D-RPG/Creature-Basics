@@ -7,6 +7,21 @@ using Unity.Collections;
 public class BoneHeatNativePluginInterface
 {
 
+    public static void CalcBoneWeights(Mesh mesh)
+	{
+		mesh.MarkDynamic();
+
+		GCHandle gcVertices = GCHandle.Alloc(mesh.vertices, GCHandleType.Pinned);
+		GCHandle gcIndices = GCHandle.Alloc(mesh.triangles, GCHandleType.Pinned);
+
+		int resultCode = calcBoneWeights(gcVertices.AddrOfPinnedObject(), mesh.vertexCount, gcIndices.AddrOfPinnedObject(), mesh.triangles.Length);
+
+		gcVertices.Free();
+		gcIndices.Free();
+
+        Debug.Log(resultCode);
+	}
+
     public static float[] SolveSPDMatrix(SparseMatrix matrix, float[] rhsArray) {
         SparseMatrix.Triplet[] tripletsArray = matrix.triplets.ToArray();
 
@@ -35,6 +50,9 @@ public class BoneHeatNativePluginInterface
             throw new Exception($"Failed to solve matrix! Error code {code}");
         }
     }
+
+    [DllImport("BoneHeat")]
+    private static extern int calcBoneWeights(System.IntPtr vertexBuffer, int vertexCount, System.IntPtr indexBuffer, int indexCount);
 
     [DllImport("BoneHeat")]
     private static extern int solveSPDMatrix(int rows, int cols, System.IntPtr triplets, int tripletsLength, System.IntPtr rhs, int rhsLength, System.IntPtr result);

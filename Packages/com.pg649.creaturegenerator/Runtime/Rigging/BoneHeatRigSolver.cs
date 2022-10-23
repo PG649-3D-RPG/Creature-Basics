@@ -25,8 +25,7 @@ public class BoneHeatRigSolver : IRigSolver
 
         Debug.Log($"Starting Bone Heat Weighting with {nv} vertices...");
 
-        //BoneHeatNativePluginInterface.CalcBoneWeights(mesh);
-        //return null; //TESTING ONLY
+        BoneHeatNativePluginInterface.TriangulateMesh(mesh);
 
         VisibilityTester tester = new VisibilityTester(mesh, 64);
         
@@ -71,7 +70,7 @@ public class BoneHeatRigSolver : IRigSolver
         Debug.Log($"Edge calculation took: {stopwatch.Elapsed.TotalSeconds} seconds.");
 
         // delaunay edge flipping
-        /*stopwatch.Restart();
+        stopwatch.Restart();
         bool isDelaunay = false;
         //while (!isDelaunay)
         {
@@ -116,7 +115,7 @@ public class BoneHeatRigSolver : IRigSolver
         }
         Debug.Log("isDelaunay: " + isDelaunay);
         stopwatch.Stop();
-        Debug.Log($"Delaunay edge flipping took: {stopwatch.Elapsed.TotalSeconds} seconds.");*/
+        Debug.Log($"Delaunay edge flipping took: {stopwatch.Elapsed.TotalSeconds} seconds.");
 
         stopwatch.Restart();
         float[,] boneDists = new float[nv, bones.Length];
@@ -252,6 +251,9 @@ public class BoneHeatRigSolver : IRigSolver
                     Vector3 v4 = mesh.vertices[edges[i][j]] - mesh.vertices[edges[i][nj]];
                     cot2 = Vector3.Dot(v3, v4) / (1e-6f + Vector3.Cross(v3, v4).magnitude);
                 }
+
+                cot1 = Mathf.Max(0.0f, cot1);
+                cot2 = Mathf.Max(0.0f, cot2);
 
                 sum += (cot1 + cot2);
 

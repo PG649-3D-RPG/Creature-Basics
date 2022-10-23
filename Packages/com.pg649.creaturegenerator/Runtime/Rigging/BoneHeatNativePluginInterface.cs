@@ -7,19 +7,25 @@ using Unity.Collections;
 public class BoneHeatNativePluginInterface
 {
 
-    public static void CalcBoneWeights(Mesh mesh)
+    public static void TriangulateMesh(Mesh mesh)
 	{
 		mesh.MarkDynamic();
+        
+        int[] resultIndices = new int[mesh.triangles.Length];
 
 		GCHandle gcVertices = GCHandle.Alloc(mesh.vertices, GCHandleType.Pinned);
 		GCHandle gcIndices = GCHandle.Alloc(mesh.triangles, GCHandleType.Pinned);
+		GCHandle gcResultIndices = GCHandle.Alloc(resultIndices, GCHandleType.Pinned);
 
-		int resultCode = calcBoneWeights(gcVertices.AddrOfPinnedObject(), mesh.vertexCount, gcIndices.AddrOfPinnedObject(), mesh.triangles.Length);
+		int resultCode = triangulateMesh(gcVertices.AddrOfPinnedObject(), mesh.vertexCount, gcIndices.AddrOfPinnedObject(), mesh.triangles.Length, gcResultIndices.AddrOfPinnedObject());
 
 		gcVertices.Free();
 		gcIndices.Free();
+		gcResultIndices.Free();
 
         Debug.Log(resultCode);
+
+        mesh.triangles = resultIndices;
 	}
 
     public static float[] SolveSPDMatrix(SparseMatrix matrix, float[] rhsArray) {
@@ -52,7 +58,7 @@ public class BoneHeatNativePluginInterface
     }
 
     [DllImport("BoneHeat")]
-    private static extern int calcBoneWeights(System.IntPtr vertexBuffer, int vertexCount, System.IntPtr indexBuffer, int indexCount);
+    private static extern int triangulateMesh(System.IntPtr vertexBuffer, int vertexCount, System.IntPtr indexBuffer, int indexCount, System.IntPtr resultIndexBuffer);
 
     [DllImport("BoneHeat")]
     private static extern int solveSPDMatrix(int rows, int cols, System.IntPtr triplets, int tripletsLength, System.IntPtr rhs, int rhsLength, System.IntPtr result);

@@ -28,13 +28,8 @@ public class NormalDistribution
     
     public float Sample()
     {
-        float result;
-        do
-        {
-            result = Mean + BoxMuller() * StandardDeviation;
-        } while (Min > result || Max < result);
-
-        return result;
+        var value = Mean + BoxMuller() * StandardDeviation;
+        return MathF.Min(Max, MathF.Max(Min, value));
     }
 
     public List<float> Samples(int n)

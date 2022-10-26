@@ -137,7 +137,7 @@ NATIVEPLUGIN_API int solveSPDMatrix(int rows, int cols, Eigen::Triplet<float>* t
     }
 
     Eigen::VectorXf x;
-    Eigen::SimplicialLLT<Eigen::SparseMatrix<float>, Eigen::Lower> solver;
+    Eigen::SimplicialLDLT<Eigen::SparseMatrix<float>, Eigen::Lower> solver;
     solver.compute(matrix);
     if(solver.info() != Eigen::Success) {
         // decomposition failed

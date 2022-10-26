@@ -296,6 +296,11 @@ public class SkeletonAssembler {
                 UnityEngine.Object.Destroy(meshObject.GetComponent<Collider>());
             }
         }
+
+        if (settings.FixedWeights) {
+            rb.mass = settings.FixedWeight;
+        }
+
         return result;
     }
 }

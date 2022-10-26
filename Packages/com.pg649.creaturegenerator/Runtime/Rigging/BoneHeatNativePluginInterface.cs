@@ -7,25 +7,34 @@ using Unity.Collections;
 public class BoneHeatNativePluginInterface
 {
 
-    public static void TriangulateMesh(Mesh mesh)
+    public static void PreprocessMesh(Mesh mesh)
 	{
 		mesh.MarkDynamic();
         
-        int[] resultIndices = new int[mesh.triangles.Length];
-
 		GCHandle gcVertices = GCHandle.Alloc(mesh.vertices, GCHandleType.Pinned);
 		GCHandle gcIndices = GCHandle.Alloc(mesh.triangles, GCHandleType.Pinned);
-		GCHandle gcResultIndices = GCHandle.Alloc(resultIndices, GCHandleType.Pinned);
-
-		int resultCode = triangulateMesh(gcVertices.AddrOfPinnedObject(), mesh.vertexCount, gcIndices.AddrOfPinnedObject(), mesh.triangles.Length, gcResultIndices.AddrOfPinnedObject());
-
+		setMesh(gcVertices.AddrOfPinnedObject(), mesh.vertexCount, gcIndices.AddrOfPinnedObject(), mesh.triangles.Length);
 		gcVertices.Free();
 		gcIndices.Free();
-		gcResultIndices.Free();
 
-        Debug.Log(resultCode);
+        processMesh();
 
+        Vector3[] resultVertices = new Vector3[numVertices()];
+        int[] resultIndices = new int[numIndices()];
+        
+		GCHandle gcResultVertices = GCHandle.Alloc(resultVertices, GCHandleType.Pinned);
+		GCHandle gcResultIndices = GCHandle.Alloc(resultIndices, GCHandleType.Pinned);
+        writeMesh(gcResultVertices.AddrOfPinnedObject(), gcResultIndices.AddrOfPinnedObject());
+        gcResultVertices.Free();
+        gcResultIndices.Free();
+
+        mesh.Clear();
+        mesh.vertices = resultVertices;
         mesh.triangles = resultIndices;
+
+        mesh.MarkModified();
+        mesh.RecalculateNormals();
+        mesh.RecalculateBounds();
 	}
 
     public static float[] SolveSPDMatrix(SparseMatrix matrix, float[] rhsArray) {
@@ -58,7 +67,16 @@ public class BoneHeatNativePluginInterface
     }
 
     [DllImport("BoneHeat")]
-    private static extern int triangulateMesh(System.IntPtr vertexBuffer, int vertexCount, System.IntPtr indexBuffer, int indexCount, System.IntPtr resultIndexBuffer);
+    private static extern void setMesh(System.IntPtr vertexBuffer, int vertexCount, System.IntPtr indexBuffer, int indexCount);
+    [DllImport("BoneHeat")]
+    private static extern void processMesh();
+    [DllImport("BoneHeat")]
+    private static extern int numVertices();
+    [DllImport("BoneHeat")]
+    private static extern int numIndices();
+
+    [DllImport("BoneHeat")]
+    private static extern void writeMesh(System.IntPtr vertexBuffer, System.IntPtr indexBuffer);
 
     [DllImport("BoneHeat")]
     private static extern int solveSPDMatrix(int rows, int cols, System.IntPtr triplets, int tripletsLength, System.IntPtr rhs, int rhsLength, System.IntPtr result);

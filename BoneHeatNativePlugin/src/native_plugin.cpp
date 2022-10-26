@@ -1,15 +1,20 @@
 #include "native_plugin.h"
 
-
-NATIVEPLUGIN_API int triangulateMesh(float* vertexBuffer, int vertexCount, int* indexBuffer, int indexCount, int* resultIndexBuffer)
+pmp::Scalar angle(const pmp::Point& p1, const pmp::Point& p2)
 {
-    pmp::SurfaceMesh mesh;
+    return std::acos(pmp::dot(p1, p2) / (pmp::norm(p1) * pmp::norm(p2)));
+}
+
+
+NATIVEPLUGIN_API void setMesh(float* vertexBuffer, int vertexCount, int* indexBuffer, int indexCount)
+{
+    _mesh.clear();
 
     std::vector<pmp::Vertex> vertices;
     vertices.resize(vertexCount);
 
     for (int i = 0; i < vertexCount; i++) {
-        const auto v = mesh.add_vertex(pmp::Point(vertexBuffer[i * 3], vertexBuffer[i * 3 + 1], vertexBuffer[i * 3 + 2]));
+        const auto v = _mesh.add_vertex(pmp::Point(vertexBuffer[i * 3], vertexBuffer[i * 3 + 1], vertexBuffer[i * 3 + 2]));
 
         vertices[i] = v;
     }
@@ -19,12 +24,21 @@ NATIVEPLUGIN_API int triangulateMesh(float* vertexBuffer, int vertexCount, int* 
         const auto v1 = vertices[indexBuffer[i + 1]];
         const auto v2 = vertices[indexBuffer[i + 2]];
 
-        mesh.add_triangle(v0, v1, v2);
+        _mesh.add_triangle(v0, v1, v2);
     }
+}
 
-    //pmp::Triangulation triangulation(mesh);
-    //triangulation.triangulate(pmp::Triangulation::Objective::MAX_ANGLE);
+
+NATIVEPLUGIN_API void processMesh()
+{
+    const pmp::Scalar edge_length(0.5);
+    const int iterations = 10;
+    pmp::Remeshing rm(_mesh);
+    rm.uniform_remeshing(edge_length, iterations);
     
+    pmp::Triangulation tri(_mesh);
+    tri.triangulate(pmp::Triangulation::Objective::MAX_ANGLE);
+
     bool isDelaunay = false;
     int passes = 0;
     int flips = 0;
@@ -32,50 +46,80 @@ NATIVEPLUGIN_API int triangulateMesh(float* vertexBuffer, int vertexCount, int* 
         isDelaunay = true;
         passes++;
         flips = 0;
-        for (auto e : mesh.edges()) {
-            if (mesh.is_boundary(e) || !mesh.is_flip_ok(e))
+        for (auto e : _mesh.edges()) {
+            if (_mesh.is_boundary(e) || !_mesh.is_flip_ok(e))
                 continue;
 
-            pmp::Halfedge h10 = mesh.halfedge(e, 0);
-            pmp::Halfedge h01 = mesh.halfedge(e, 1);
-            pmp::Halfedge h10p = mesh.next_halfedge(h10);
-            pmp::Halfedge h01p = mesh.next_halfedge(h01);
+            pmp::Halfedge h10 = _mesh.halfedge(e, 0);
+            pmp::Halfedge h01 = _mesh.halfedge(e, 1);
+            pmp::Halfedge h10p = _mesh.next_halfedge(h10);
+            pmp::Halfedge h01p = _mesh.next_halfedge(h01);
 
-            pmp::Vertex v10 = mesh.to_vertex(h10);
-            pmp::Vertex v01 = mesh.to_vertex(h01);
-            pmp::Vertex v10p = mesh.to_vertex(h10p);
-            pmp::Vertex v01p = mesh.to_vertex(h01p);
+            pmp::Vertex v10 = _mesh.to_vertex(h10);
+            pmp::Vertex v01 = _mesh.to_vertex(h01);
+            pmp::Vertex v10p = _mesh.to_vertex(h10p);
+            pmp::Vertex v01p = _mesh.to_vertex(h01p);
 
-            const pmp::Point& v1 = mesh.position(v10) - mesh.position(v10p);
-            const pmp::Point& v2 = mesh.position(v01) - mesh.position(v10p);
-            const pmp::Point& v3 = mesh.position(v10) - mesh.position(v01p);
-            const pmp::Point& v4 = mesh.position(v01) - mesh.position(v01p);
+            const pmp::Point& v1 = _mesh.position(v10) - _mesh.position(v10p);
+            const pmp::Point& v2 = _mesh.position(v01) - _mesh.position(v10p);
+            const pmp::Point& v3 = _mesh.position(v10) - _mesh.position(v01p);
+            const pmp::Point& v4 = _mesh.position(v01) - _mesh.position(v01p);
 
             pmp::Scalar alpha = angle(v1, v2);
             pmp::Scalar beta = angle(v3, v4);
 
-            if (alpha + beta > pmp::Scalar(3.141)) {
+            const pmp::Scalar pi(3.14159265358979);
+            if (alpha + beta > pi) {
                 isDelaunay = false;
 
                 flips++;
-                mesh.flip(e);
+                _mesh.flip(e);
             }
         }
     }
 
-    int i = 0;
-    for (auto face : mesh.faces()) {
-        for (auto vertex : mesh.vertices(face)) {
-            resultIndexBuffer[i++] = static_cast<int>(vertex.idx());
-        }
-    }
-
-    return flips;
+    _mesh.garbage_collection();
 }
 
-pmp::Scalar angle(const pmp::Point& p1, const pmp::Point& p2)
+NATIVEPLUGIN_API int numVertices()
 {
-    return std::acos(pmp::dot(p1, p2) / (pmp::norm(p1) * pmp::norm(p2)));
+    return _mesh.n_vertices();
+}
+
+NATIVEPLUGIN_API int numIndices()
+{
+    return _mesh.n_faces() * 3;
+}
+
+NATIVEPLUGIN_API void writeMesh(float* vertexBuffer, int* indexBuffer)
+{
+    std::map<pmp::Vertex, int> vertexMap;
+    int vertexIdx = 0;
+
+    int i = 0;
+    for (auto vertex : _mesh.vertices()) {
+        if (_mesh.is_deleted(vertex))
+            continue;
+
+        vertexMap.insert(std::pair<pmp::Vertex, int>(vertex, vertexIdx++));
+
+        const pmp::Point& point = _mesh.position(vertex);
+        vertexBuffer[i++] = static_cast<float>(point[0]);
+        vertexBuffer[i++] = static_cast<float>(point[1]);
+        vertexBuffer[i++] = static_cast<float>(point[2]);
+    }
+
+    i = 0;
+    for (auto face : _mesh.faces()) {
+        if (_mesh.is_deleted(face))
+            continue;
+
+        for (auto vertex : _mesh.vertices(face)) {
+            if (_mesh.is_deleted(vertex))
+                continue;
+            indexBuffer[i++] = vertexMap[vertex];
+        }
+    }
 }
 
 NATIVEPLUGIN_API int solveSPDMatrix(int rows, int cols, Eigen::Triplet<float>* triplets, int tripletsLength, float* rhs, int rhsLength, float* result)

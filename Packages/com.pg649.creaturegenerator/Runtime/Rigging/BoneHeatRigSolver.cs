@@ -20,12 +20,12 @@ public class BoneHeatRigSolver : IRigSolver
     // TODO meshTransform must be respected when accessing mesh.vertices because bone position might not be in the same coordinate system as vertices
     public BoneWeight[] CalcBoneWeights(Mesh mesh, Transform[] bones, Transform meshTransform)
     {
+        BoneHeatNativePluginInterface.PreprocessMesh(mesh);
+
         // nv = numVertices
         int nv = mesh.vertices.Length;
 
-        Debug.Log($"Starting Bone Heat Weighting with {nv} vertices...");
-
-        BoneHeatNativePluginInterface.TriangulateMesh(mesh);
+        Debug.Log($"Starting Bone Heat Weighting with {nv} vertices and {mesh.triangles.Length} triangles...");
 
         VisibilityTester tester = new VisibilityTester(mesh, 64);
         
@@ -70,7 +70,7 @@ public class BoneHeatRigSolver : IRigSolver
         Debug.Log($"Edge calculation took: {stopwatch.Elapsed.TotalSeconds} seconds.");
 
         // delaunay edge flipping
-        stopwatch.Restart();
+        /*stopwatch.Restart();
         bool isDelaunay = false;
         //while (!isDelaunay)
         {
@@ -86,13 +86,13 @@ public class BoneHeatRigSolver : IRigSolver
 
                     List<int> commonVerts = edges[idx1].Intersect(edges[idx2]).ToList();
                     if (commonVerts.Count > 2) 
-                        throw new Exception("Mesh is not a valid 2-manifold!!!");
+                        Debug.Log($"Mesh has non manifold edges!!!)");
 
                     //Debug.Log(commonVerts.Count);
                     if (commonVerts.Count == 2) { // checks for a non-boundary edge
                         bool found = commonVerts.Remove(idx3);
                         if (!found)
-                            throw new Exception("Mesh is not valid !!!");
+                            throw new Exception("Mesh is not valid!!!");
                         
                         int idx4 = commonVerts[0];
                         
@@ -115,7 +115,7 @@ public class BoneHeatRigSolver : IRigSolver
         }
         Debug.Log("isDelaunay: " + isDelaunay);
         stopwatch.Stop();
-        Debug.Log($"Delaunay edge flipping took: {stopwatch.Elapsed.TotalSeconds} seconds.");
+        Debug.Log($"Delaunay edge flipping took: {stopwatch.Elapsed.TotalSeconds} seconds.");*/
 
         stopwatch.Restart();
         float[,] boneDists = new float[nv, bones.Length];

@@ -184,7 +184,7 @@ namespace MarchingCubesProject
             }
             mesh.bindposes = bindPoses.ToArray();
 
-            mesh.boneWeights = rigSolver.CalcBoneWeights(mesh, bones, transform);
+            rigSolver.CalcBoneWeights(mesh, bones, transform);
 
             go.AddComponent<MeshFilter>();
             go.AddComponent<MeshRenderer>();

@@ -19,6 +19,6 @@ public interface IRigSolver
     }
 
 
-    BoneWeight[] CalcBoneWeights(Mesh mesh, Transform[] bones, Transform meshTransform);
+    void CalcBoneWeights(Mesh mesh, Transform[] bones, Transform meshTransform);
 
 }

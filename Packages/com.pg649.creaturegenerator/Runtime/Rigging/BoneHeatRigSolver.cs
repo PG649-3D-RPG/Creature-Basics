@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Collections;
 using System;
 using System.Linq;
 
@@ -18,7 +19,7 @@ public class BoneHeatRigSolver : IRigSolver
     }
 
     // TODO meshTransform must be respected when accessing mesh.vertices because bone position might not be in the same coordinate system as vertices
-    public BoneWeight[] CalcBoneWeights(Mesh mesh, Transform[] bones, Transform meshTransform)
+    public void CalcBoneWeights(Mesh mesh, Transform[] bones, Transform meshTransform)
     {
         BoneHeatNativePluginInterface.PreprocessMesh(mesh);
 
@@ -204,8 +205,8 @@ public class BoneHeatRigSolver : IRigSolver
                     cot2 = Vector3.Dot(v3, v4) / (1e-6f + Vector3.Cross(v3, v4).magnitude);
                 }
 
-                cot1 = Mathf.Max(0.0f, cot1);
-                cot2 = Mathf.Max(0.0f, cot2);
+                //cot1 = Mathf.Max(0.0f, cot1);
+                //cot2 = Mathf.Max(0.0f, cot2);
 
                 sum += (cot1 + cot2);
 
@@ -220,9 +221,9 @@ public class BoneHeatRigSolver : IRigSolver
         Debug.Log($"Heat and laplacian calculation took: {stopwatch.Elapsed.TotalSeconds} seconds.");
 
         stopwatch.Restart();
-        List<Tuple<int, float>>[] weights = new List<Tuple<int, float>>[nv];
-        for (int i = 0; i < nv; ++i) {
-            weights[i] = new List<Tuple<int, float>>();
+        List<BoneWeight1>[] weights = new List<BoneWeight1>[nv];
+        for(int i = 0; i < nv; ++i) {
+            weights[i] = new List<BoneWeight1>();
         }
 
         for (int j = 1; j < bones.Length; ++j)
@@ -239,84 +240,45 @@ public class BoneHeatRigSolver : IRigSolver
             {
                 if (solved[i] > 1)
                     solved[i] = 1; //clip just in case
-                if (solved[i] > 1e-8)
-                    weights[i].Add(new Tuple<int, float>(j, solved[i]));
+                if (solved[i] > 1e-8) {
+                    BoneWeight1 w = new BoneWeight1();
+                    w.boneIndex = j;
+                    w.weight = solved[i];
+                    weights[i].Add(w);
+                }
             }
         }
         stopwatch.Stop();
         Debug.Log($"Matrix solving took: {stopwatch.Elapsed.TotalSeconds} seconds.");
 
-        /*for(int i = 0; i < nv; ++i) {
-            float sum = 0;
-            for(int j = 0; j < weights[i].Count; ++j)
-                sum += weights[i][j].Item2;
-
-            for(int j = 0; j < weights[i].Count; ++j) {
-                float helper = weights[i][j].Item2 / sum;
-                weights[i][j] = new Tuple<int, double>(nzweights[i][j].Item1, helper);
-                weights[i][nzweights[i][j].Item1] = nzweights[i][j].Item2;
-            }
-        }*/
-
-        
-       
-       
-        //TODO: only temporary to test
-        BoneWeight[] boneWeights = new BoneWeight[nv];
-        for (int i = 0; i < nv; ++i)
-        {
-            float distMin = float.PositiveInfinity;
-            int jMin = 0;
-            for (int j = 1; j < bones.Length; j++) {
-                float dist = (float) boneDists[i,j];
-                if (dist < distMin) {
-                    distMin = dist;
-                    jMin = j;
-                }
-            }
-            //Debug.Log(jMin + "     " + distMin);
-            boneWeights[i].boneIndex0 = jMin;
-            boneWeights[i].weight0 = 1;
-        }
-        return boneWeights;
-
-        // Needs some kind of Matrix computation
-        //SPDMatrix Am(A);
-        //LLTMatrix* Ainv = Am.factor();
-        //if (Ainv == NULL)
-        //    return;
-        //
-        /*for (int j = 0; j < bones.Length; ++j)
-        {
-            List<double> rhs = new List<double>(); ;
-            for (int i = 0; i < nv; ++i)
-            {
-                if (boneVis[i,j] && boneDists[i,j] <= boneDists[i,closest[i]] * 1.00001)
-                    rhs[i] = heat[i] / distance[i];
-            }
-
-            //No Matrix no solver
-            //Ainv->solve(rhs);
-            for (int i = 0; i < nv; ++i)
-            {
-                if (rhs[i] > 1)
-                    rhs[i] = 1; //clip just in case
-                if (rhs[i] > 1e-8)
-                
-                    nzweights[i].Add(new Tuple<int, double>(j, rhs[i]));
-            }
-        }
-
+        byte[] bonesPerVertex = new byte[nv];
+        List<BoneWeight1> finalWeights = new List<BoneWeight1>();
         for(int i = 0; i < nv; ++i) {
-            double sum = 0;
-            for(int j = 0; j < nzweights[i].Count; ++j)
-                sum += nzweights[i][j].Item2;
+            if (weights[i].Count == 0) { //TODO: why does this even happen???
+                BoneWeight1 w = new BoneWeight1();
+                w.boneIndex = 1;
+                w.weight = 1.0f;
+                finalWeights.Add(w);
 
-            for(int j = 0; j < nzweights[i].Count; ++j) {
-                double helper = nzweights[i][j].Item2 / sum;
-                nzweights[i][j] = new Tuple<int, double>(nzweights[i][j].Item1, helper);
-                weights[i][nzweights[i][j].Item1] = nzweights[i][j].Item2;
+                bonesPerVertex[i] = 1;
+            } else {
+                weights[i].Sort((a, b) => b.weight.CompareTo(a.weight));
+
+                float sum = 0;
+                for(int j = 0; j < weights[i].Count; ++j)
+                    sum += weights[i][j].weight;
+
+                for(int j = 0; j < weights[i].Count; ++j) {
+                    BoneWeight1 w = new BoneWeight1();
+                    w.boneIndex = weights[i][j].boneIndex;
+                    w.weight = weights[i][j].weight / sum;
+                    finalWeights.Add(w);
+                }
+                bonesPerVertex[i] = (byte) weights[i].Count;
             }
-        }*/
+        }
+
+        mesh.SetBoneWeights(new NativeArray<byte>(bonesPerVertex, Allocator.Temp), 
+                            new NativeArray<BoneWeight1>(finalWeights.ToArray(), Allocator.Temp));
     }
 }

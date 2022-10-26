@@ -1,14 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Collections;
 
 public class ClosestBoneRigSolver : IRigSolver
 {
 
-    public BoneWeight[] CalcBoneWeights(Mesh mesh, Transform[] bones, Transform meshTransform) {
+    public void CalcBoneWeights(Mesh mesh, Transform[] bones, Transform meshTransform) {
 		Vector3[] vertices = mesh.vertices;
 
-        BoneWeight[] weights = new BoneWeight[vertices.Length];
+        byte[] bonesPerVertex = new byte[vertices.Length];
+        BoneWeight1[] weights = new BoneWeight1[vertices.Length];
         for (int i = 0; i < vertices.Length; i++) {
             float distMin = float.PositiveInfinity;
             int jMin = 0;
@@ -24,11 +26,14 @@ public class ClosestBoneRigSolver : IRigSolver
                 }
             }
             //Debug.Log(jMin + "     " + distMin);
-            weights[i].boneIndex0 = jMin;
-            weights[i].weight0 = 1;
+            weights[i].boneIndex = jMin;
+            weights[i].weight = 1;
+
+            bonesPerVertex[i] = 1;
         }
 
-        return weights;
+        mesh.SetBoneWeights(new NativeArray<byte>(bonesPerVertex, Allocator.Temp), 
+                            new NativeArray<BoneWeight1>(weights, Allocator.Temp));
     }
 
 }

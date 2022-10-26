@@ -239,7 +239,7 @@ public class SkeletonAssembler {
 
             BoxCollider collider = result.AddComponent<BoxCollider>();
             collider.size = size;
-            Vector3 pos = 0.25f * bone.length * (bone.LocalDistalPoint() - bone.LocalProximalPoint());
+            Vector3 pos = 0.25f * (bone.LocalDistalPoint() - bone.LocalProximalPoint());
             collider.center = pos;
             rb.mass = settings.MassMultiplier * densities[self.Category] * (size.x * size.y * size.z);
 

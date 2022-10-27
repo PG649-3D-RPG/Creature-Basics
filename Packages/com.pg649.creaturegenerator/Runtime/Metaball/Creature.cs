@@ -9,7 +9,7 @@ public class Creature : MonoBehaviour
     void Start()
     {
         Segment[] segments = GetComponentsInChildren<Segment>();
-        Metaball m = Metaball.BuildFromSegments(segments);
+        Metaball m = Metaball.BuildFromSegments(segments, FalloffFunctions.POLYNOMIAL2);
 
         //generate mesh from the metaball
         MeshGenerator meshGen = GetComponent<MeshGenerator>();

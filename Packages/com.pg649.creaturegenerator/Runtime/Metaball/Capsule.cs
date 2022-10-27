@@ -7,7 +7,7 @@ public class Capsule: Ball
 {
     public Segment segment;
 
-    public Capsule(Segment seg, MetaballFunction function) : base(seg.thickness, Vector3.zero, function)
+    public Capsule(Segment seg, FalloffFunction function) : base(seg.thickness, Vector3.zero, function)
     {
         segment = seg;
     }

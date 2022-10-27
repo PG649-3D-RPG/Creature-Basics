@@ -10,6 +10,9 @@
 ### Fixed
 - Quadruped's feet rotation not locked anymore (added paw subcategory to differentiate)
 
+### Changed
+- Added FalloffFunction class for easy customization of metaball functions
+
 ## [3.6.0] - 2022-10-12
 ### Changed
 - Moved quadruped legs slightly down

@@ -16,7 +16,7 @@ public class ExampleMetaball : MonoBehaviour
         Vector3 startPoint = new Vector3(-1, -3, 0);
         Vector3 endPoint = new Vector3(10, 0, 1.5f);
         Segment[] segments = new Segment[] {new Segment(startPoint, endPoint, 2) };
-        Metaball m = Metaball.BuildFromSegments(segments);
+        Metaball m = Metaball.BuildFromSegments(segments, FalloffFunctions.POLYNOMIAL2);
 
 
         //generate mesh from the metaball

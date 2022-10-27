@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,19 +14,19 @@ public class Metaball
         balls.Add(ball);
     }
 
-    public void AddBall(float radius, Vector3 position, MetaballFunction function = MetaballFunction.Polynomial2)
+    public void AddBall(float radius, Vector3 position, FalloffFunction function)
     {
         Ball newBall = new Ball(radius, position, function);
         balls.Add(newBall);
     }
 
-    public void AddCapsule(Segment segment, MetaballFunction function = MetaballFunction.Polynomial2)
+    public void AddCapsule(Segment segment, FalloffFunction function)
     {
         Capsule newCapsule = new Capsule(segment, function);
         balls.Add(newCapsule);
     }
 
-    public void AddCone(Segment segment, float tipThickness, MetaballFunction function = MetaballFunction.Polynomial2)
+    public void AddCone(Segment segment, float tipThickness, FalloffFunction function)
     {
         Cone newCone = new Cone(segment, tipThickness, function);
         balls.Add(newCone);
@@ -59,7 +60,7 @@ public class Metaball
     /// <param name="segments">Array of segments</param>
     /// <param name="function">The MetaballFunction to use</param>
     /// <returns>A Metaball made up of balls distributed along the provided segments</returns>
-    public static Metaball BuildFromSegments(Segment[] segments, MetaballFunction function = MetaballFunction.Polynomial2, float variation=0.75f, bool useCapsules= true)
+    public static Metaball BuildFromSegments(Segment[] segments, FalloffFunction function, float variation=0.75f, bool useCapsules= true)
     {
         Metaball metaball = new Metaball();
 
@@ -67,7 +68,7 @@ public class Metaball
         {
             foreach (Segment segment in segments)
             {
-                metaball.AddCapsule(segment);
+                metaball.AddCapsule(segment, function);
             }
         }
         else
@@ -93,11 +94,11 @@ public class Metaball
         return metaball;
     }
 
-    public static Metaball BuildFromSkeleton(Skeleton skeleton, MetaballFunction f = MetaballFunction.Polynomial2) {
+    public static Metaball BuildFromSkeleton(Skeleton skeleton, FalloffFunction function) {
         Metaball metaball = new Metaball();
 
         foreach (var (go, bone, rb, joint) in skeleton.Iterator()) {
-            metaball.AddCapsule(new(bone.WorldProximalPoint(), bone.WorldDistalPoint(), bone.thickness), f);
+            metaball.AddCapsule(new(bone.WorldProximalPoint(), bone.WorldDistalPoint(), bone.thickness), function);
         }
         return metaball;
     }

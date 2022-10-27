@@ -7,19 +7,21 @@ using UnityEngine;
 
 public class CreatureGenerator
 {
-    public static GameObject ParametricBiped(CreatureGeneratorSettings settings, ParametricCreatureSettings creatureSettings,
-        int? seed)
+    public static GameObject ParametricBiped(CreatureGeneratorSettings settings,
+        ParametricCreatureSettings creatureSettings, int? seed,
+        JointLimitOverrides limitOverrides = null)
     {
         var gen = new BipedGenerator();
-        var def = gen.BuildCreature(creatureSettings, seed);
+        var def = gen.BuildCreature(creatureSettings, seed, limitOverrides);
         return Parametric(settings, def);
     }
 
     public static GameObject ParametricQuadruped(CreatureGeneratorSettings settings,
-        ParametricCreatureSettings creatureSettings, int? seed)
+        ParametricCreatureSettings creatureSettings, int? seed,
+        JointLimitOverrides limitOverrides = null)
     {
         var gen = new QuadrupedGenerator();
-        var def = gen.BuildCreature(creatureSettings, seed);
+        var def = gen.BuildCreature(creatureSettings, seed, limitOverrides);
         return Parametric(settings, def);
     }
 
@@ -41,7 +43,7 @@ public class CreatureGenerator
             {
                 segments_[i] = new Segment(segments[i].Item1, segments[i].Item2, .025f);
             }
-            Metaball m = Metaball.BuildFromSegments(segments_, useCapsules: false);
+            Metaball m = Metaball.BuildFromSegments(segments_, FalloffFunctions.PERLIN_THIN, useCapsules: false);
             MeshGenerator meshGen = go.AddComponent<MeshGenerator>();
             meshGen.ApplySettings(settings.MeshSettings, settings.DebugSettings);
             meshGen.Generate(m);
@@ -62,7 +64,7 @@ public class CreatureGenerator
         {
             var meshGen = go.AddComponent<MeshGenerator>();
             meshGen.ApplySettings(settings.MeshSettings, settings.DebugSettings);
-            meshGen.Generate(Metaball.BuildFromSkeleton(skeleton));
+            meshGen.Generate(Metaball.BuildFromSkeleton(skeleton, FalloffFunctions.PERLIN_THIN));
         }
 
         Physics.autoSimulation = !settings.DebugSettings.DisablePhysics;

@@ -8,7 +8,7 @@ public class Cone: Ball
     public Segment segment;
     public float ratio;
 
-    public Cone(Segment seg, float tipThickness, MetaballFunction function) : base(seg.thickness, Vector3.zero, function)
+    public Cone(Segment seg, float tipThickness, FalloffFunction function) : base(seg.thickness, Vector3.zero, function)
     {
         segment = seg;
         ratio = seg.thickness / tipThickness;

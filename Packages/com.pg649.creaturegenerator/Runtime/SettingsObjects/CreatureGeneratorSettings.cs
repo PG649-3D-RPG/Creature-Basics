@@ -45,11 +45,21 @@ public class SkeletonSettings
     [Tooltip("Maximum Density for bone colliders in kg/m^3. Randomized once and used for all bones, except when an override is set for a bone category.")]
     public float MaximumDensity = 1100.0f;
     [Tooltip("Overrides for individual bone densities. Add an element to the list, then choose the category of bones to override as well as minimum and maximum possible densities. Density will be randomized once for all bones of that category.")]
+
+    public bool FixedWeights = false;
+
+    public float FixedWeight = 10.0f;
     public BoneDensity[] BoneDensityOverrides;
     [Tooltip("Drag of each Rigidbody in the skeleton.")]
     public float RigidbodyDrag = 0.05f;
     [Tooltip("Collision Detection Mode of each Rigidbody in the Skeleton.")]
     public CollisionDetectionMode CollisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+
+    public float MaxDepenetrationVelocity = 1.0f;
+
+    public bool JointPreprocessing = false;
+
+    public bool BoneIntercollision = true;
     
     [Header("Rendering")]
     

@@ -2,6 +2,20 @@
 
 
 ## Unreleased
+### Added
+- Default joint limits can now be overridden using an optional JointLimitOverrides object (see wiki https://github.com/PG649-3D-RPG/Creature-Generation/wiki/Joint-Limit-Overrides)
+- Parameter for number of torso segments
+- Parameter for number of leg segments (only quadruped, must be between 1 and 4)
+
+### Fixed
+- Quadruped's feet rotation not locked anymore (added paw subcategory to differentiate)
+
+### Changed
+- Added FalloffFunction class for easy customization of metaball functions
+
+## [3.6.0] - 2022-10-12
+### Changed
+- Moved quadruped legs slightly down
 
 ## [3.5.0] - 2022-09-21
 ### Changed

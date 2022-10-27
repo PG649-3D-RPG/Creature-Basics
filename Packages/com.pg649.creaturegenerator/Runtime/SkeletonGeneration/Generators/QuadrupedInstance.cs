@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class QuadrupedInstance : ISettingsInstance
@@ -10,7 +11,9 @@ public class QuadrupedInstance : ISettingsInstance
     [ObservationOrder(3)] public readonly float TotalHindLegHeight;
     [ObservationOrder(4)] public readonly List<float> HindLegHeights;
     [ObservationOrder(5)] public readonly List<float> HindLegThicknesses;
+    [ObservationOrder(15)] public readonly int NumLegBones;
 
+    [ObservationOrder(16)] public readonly int NumTorsoBones;
     [ObservationOrder(6)] public readonly float TotalTorsoLength;
     [ObservationOrder(7)] public readonly List<float> TorsoThicknesses;
     [ObservationOrder(8)] public readonly List<float> TorsoLengths;
@@ -24,26 +27,6 @@ public class QuadrupedInstance : ISettingsInstance
     [ObservationOrder(13)] public readonly float HipThickness;
     [ObservationOrder(14)] public readonly float HipLength;
 
-    private static (float, List<float>, List<float>) InstanceLeg(ParametricCreatureSettings settings)
-    {
-        var height = Random.Range(settings.minimumTotalLegLength, settings.maximumTotalLegLength);
-        var split = Random.Range(0.1f * height, 0.5f * height);
-        var lowerLegSplit = Random.Range(split + 0.25f * (height - split),
-            split + 0.75f * (height - split));
-        var upperLegSplit = Random.Range(0.25f * split, 0.75f * split);
-
-        List<float> heights = new()
-        {
-            upperLegSplit, split - upperLegSplit, lowerLegSplit - split,
-            height - lowerLegSplit
-        };
-
-        var thicknesses =
-            InstanceUtils.ClampedLimbThicknesses(settings.minimumLegThickness, settings.maximumLegThickness, heights);
-        thicknesses.Sort();
-        return (height, heights, thicknesses);
-    }
-
     public QuadrupedInstance(ParametricCreatureSettings settings, int? seed)
     {
         if (seed.HasValue)
@@ -51,36 +34,36 @@ public class QuadrupedInstance : ISettingsInstance
             Random.InitState(seed.Value);
         }
 
-        var (hindLegHeight, hindLegHeights, hindLegThicknesses) = InstanceLeg(settings);
-        var (frontLegHeight, frontLegHeights, frontLegThicknesses) = InstanceLeg(settings);
-        var (totalTorsoLength, torsoLengths, torsoThicknesses) = InstanceUtils.InstanceTorso(settings);
+        var numLegBones = settings.LegBones.Sample();
 
-        var neckBones = Random.Range(settings.minimumNeckBones, settings.maximumNeckBones + 1);
-        var totalNeckLength = Random.Range(settings.minimumNeckLength, settings.maximumNeckLength);
-        var neckBoneLength = totalNeckLength / neckBones;
-        var neckThickness =
-            InstanceUtils.ClampedThickness(settings.minimumNeckThickness, settings.maximumNeckThickness, neckBoneLength);
+        var hindLegHeights = settings.LegLength.Samples(numLegBones);
+        var hindLegThicknesses = settings.LegThickness.Samples(numLegBones);
+        hindLegThicknesses.Sort();
+        
+        var frontLegHeights = settings.LegLength.Samples(numLegBones);
+        var frontLegThicknesses = settings.LegThickness.Samples(numLegBones);
+        frontLegThicknesses.Sort();
 
-        var headSize = Random.Range(settings.minimumHeadSize, settings.maximumHeadSize);
+        var numTorsoBones = settings.TorsoBones.Sample();
+        var torsoLengths = settings.TorsoLength.Samples(numTorsoBones);
+        var torsoThicknesses = settings.TorsoLength.Samples(numTorsoBones);
 
-        var hipLength = Random.Range(settings.minimumHipLength, settings.maximumHipLength);
-        var hipThickness = InstanceUtils.ClampedThickness(settings.minimumHipThickness, settings.maximumHipThickness, hipLength);
-
-        TotalTorsoLength = totalTorsoLength;
+        TotalTorsoLength = torsoLengths.Sum();
         TorsoThicknesses = torsoThicknesses;
+        NumTorsoBones = numTorsoBones;
         TorsoLengths = torsoLengths;
-        NeckBones = neckBones;
-        NeckBoneLength = neckBoneLength;
-        NeckThickness = neckThickness;
-        HeadSize = headSize;
-        HipLength = hipLength;
-        HipThickness = hipThickness;
-
-        TotalFrontLegHeight = frontLegHeight;
+        NeckBones = settings.NeckBones.Sample();
+        NeckBoneLength = settings.NeckLength.Sample();
+        NeckThickness = settings.NeckThickness.Sample();
+        HeadSize = settings.HeadSize.Sample();
+        HipLength = settings.HipLength.Sample();
+        HipThickness = settings.HipThickness.Sample();
+        TotalFrontLegHeight = frontLegHeights.Sum();
         FrontLegHeights = frontLegHeights;
         FrontLegThicknesses = frontLegThicknesses;
-        TotalHindLegHeight = hindLegHeight;
+        TotalHindLegHeight = hindLegHeights.Sum();
         HindLegHeights = hindLegHeights;
         HindLegThicknesses = hindLegThicknesses;
+        NumLegBones = numLegBones;
     }
 }

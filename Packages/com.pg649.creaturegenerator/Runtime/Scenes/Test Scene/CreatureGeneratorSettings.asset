@@ -37,6 +37,6 @@ MonoBehaviour:
     LogAdditionalInfo: 1
     DisableBoneGravity: 0
     KinematicBones: 0
-    DisablePhysics: 1
-    AttachPrimitiveMesh: 1
+    DisablePhysics: 0
+    AttachPrimitiveMesh: 0
     DrawNormals: 0

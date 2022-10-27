@@ -92,7 +92,6 @@ public class BoneHeatRigSolver : IRigSolver
             float minDist = float.PositiveInfinity;
             for (int j = 1; j < bones.Length; ++j)
             {
-                //weights[i].Add(-1);
                 Vector3 v1 = bones[j].position;
                 Vector3 v2 = bones[j].parent.position;
 
@@ -104,14 +103,13 @@ public class BoneHeatRigSolver : IRigSolver
                 {
                     distToSeg = Vector3.Distance(v2, cPos);
                 }
-                else if (Vector3.Dot(dir, difv1) < 0)
+                else if (Vector3.Dot(dir, difv1) <= 0)
                 {
                     distToSeg = Vector3.Distance(v1, cPos);
                 }
                 else
                 {
-                    distToSeg = Vector3.Cross((cPos - v1), (cPos - v2)).magnitude;
-                    distToSeg = distToSeg / (v2 - v1).magnitude;
+                    distToSeg = Vector3.Cross((cPos - v1), (cPos - v2)).magnitude / dir.magnitude;
                     distToSeg = Mathf.Max(0, distToSeg);//TODO: why would distance be negative???
                 }
 
@@ -139,8 +137,7 @@ public class BoneHeatRigSolver : IRigSolver
                 else
                     projToSeg = v1 + Vector3.Dot((cPos - v1), dir) / dir.sqrMagnitude * dir;
 
-                boneVis[i, j] = tester.CanSee(cPos, projToSeg) ;//&& vectorInCone(cPos - projToSeg, normals);
-                //TODO why is vector in cone broken???????
+                boneVis[i, j] = tester.CanSee(cPos, projToSeg) && vectorInCone(cPos - projToSeg, normals);
             }
         }
         stopwatch.Stop();
@@ -205,8 +202,8 @@ public class BoneHeatRigSolver : IRigSolver
                     cot2 = Vector3.Dot(v3, v4) / (1e-6f + Vector3.Cross(v3, v4).magnitude);
                 }
 
-                //cot1 = Mathf.Max(0.0f, cot1);
-                //cot2 = Mathf.Max(0.0f, cot2);
+                cot1 = Mathf.Max(0.0f, cot1);
+                cot2 = Mathf.Max(0.0f, cot2);
 
                 sum += (cot1 + cot2);
 
@@ -254,7 +251,7 @@ public class BoneHeatRigSolver : IRigSolver
         byte[] bonesPerVertex = new byte[nv];
         List<BoneWeight1> finalWeights = new List<BoneWeight1>();
         for(int i = 0; i < nv; ++i) {
-            if (weights[i].Count == 0) { //TODO: why does this even happen???
+            if (weights[i].Count == 0) { //TODO: why does this case even happen???
                 BoneWeight1 w = new BoneWeight1();
                 w.boneIndex = 1;
                 w.weight = 1.0f;

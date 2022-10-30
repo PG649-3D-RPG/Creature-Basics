@@ -12,6 +12,7 @@
 
 ### Changed
 - Added FalloffFunction class for easy customization of metaball functions
+- Replaced biped metaball part with box shape
 
 ## [3.6.0] - 2022-10-12
 ### Changed

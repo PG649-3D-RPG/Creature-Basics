@@ -48,10 +48,30 @@ public class Perlin : FalloffFunction
     }
 }
 
+// Debug Fallof function
+public class BooleanFalloff : FalloffFunction
+{
+    public BooleanFalloff() { }
+
+    public float Calc(float l2_norm, float R)
+    {
+        if (R*R /l2_norm > 1f)
+            return 1.001f;
+        else
+            return 0f;
+    }
+
+    public int GetMinimumNumBalls(float segmentLength, float segmentThickness)
+    {
+        return Mathf.CeilToInt(segmentLength/segmentThickness) + 1;
+    }
+}
+
 public static class FalloffFunctions
 {
     public static readonly FalloffFunction POLYNOMIAL2 = new Polynomial(2f);
     public static readonly FalloffFunction POLYNOMIAL3 = new Polynomial(3f);
     public static readonly FalloffFunction PERLIN_THICK = new Perlin(0.5f);
     public static readonly FalloffFunction PERLIN_THIN = new Perlin(0.9f);
+    public static readonly FalloffFunction BOOLEAN_FALLOFF = new BooleanFalloff();
 }

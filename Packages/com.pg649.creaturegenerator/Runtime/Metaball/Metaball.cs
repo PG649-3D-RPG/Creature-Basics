@@ -32,6 +32,12 @@ public class Metaball
         balls.Add(newCone);
     }
 
+    public void AddBox(Vector3 dimensions, Vector3 position, Vector3 forward, Vector3 up, FalloffFunction function)
+    {
+        Box newBox = new Box(dimensions, position, forward, up, function);
+        balls.Add(newBox);
+    }
+
     public float Value(float x, float y, float z)
     {
         float result = 0f;
@@ -96,9 +102,15 @@ public class Metaball
 
     public static Metaball BuildFromSkeleton(Skeleton skeleton, FalloffFunction function) {
         Metaball metaball = new Metaball();
-
         foreach (var (go, bone, rb, joint) in skeleton.Iterator()) {
-            metaball.AddCapsule(new(bone.WorldProximalPoint(), bone.WorldDistalPoint(), bone.thickness), function);
+            if (bone.category == BoneCategory.Foot && bone.subCategory != BoneCategory.Paw)
+            {
+                metaball.AddBox(new(bone.thickness, 0.25f, bone.length), bone.WorldProximalPoint(), bone.WorldDistalAxis(), bone.WorldVentralAxis(), function);
+            }
+            else
+            {
+                metaball.AddCapsule(new(bone.WorldProximalPoint(), bone.WorldDistalPoint(), bone.thickness), function);
+            }
         }
         return metaball;
     }

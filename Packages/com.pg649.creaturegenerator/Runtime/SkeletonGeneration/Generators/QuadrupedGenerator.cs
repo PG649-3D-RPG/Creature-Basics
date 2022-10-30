@@ -26,14 +26,15 @@ public class QuadrupedGenerator {
         var legs = buildLegs();
 
         var root = buildTorso();
-        attachLegs(legs, root);
+        var hips = attachLegs(legs, root);
         
         var neck = buildNeck(neckAttachmentBone);
         buildHead(neck);
 
+        var legOffset = Mathf.Abs(0.5f * instance.HipThickness * Mathf.Sin((90 - root.AttachmentHint.Rotation.GetValueOrDefault().eulerAngles.x) * Mathf.Deg2Rad));
         // Offset root bone so that feet are at ground level
-        root.AttachmentHint.Offset = new Vector3(0, instance.TotalHindLegHeight + (instance.TotalHindLegHeight < instance.TotalFrontLegHeight ? 1f: -1f)
-            * Mathf.Sqrt(instance.HipLength * instance.HipLength * 0.25f - Mathf.Pow(instance.HipLength* 0.5f * Mathf.Cos(root.AttachmentHint.Rotation.GetValueOrDefault().x), 2f)), 0);
+        root.AttachmentHint.Offset = new Vector3(0, instance.TotalHindLegHeight + legOffset + (instance.TotalHindLegHeight < instance.TotalFrontLegHeight ? 1f : -1f)
+            * Mathf.Abs((instance.HipLength * 0.5f + hips.Item1.AttachmentHint.Offset.GetValueOrDefault().magnitude) * Mathf.Sin(root.AttachmentHint.Rotation.GetValueOrDefault().eulerAngles.x * Mathf.Deg2Rad)), 0);
 
         LimitTable jointLimits = new(quadrupedJointLimits);
         if (limitOverrides != null)
@@ -134,22 +135,28 @@ public class QuadrupedGenerator {
         return head;
     }
 
-    private void attachLegs(List<BoneDefinition> legs, BoneDefinition torso)
+    private (BoneDefinition, BoneDefinition) attachLegs(List<BoneDefinition> legs, BoneDefinition torso)
     {
-        buildHip(torso, legs[0], legs[1], Vector3.back, Vector3.down, RelativePositions.ProximalPoint);
+        var backHip = buildHip(torso, legs[0], legs[1], Vector3.back, Vector3.down, RelativePositions.ProximalPoint);
+        // Add small offset to hip bone to avoid having two bones with identical positions
+        backHip.AttachmentHint.Offset += backHip.DistalAxis * 0.01f;
 
         var frontHip = buildHip(neckAttachmentBone, legs[2], legs[3], Vector3.forward, Vector3.down, RelativePositions.DistalPoint);
         neckAttachmentBone = frontHip;
 
-        // rotate torso
-        var legDiff = instance.TotalHindLegHeight - instance.TotalFrontLegHeight;
-        var angle = - Mathf.Atan(legDiff / (instance.TotalTorsoLength + instance.HipLength)) * Mathf.Rad2Deg;
-        torso.AttachmentHint.Rotation = Quaternion.Euler(angle, 0.0f, 0.0f);
+        // rotate torso so that both feet are at the same height
+        var legDiff = Mathf.Abs(instance.TotalHindLegHeight - instance.TotalFrontLegHeight);
+        var torsoLength = instance.TotalTorsoLength + instance.HipLength + backHip.AttachmentHint.Offset.GetValueOrDefault().magnitude;
+        var angle = Mathf.Atan(Mathf.Sqrt(torsoLength*torsoLength - legDiff*legDiff) / legDiff) * Mathf.Rad2Deg - 90;
+        if (instance.TotalFrontLegHeight > instance.TotalHindLegHeight)
+            angle = -angle;
 
+        torso.AttachmentHint.Rotation = Quaternion.Euler(angle, 0.0f, 0.0f);
         foreach (var leg in legs)
         {
             leg.AttachmentHint.Rotation = Quaternion.Euler(angle, 0.0f, 0.0f);
         }
+        return (backHip, frontHip);
     }
     
     private BoneDefinition buildHip(BoneDefinition attachTo, BoneDefinition leg1, BoneDefinition leg2, Vector3 distalAxis, Vector3 ventralAxis, RelativePosition pos)

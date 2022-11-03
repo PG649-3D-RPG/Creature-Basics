@@ -33,7 +33,7 @@ MonoBehaviour:
     Min: 0
     Max: 3.4028235e+38
   LegThickness:
-    Mean: 0.3
+    Mean: 0.29999995
     StandardDeviation: 0.2
     Min: 0
     Max: 3.4028235e+38
@@ -41,12 +41,12 @@ MonoBehaviour:
     Min: 2
     Max: 4
   NeckThickness:
-    Mean: 0.3
+    Mean: 0.29999995
     StandardDeviation: 0.2
     Min: 0
     Max: 3.4028235e+38
   NeckLength:
-    Mean: 0.8
+    Mean: 0.79999995
     StandardDeviation: 0.2
     Min: 0
     Max: 3.4028235e+38
@@ -67,7 +67,7 @@ MonoBehaviour:
     Min: 1
     Max: 3
   ArmThickness:
-    Mean: 0.3
+    Mean: 0.29999995
     StandardDeviation: 0.2
     Min: 0
     Max: 3.4028235e+38
@@ -80,8 +80,8 @@ MonoBehaviour:
     Min: 2
     Max: 2
   FeetWidth:
-    Mean: 1
-    StandardDeviation: 0.5
+    Mean: 0.5
+    StandardDeviation: 0.25
     Min: 0
     Max: 3.4028235e+38
   FeetLength:
@@ -95,7 +95,7 @@ MonoBehaviour:
     Min: 0
     Max: 3.4028235e+38
   ShoulderThickness:
-    Mean: 0.3
+    Mean: 0.29999995
     StandardDeviation: 0.2
     Min: 0
     Max: 3.4028235e+38

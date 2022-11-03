@@ -12,12 +12,18 @@ public class QuadrupedGenerator {
         {(BoneCategory.Torso, BoneCategory.Torso), new JointLimits { XAxisMin = -10, XAxisMax = 10, YAxisSymmetric = 10 }},
         {(BoneCategory.Torso, BoneCategory.Hip), new JointLimits { XAxisMin = -10, XAxisMax = 10, YAxisSymmetric = 10 }},
         {(BoneCategory.Torso, BoneCategory.Head), new JointLimits() { XAxisMin = -90, XAxisMax = 90, YAxisSymmetric = 45 }},
-        {(BoneCategory.Hip, BoneCategory.Leg), new JointLimits { XAxisMin = -90, XAxisMax = 0, YAxisSymmetric = 0, ZAxisSymmetric = 0}},
-        {(BoneCategory.Leg, BoneCategory.LowerLeg1), new JointLimits { XAxisMin = 0, XAxisMax = 90, YAxisSymmetric = 0, ZAxisSymmetric = 0}},
-        {(BoneCategory.LowerLeg1, BoneCategory.LowerLeg2), new JointLimits { XAxisMin = -90, XAxisMax = 0, YAxisSymmetric = 0, ZAxisSymmetric = 0}},
-        {(BoneCategory.LowerLeg2, BoneCategory.Paw), new JointLimits { XAxisMin = 0, XAxisMax = 90, YAxisSymmetric = 0, ZAxisSymmetric = 0}},
-        {(BoneCategory.LowerLeg1, BoneCategory.Paw), new JointLimits { XAxisMin = 0, XAxisMax = -90, YAxisSymmetric = 0, ZAxisSymmetric = 0}},
-        {(BoneCategory.Leg, BoneCategory.Paw), new JointLimits { XAxisMin = 0, XAxisMax = 90, YAxisSymmetric = 0, ZAxisSymmetric = 0}},
+        {(BoneCategory.Hip, BoneCategory.FrontLeg), new JointLimits { XAxisMin = -90, XAxisMax = 0, YAxisSymmetric = 0, ZAxisSymmetric = 0}},
+        {(BoneCategory.FrontLeg, BoneCategory.FrontLeg1), new JointLimits { XAxisMin = 0, XAxisMax = 90, YAxisSymmetric = 0, ZAxisSymmetric = 0}},
+        {(BoneCategory.FrontLeg1, BoneCategory.FrontLeg2), new JointLimits { XAxisMin = -90, XAxisMax = 0, YAxisSymmetric = 0, ZAxisSymmetric = 0}},
+        {(BoneCategory.FrontLeg2, BoneCategory.Paw), new JointLimits { XAxisMin = 0, XAxisMax = 90, YAxisSymmetric = 0, ZAxisSymmetric = 0}},
+        {(BoneCategory.FrontLeg1, BoneCategory.Paw), new JointLimits { XAxisMin = 0, XAxisMax = -90, YAxisSymmetric = 0, ZAxisSymmetric = 0}},
+        {(BoneCategory.FrontLeg, BoneCategory.Paw), new JointLimits { XAxisMin = 0, XAxisMax = 90, YAxisSymmetric = 0, ZAxisSymmetric = 0}},
+        {(BoneCategory.Hip, BoneCategory.HindLeg), new JointLimits { XAxisMin = -90, XAxisMax = 0, YAxisSymmetric = 0, ZAxisSymmetric = 0}},
+        {(BoneCategory.HindLeg, BoneCategory.HindLeg1), new JointLimits { XAxisMin = 0, XAxisMax = 90, YAxisSymmetric = 0, ZAxisSymmetric = 0}},
+        {(BoneCategory.HindLeg1, BoneCategory.HindLeg2), new JointLimits { XAxisMin = -90, XAxisMax = 0, YAxisSymmetric = 0, ZAxisSymmetric = 0}},
+        {(BoneCategory.HindLeg2, BoneCategory.Paw), new JointLimits { XAxisMin = 0, XAxisMax = 90, YAxisSymmetric = 0, ZAxisSymmetric = 0}},
+        {(BoneCategory.HindLeg1, BoneCategory.Paw), new JointLimits { XAxisMin = 0, XAxisMax = -90, YAxisSymmetric = 0, ZAxisSymmetric = 0}},
+        {(BoneCategory.HindLeg, BoneCategory.Paw), new JointLimits { XAxisMin = 0, XAxisMax = 90, YAxisSymmetric = 0, ZAxisSymmetric = 0}},
         {(BoneCategory.Hip, BoneCategory.Paw), new JointLimits { XAxisMin = 0, XAxisMax = -90, YAxisSymmetric = 0, ZAxisSymmetric = 0}}
     };
 
@@ -55,12 +61,27 @@ public class QuadrupedGenerator {
 
     private BoneDefinition buildLeg(List<float> lengths, List<float> thicknesses, bool isHindLeg)
     {
-        Dictionary<int, (BoneCategory, BoneCategory?)> indexMap = new() {
-            { 0, (BoneCategory.Leg, null) },
-            { 1, (BoneCategory.Leg, BoneCategory.LowerLeg1) },
-            { 2, (BoneCategory.Leg, BoneCategory.LowerLeg2) }
-        };
-        indexMap[(isHindLeg ? instance.NumHindLegBones: instance.NumFrontLegBones) - 1] = (BoneCategory.Foot, BoneCategory.Paw);
+        Dictionary<int, (BoneCategory, BoneCategory?)> indexMap = null;
+        if (isHindLeg)
+        {
+            indexMap = new()
+            {
+                { 0, (BoneCategory.Leg, BoneCategory.HindLeg) },
+                { 1, (BoneCategory.Leg, BoneCategory.HindLeg1) },
+                { 2, (BoneCategory.Leg, BoneCategory.HindLeg2) }
+            };
+            indexMap[instance.NumHindLegBones - 1] = (BoneCategory.Foot, BoneCategory.Paw);
+        }
+        else
+        {
+            indexMap = new()
+            {
+                { 0, (BoneCategory.Leg, BoneCategory.FrontLeg) },
+                { 1, (BoneCategory.Leg, BoneCategory.FrontLeg1) },
+                { 2, (BoneCategory.Leg, BoneCategory.FrontLeg2) }
+            };
+            indexMap[instance.NumFrontLegBones - 1] = (BoneCategory.Foot, BoneCategory.Paw);
+        }
 
         return GeneratorUtils.BuildLimb(lengths, thicknesses, (length, thickness, index) => new BoneDefinition()
         {

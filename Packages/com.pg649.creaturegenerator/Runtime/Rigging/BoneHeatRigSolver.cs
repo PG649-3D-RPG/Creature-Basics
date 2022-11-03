@@ -21,7 +21,7 @@ public class BoneHeatRigSolver : IRigSolver
     // TODO meshTransform must be respected when accessing mesh.vertices because bone position might not be in the same coordinate system as vertices
     public void CalcBoneWeights(Mesh mesh, Transform[] bones, Transform meshTransform)
     {
-        BoneHeatNativePluginInterface.PreprocessMesh(mesh);
+        //BoneHeatNativePluginInterface.PreprocessMesh(mesh);
 
         // nv = numVertices
         int nv = mesh.vertices.Length;

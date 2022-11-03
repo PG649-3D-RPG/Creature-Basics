@@ -9,6 +9,7 @@
 
 ### Fixed
 - Quadruped's feet rotation not locked anymore (added paw subcategory to differentiate)
+- Quadruped now spawns with both feet on ground level
 
 ### Changed
 - Added FalloffFunction class for easy customization of metaball functions

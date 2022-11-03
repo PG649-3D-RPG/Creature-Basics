@@ -45,22 +45,22 @@ public class QuadrupedGenerator {
     private List<BoneDefinition> buildLegs() {
         List<BoneDefinition> legs = new()
         {
-            buildLeg(instance.HindLegHeights, instance.HindLegThicknesses),
-            buildLeg(instance.HindLegHeights, instance.HindLegThicknesses),
-            buildLeg(instance.FrontLegHeights, instance.FrontLegThicknesses),
-            buildLeg(instance.FrontLegHeights, instance.FrontLegThicknesses)
+            buildLeg(instance.HindLegHeights, instance.HindLegThicknesses, true),
+            buildLeg(instance.HindLegHeights, instance.HindLegThicknesses, true),
+            buildLeg(instance.FrontLegHeights, instance.FrontLegThicknesses, false),
+            buildLeg(instance.FrontLegHeights, instance.FrontLegThicknesses, false)
         };
         return legs;
     }
 
-    private BoneDefinition buildLeg(List<float> lengths, List<float> thicknesses)
+    private BoneDefinition buildLeg(List<float> lengths, List<float> thicknesses, bool isHindLeg)
     {
         Dictionary<int, (BoneCategory, BoneCategory?)> indexMap = new() {
             { 0, (BoneCategory.Leg, null) },
             { 1, (BoneCategory.Leg, BoneCategory.LowerLeg1) },
             { 2, (BoneCategory.Leg, BoneCategory.LowerLeg2) }
         };
-        indexMap[instance.NumLegBones - 1] = (BoneCategory.Foot, BoneCategory.Paw);
+        indexMap[(isHindLeg ? instance.NumHindLegBones: instance.NumFrontLegBones) - 1] = (BoneCategory.Foot, BoneCategory.Paw);
 
         return GeneratorUtils.BuildLimb(lengths, thicknesses, (length, thickness, index) => new BoneDefinition()
         {

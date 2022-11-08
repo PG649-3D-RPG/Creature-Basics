@@ -32,7 +32,7 @@ public class BipedInstance : ISettingsInstance
     [ObservationOrder(15)] public readonly float HipThickness;
     [ObservationOrder(16)] public readonly float HipLength;
 
-    public BipedInstance(ParametricCreatureSettings settings, int? seed)
+    public BipedInstance(BipedSettings settings, int? seed)
     {
         if (seed.HasValue) {
             Random.InitState(seed.Value);

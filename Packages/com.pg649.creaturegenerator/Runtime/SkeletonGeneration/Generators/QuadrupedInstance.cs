@@ -11,7 +11,8 @@ public class QuadrupedInstance : ISettingsInstance
     [ObservationOrder(3)] public readonly float TotalHindLegHeight;
     [ObservationOrder(4)] public readonly List<float> HindLegHeights;
     [ObservationOrder(5)] public readonly List<float> HindLegThicknesses;
-    [ObservationOrder(15)] public readonly int NumLegBones;
+    [ObservationOrder(15)] public readonly int NumHindLegBones;
+    [ObservationOrder(17)] public readonly int NumFrontLegBones;
 
     [ObservationOrder(16)] public readonly int NumTorsoBones;
     [ObservationOrder(6)] public readonly float TotalTorsoLength;
@@ -27,21 +28,22 @@ public class QuadrupedInstance : ISettingsInstance
     [ObservationOrder(13)] public readonly float HipThickness;
     [ObservationOrder(14)] public readonly float HipLength;
 
-    public QuadrupedInstance(ParametricCreatureSettings settings, int? seed)
+    public QuadrupedInstance(QuadrupedSettings settings, int? seed)
     {
         if (seed.HasValue)
         {
             Random.InitState(seed.Value);
         }
 
-        var numLegBones = settings.LegBones.Sample();
+        var numHindLegBones = settings.HindLegBones.Sample();
+        var numFrontLegBones = settings.FrontLegBones.Sample();
 
-        var hindLegHeights = settings.LegLength.Samples(numLegBones);
-        var hindLegThicknesses = settings.LegThickness.Samples(numLegBones);
+        var hindLegHeights = settings.HindLegLength.Samples(numHindLegBones);
+        var hindLegThicknesses = settings.HindLegThickness.Samples(numHindLegBones);
         hindLegThicknesses.Sort();
         
-        var frontLegHeights = settings.LegLength.Samples(numLegBones);
-        var frontLegThicknesses = settings.LegThickness.Samples(numLegBones);
+        var frontLegHeights = settings.FrontLegLength.Samples(numFrontLegBones);
+        var frontLegThicknesses = settings.FrontLegThickness.Samples(numFrontLegBones);
         frontLegThicknesses.Sort();
 
         var numTorsoBones = settings.TorsoBones.Sample();
@@ -64,6 +66,7 @@ public class QuadrupedInstance : ISettingsInstance
         TotalHindLegHeight = hindLegHeights.Sum();
         HindLegHeights = hindLegHeights;
         HindLegThicknesses = hindLegThicknesses;
-        NumLegBones = numLegBones;
+        NumHindLegBones = numHindLegBones;
+        NumFrontLegBones = numFrontLegBones;
     }
 }

@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEditor;
 
-[CustomEditor(typeof(ParametricCreatureSettings))]
+[CustomEditor(typeof(ParametricCreatureSettings), true)]
 public class ParametricCreatureSettingsInspector : Editor
 {
     private float normalDistributionScaling = 1.0f;

@@ -17,9 +17,14 @@ MonoBehaviour:
     MassMultiplier: 1
     MinimumDensity: 900
     MaximumDensity: 1100
+    FixedWeights: 0
+    FixedWeight: 10
     BoneDensityOverrides: []
     RigidbodyDrag: 0.05
     CollisionDetectionMode: 2
+    MaxDepenetrationVelocity: 1
+    JointPreprocessing: 0
+    BoneIntercollision: 1
     PrimitiveMeshShadows: 0
   SkeletonLinterSettings:
     WarnOnColliderPenetration: 1

@@ -252,8 +252,18 @@ public class BoneHeatRigSolver : IRigSolver
         List<BoneWeight1> finalWeights = new List<BoneWeight1>();
         for(int i = 0; i < nv; ++i) {
             if (weights[i].Count == 0) { //TODO: why does this case even happen???
+                float minDist = float.PositiveInfinity;
+                int bone = -1;
+                for (int j = 1; j < bones.Length; ++j)
+                {
+                    if (boneDists[i,j] < minDist)
+                    {
+                        bone = j;
+                        minDist = boneDists[i,j];
+                    }
+                }
                 BoneWeight1 w = new BoneWeight1();
-                w.boneIndex = 1;
+                w.boneIndex = bone;
                 w.weight = 1.0f;
                 finalWeights.Add(w);
 

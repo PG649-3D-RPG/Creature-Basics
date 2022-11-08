@@ -8,7 +8,7 @@ using UnityEngine;
 public class CreatureGenerator
 {
     public static GameObject ParametricBiped(CreatureGeneratorSettings settings,
-        ParametricCreatureSettings creatureSettings, int? seed,
+        BipedSettings creatureSettings, int? seed,
         JointLimitOverrides limitOverrides = null)
     {
         var gen = new BipedGenerator();
@@ -17,7 +17,7 @@ public class CreatureGenerator
     }
 
     public static GameObject ParametricQuadruped(CreatureGeneratorSettings settings,
-        ParametricCreatureSettings creatureSettings, int? seed,
+        QuadrupedSettings creatureSettings, int? seed,
         JointLimitOverrides limitOverrides = null)
     {
         var gen = new QuadrupedGenerator();

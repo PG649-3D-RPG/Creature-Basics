@@ -14,7 +14,8 @@ public class CreatureGeneratorBehaviour : MonoBehaviour
 
     public TargetCreature Target = TargetCreature.ParametricBiped;
     public CreatureGeneratorSettings Settings;
-    public ParametricCreatureSettings CreatureSettings;
+    public BipedSettings BipedSettings;
+    public QuadrupedSettings QuadrupedSettings;
     public LSystemSettings LSystemSettings;
     public JointLimitOverrides JointLimitOverrides;
     public int Seed = 0;
@@ -30,10 +31,10 @@ public class CreatureGeneratorBehaviour : MonoBehaviour
                 creature = CreatureGenerator.LSystem(Settings, LSystemSettings);
                 break;
             case TargetCreature.ParametricBiped:
-                creature = CreatureGenerator.ParametricBiped(Settings, CreatureSettings, Seed, JointLimitOverrides);
+                creature = CreatureGenerator.ParametricBiped(Settings, BipedSettings, Seed, JointLimitOverrides);
                 break;
             case TargetCreature.ParametricQuadruped:
-                creature = CreatureGenerator.ParametricQuadruped(Settings, CreatureSettings, Seed, JointLimitOverrides); 
+                creature = CreatureGenerator.ParametricQuadruped(Settings, QuadrupedSettings, Seed, JointLimitOverrides); 
                 break;
             default: break;
         }

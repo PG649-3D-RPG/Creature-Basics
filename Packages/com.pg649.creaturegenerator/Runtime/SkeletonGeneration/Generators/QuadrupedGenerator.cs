@@ -21,7 +21,7 @@ public class QuadrupedGenerator {
         {(BoneCategory.Hip, BoneCategory.Paw), new JointLimits { XAxisMin = 0, XAxisMax = -90, YAxisSymmetric = 0, ZAxisSymmetric = 0}}
     };
 
-    public SkeletonDefinition BuildCreature(ParametricCreatureSettings settings, int? seed, JointLimitOverrides limitOverrides) {
+    public SkeletonDefinition BuildCreature(QuadrupedSettings settings, int? seed, JointLimitOverrides limitOverrides) {
         instance = new QuadrupedInstance(settings, seed);
         var legs = buildLegs();
 

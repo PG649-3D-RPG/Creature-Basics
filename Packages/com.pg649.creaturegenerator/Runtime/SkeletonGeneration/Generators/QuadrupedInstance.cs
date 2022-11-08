@@ -27,7 +27,7 @@ public class QuadrupedInstance : ISettingsInstance
     [ObservationOrder(13)] public readonly float HipThickness;
     [ObservationOrder(14)] public readonly float HipLength;
 
-    public QuadrupedInstance(ParametricCreatureSettings settings, int? seed)
+    public QuadrupedInstance(QuadrupedSettings settings, int? seed)
     {
         if (seed.HasValue)
         {

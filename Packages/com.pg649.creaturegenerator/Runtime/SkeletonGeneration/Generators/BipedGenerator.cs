@@ -22,7 +22,7 @@ public class BipedGenerator {
         {(BoneCategory.Leg, BoneCategory.Foot), new JointLimits() { XAxisMin = -10, XAxisMax = 10, YAxisSymmetric = 45 }}
     };
 
-    public SkeletonDefinition BuildCreature(ParametricCreatureSettings settings, int? seed, JointLimitOverrides limitOverrides) {
+    public SkeletonDefinition BuildCreature(BipedSettings settings, int? seed, JointLimitOverrides limitOverrides) {
         instance = new BipedInstance(settings, seed);
         List<BoneDefinition> legs = buildLegs();
         List<BoneDefinition> arms = buildArms();

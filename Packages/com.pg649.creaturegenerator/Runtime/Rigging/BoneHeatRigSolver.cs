@@ -19,7 +19,7 @@ public class BoneHeatRigSolver : IRigSolver
     }
 
     // TODO meshTransform must be respected when accessing mesh.vertices because bone position might not be in the same coordinate system as vertices
-    public void CalcBoneWeights(Mesh mesh, Transform[] bones, Transform meshTransform)
+    public void CalcBoneWeights(Mesh mesh, IVisibilityTester tester, Transform[] bones, Transform meshTransform)
     {
         //BoneHeatNativePluginInterface.PreprocessMesh(mesh);
 
@@ -27,8 +27,6 @@ public class BoneHeatRigSolver : IRigSolver
         int nv = mesh.vertices.Length;
 
         Debug.Log($"Starting Bone Heat Weighting with {nv} vertices and {mesh.triangles.Length} triangles...");
-
-        VisibilityTester tester = new VisibilityTester(mesh, 64);
         
         //float initialHeatWeight = 0.22f;
         float initialHeatWeight = 1f;
@@ -103,14 +101,14 @@ public class BoneHeatRigSolver : IRigSolver
                 {
                     distToSeg = Vector3.Distance(v2, cPos);
                 }
-                else if (Vector3.Dot(dir, difv1) <= 0)
+                else if (Vector3.Dot(difv1, dir) <= 0)
                 {
                     distToSeg = Vector3.Distance(v1, cPos);
                 }
                 else
                 {
-                    distToSeg = Vector3.Cross((cPos - v1), (cPos - v2)).magnitude / dir.magnitude;
-                    distToSeg = Mathf.Max(0, distToSeg);//TODO: why would distance be negative???
+                    //distToSeg = Vector3.Cross((cPos - v1), (cPos - v2)).magnitude / dir.magnitude;
+                    distToSeg = Mathf.Max(0, difv1.sqrMagnitude - Mathf.Pow(Vector3.Dot(difv1, dir), 2) / dir.sqrMagnitude);
                 }
 
                 boneDists[i, j] = distToSeg;
@@ -132,12 +130,12 @@ public class BoneHeatRigSolver : IRigSolver
 
                 if (Vector3.Dot((v2 - cPos), dir) < 0)
                     projToSeg = v2;
-                else if (Vector3.Dot((cPos - v1), dir) < 0)
+                else if (Vector3.Dot((cPos - v1), dir) <= 0)
                     projToSeg = v1;
                 else
-                    projToSeg = v1 + Vector3.Dot((cPos - v1), dir) / dir.sqrMagnitude * dir;
+                    projToSeg = v1 + (Vector3.Dot((cPos - v1), dir) / dir.sqrMagnitude) * dir;
 
-                boneVis[i, j] = tester.CanSee(cPos, projToSeg) && vectorInCone(cPos - projToSeg, normals);
+                boneVis[i, j] = tester.CanSee(cPos, projToSeg); //&& vectorInCone(cPos - projToSeg, normals);
             }
         }
         stopwatch.Stop();
@@ -251,12 +249,12 @@ public class BoneHeatRigSolver : IRigSolver
         byte[] bonesPerVertex = new byte[nv];
         List<BoneWeight1> finalWeights = new List<BoneWeight1>();
         for(int i = 0; i < nv; ++i) {
-            if (weights[i].Count == 0) { //TODO: why does this case even happen???
+            if (weights[i].Count == 0) {
                 float minDist = float.PositiveInfinity;
                 int bone = -1;
                 for (int j = 1; j < bones.Length; ++j)
                 {
-                    if (boneDists[i,j] < minDist)
+                    if (boneVis[i,j] && boneDists[i,j] < minDist)
                     {
                         bone = j;
                         minDist = boneDists[i,j];

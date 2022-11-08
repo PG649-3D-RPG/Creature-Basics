@@ -184,7 +184,10 @@ namespace MarchingCubesProject
             }
             mesh.bindposes = bindPoses.ToArray();
 
-            rigSolver.CalcBoneWeights(mesh, bones, transform);
+            //IVisibilityTester tester = new SDFVisibilityTester(mesh, 64);
+            IVisibilityTester tester = new MetaballVisibilityTester(metaball, 1.0f);
+
+            rigSolver.CalcBoneWeights(mesh, tester, bones, transform);
 
             go.AddComponent<MeshFilter>();
             go.AddComponent<MeshRenderer>();

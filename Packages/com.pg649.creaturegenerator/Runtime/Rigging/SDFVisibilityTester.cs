@@ -3,11 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class VisibilityTester {
+// this implementation is currently not working because it's not precise enough.
+public class SDFVisibilityTester : IVisibilityTester {
 
     private SignedDistanceField sdf;
 
-    public VisibilityTester(Mesh mesh, int sdfResolution) {
+    public SDFVisibilityTester(Mesh mesh, int sdfResolution) {
         this.sdf = new SignedDistanceField(mesh, sdfResolution);
     }
 

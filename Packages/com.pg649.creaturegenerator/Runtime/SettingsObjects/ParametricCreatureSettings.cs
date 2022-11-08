@@ -13,11 +13,6 @@ public class ParametricCreatureSettings : ScriptableObject
     [Header("Hips")] 
     public NormalDistribution HipThickness = new(1.0f, 0.6f, 0.0f, float.MaxValue);
     public NormalDistribution HipLength = new(1.5f, 0.5f, 0.0f, float.MaxValue);
-
-    [Header("Legs")] 
-    public NormalDistribution LegLength = new(3.0f, 2.0f, 0.0f, float.MaxValue);
-    public NormalDistribution LegThickness = new(0.3f, 0.2f, 0.0f, float.MaxValue);
-    public UniformIntegerDistribution LegBones = new(2, 4);
     
     [Header("Neck")]
     public NormalDistribution NeckThickness = new(0.3f, 0.2f, 0.0f, float.MaxValue);

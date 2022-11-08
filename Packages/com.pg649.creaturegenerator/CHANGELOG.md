@@ -14,6 +14,8 @@
 ### Changed
 - Added FalloffFunction class for easy customization of metaball functions
 - Replaced biped metaball part with box shape
+- Moved biped and quadruped parameters to different settings objects
+- Added separate categories for quadruped's front and hind legs
 
 ## [3.6.0] - 2022-10-12
 ### Changed

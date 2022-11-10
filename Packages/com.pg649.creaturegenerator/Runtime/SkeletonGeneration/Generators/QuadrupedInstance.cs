@@ -40,11 +40,11 @@ public class QuadrupedInstance : ISettingsInstance
 
         var hindLegHeights = settings.HindLegLength.Samples(numHindLegBones);
         var hindLegThicknesses = settings.HindLegThickness.Samples(numHindLegBones);
-        hindLegThicknesses.Sort();
+        hindLegThicknesses.Sort((a, b) => b.CompareTo(a));
         
         var frontLegHeights = settings.FrontLegLength.Samples(numFrontLegBones);
         var frontLegThicknesses = settings.FrontLegThickness.Samples(numFrontLegBones);
-        frontLegThicknesses.Sort();
+        frontLegThicknesses.Sort((a, b) => b.CompareTo(a));
 
         var numTorsoBones = settings.TorsoBones.Sample();
         var torsoLengths = settings.TorsoLength.Samples(numTorsoBones);

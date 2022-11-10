@@ -41,12 +41,12 @@ public class BipedInstance : ISettingsInstance
         var numArmBones = settings.ArmBones.Sample();
         var armLengths = settings.ArmLength.Samples(numArmBones);
         var armThicknesses = settings.ArmThickness.Samples(numArmBones);
-        armThicknesses.Sort();
+        armThicknesses.Sort((a, b) => b.CompareTo(a));
 
         var numLegBones = settings.LegBones.Sample();
         var legLengths = settings.LegLength.Samples(numLegBones);
         var legThicknesses = settings.LegThickness.Samples(numLegBones);
-        legThicknesses.Sort();
+        legThicknesses.Sort((a, b) => b.CompareTo(a));
 
         var numTorsoBones = settings.TorsoBones.Sample();
         var torsoLengths = settings.TorsoLength.Samples(numTorsoBones);

@@ -119,18 +119,18 @@ public class SkeletonAssembler {
 
         if (jointLimits.HasLimits((parentCategory, childCategory))) {
             var limits = jointLimits[(parentCategory, childCategory)];
-            if (limits.XAxisMin != 0.0f || limits.XAxisMax != 0.0f)
+            if (Mathf.Abs(limits.XAxisMin - limits.XAxisMax) > settings.AngleThreshold)
             {
                 joint.angularXMotion = ConfigurableJointMotion.Limited;
                 joint.lowAngularXLimit = new SoftJointLimit() { limit = limits.XAxisMin};
                 joint.highAngularXLimit = new SoftJointLimit() { limit = limits.XAxisMax};
             }
-            if (limits.YAxisSymmetric != 0.0f)
+            if (Mathf.Abs(limits.YAxisSymmetric) > settings.AngleThreshold)
             {
                 joint.angularYMotion = ConfigurableJointMotion.Limited;
                 joint.angularYLimit = new SoftJointLimit() { limit = limits.YAxisSymmetric};
             }
-            if (limits.ZAxisSymmetric != 0.0f)
+            if (Mathf.Abs(limits.ZAxisSymmetric) > 0.0f)
             {
                 joint.angularZMotion = ConfigurableJointMotion.Limited;
                 joint.angularZLimit = new SoftJointLimit() { limit = limits.ZAxisSymmetric};

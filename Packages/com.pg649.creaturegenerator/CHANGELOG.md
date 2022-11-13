@@ -16,6 +16,7 @@
 - Replaced biped metaball part with box shape
 - Moved biped and quadruped parameters to different settings objects
 - Added separate categories for quadruped's front and hind legs
+- Added angle threshold to generator settings, all axes of joints with lower movement range will be set to locked
 
 ## [3.6.0] - 2022-10-12
 ### Changed

@@ -35,6 +35,11 @@ public class SkeletonSettings
     
     [Tooltip("If set, the hip is a singular bone, instead of multiple. Only applies to the LSystem Generator.")]
     public bool ConnectHips = false;
+
+    [Header("Joints")]
+
+    [Tooltip("Locks a joint's rotation along an axis, if the movement range is smaller or equal to given angle")]
+    public float AngleThreshold = 0f;
     
     [Header("Physics")]
     

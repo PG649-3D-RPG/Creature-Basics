@@ -198,8 +198,16 @@ public class QuadrupedGenerator {
         attachTo.LinkChild(hip);
         hip.LinkChild(leg1);
         leg1.AttachmentHint.Position = new RelativePosition(1.0f, 0.5f, 0.5f);
+
         hip.LinkChild(leg2);
         leg2.AttachmentHint.Position = new RelativePosition(-1.0f, 0.5f, 0.5f);
+
+        //avoid overlapping legs
+        if (2f * leg1.Thickness > hip.Thickness)
+        {
+            leg1.AttachmentHint.Position = new RelativePosition(1.5f * leg1.Thickness / hip.Thickness, 0.5f, 0.5f);
+            leg2.AttachmentHint.Position = new RelativePosition(-1.5f * leg2.Thickness / hip.Thickness, 0.5f, 0.5f);
+        }
         return hip;
     }
 }

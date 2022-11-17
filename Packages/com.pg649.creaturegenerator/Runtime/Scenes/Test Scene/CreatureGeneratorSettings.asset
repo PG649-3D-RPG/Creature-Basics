@@ -37,7 +37,7 @@ MonoBehaviour:
     Material: {fileID: 0}
     SmoothNormals: 1
     enableDQSkinner: 0
-    GridResolution: 90
+    GridResolution: 120
   DebugSettings:
     LogAdditionalInfo: 1
     DisableBoneGravity: 0

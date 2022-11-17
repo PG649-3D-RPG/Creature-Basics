@@ -6,7 +6,7 @@ public interface IRigSolver
 {
 
     public enum RigSolverType {
-        ClosestBone, BoneHeat
+        ClosestBone, BoneHeat, VisibleBones
     }
 
     public static IRigSolver Get(RigSolverType type) {
@@ -14,11 +14,13 @@ public interface IRigSolver
             return new ClosestBoneRigSolver();
         else if (type == RigSolverType.BoneHeat)
             return new BoneHeatRigSolver();
+        else if (type == RigSolverType.VisibleBones)
+            return new VisibleBonesRigSolver();
         else
             return null;
     }
 
 
-    void CalcBoneWeights(Mesh mesh, IVisibilityTester tester, Transform[] bones, Transform meshTransform);
+    void CalcBoneWeights(Mesh mesh, IVisibilityTester tester, Bone[] bones, Transform meshTransform);
 
 }

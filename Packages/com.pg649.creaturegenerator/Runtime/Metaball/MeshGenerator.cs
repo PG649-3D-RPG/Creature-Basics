@@ -174,13 +174,13 @@ namespace MarchingCubesProject
             GameObject go = new GameObject("Mesh");
             go.transform.parent = transform;
 
-            Transform[] bones = BoneUtil.FindBones(transform.gameObject);
+            Bone[] bones = BoneUtil.FindBones(transform.gameObject);
             Debug.Log("Found " + bones.Length + " Bones in the hierarchy");
 
             // bind poses must be generated relative to the meshes transform
             List<Matrix4x4> bindPoses = new List<Matrix4x4>();
-            foreach (Transform bone in bones) {
-                bindPoses.Add(bone.worldToLocalMatrix * go.transform.localToWorldMatrix);
+            foreach (Bone bone in bones) {
+                bindPoses.Add(bone.gameObject.transform.worldToLocalMatrix * go.transform.localToWorldMatrix);
             }
             mesh.bindposes = bindPoses.ToArray();
 
@@ -189,15 +189,19 @@ namespace MarchingCubesProject
 
             rigSolver.CalcBoneWeights(mesh, tester, bones, transform);
 
+            Transform[] boneTransforms = new Transform[bones.Length];
+            for (int i = 0; i < bones.Length; i++) {
+                boneTransforms[i] = bones[i].gameObject.transform;
+            }
+
             go.AddComponent<MeshFilter>();
             go.AddComponent<MeshRenderer>();
             go.GetComponent<MeshRenderer>().material = material;
             go.AddComponent<SkinnedMeshRenderer>();
             go.GetComponent<SkinnedMeshRenderer>().sharedMesh = mesh;
-            go.GetComponent<SkinnedMeshRenderer>().rootBone = bones[0];
+            go.GetComponent<SkinnedMeshRenderer>().rootBone = boneTransforms[0];
             go.GetComponent<SkinnedMeshRenderer>().updateWhenOffscreen = true;
-            go.GetComponent<SkinnedMeshRenderer>().quality = SkinQuality.Bone1;
-            go.GetComponent<SkinnedMeshRenderer>().bones = bones;
+            go.GetComponent<SkinnedMeshRenderer>().bones = boneTransforms;
 
             if (enableDQSkinner) {
                 go.AddComponent<DualQuaternionSkinner>();

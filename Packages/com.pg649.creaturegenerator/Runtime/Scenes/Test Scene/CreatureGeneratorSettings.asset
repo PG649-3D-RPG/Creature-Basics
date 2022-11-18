@@ -33,7 +33,7 @@ MonoBehaviour:
     FixIdenticalBonePositions: 1
   MeshSettings:
     GenerateMetaballMesh: 1
-    RigSolver: 1
+    RigSolver: 0
     Mode: 0
     Material: {fileID: 0}
     SmoothNormals: 1

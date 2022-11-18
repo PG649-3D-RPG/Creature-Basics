@@ -88,7 +88,7 @@ public class BoneHeatRigSolver : IRigSolver
 
             //calculate boneDists and minDist
             float minDist = float.PositiveInfinity;
-            for (int j = 1; j < bones.Length; ++j)
+            for (int j = 0; j < bones.Length; ++j)
             {
                 Vector3 v1 = bones[j].WorldProximalPoint();
                 Vector3 v2 = bones[j].WorldDistalPoint();
@@ -115,11 +115,11 @@ public class BoneHeatRigSolver : IRigSolver
             }
 
             // project cPos on the segment and test if the projected point is visible from cPos
-            for (int j = 1; j < bones.Length; ++j)
+            for (int j = 0; j < bones.Length; ++j)
             {
                 //the reason we don't just pick the closest bone is so that if two are
                 //equally close, both are factored in.
-                if (boneDists[i, j] > minDist * 1.0001f)
+                if (boneDists[i, j] > minDist * 1.001f)
                     continue;
 
                 Vector3 v1 = bones[j].WorldProximalPoint();
@@ -158,7 +158,7 @@ public class BoneHeatRigSolver : IRigSolver
 
             //get bones
             float minDist = float.PositiveInfinity;
-            for (int j = 1; j < bones.Length; ++j)
+            for (int j = 0; j < bones.Length; ++j)
             {
                 if (boneDists[i,j] < minDist)// && boneVis[i,j])
                 {
@@ -166,7 +166,7 @@ public class BoneHeatRigSolver : IRigSolver
                     minDist = boneDists[i,j];
                 }
             }
-            for (int j = 1; j < bones.Length; ++j)
+            for (int j = 0; j < bones.Length; ++j)
             {
                 if (boneVis[i,j] && boneDists[i,j] <= minDist * 1.001f)
                 {
@@ -219,7 +219,7 @@ public class BoneHeatRigSolver : IRigSolver
             weights[i] = new List<BoneWeight1>();
         }
 
-        for (int j = 1; j < bones.Length; ++j)
+        for (int j = 0; j < bones.Length; ++j)
         {
             float[] rhs = new float[nv];
             for (int i = 0; i < nv; ++i)
@@ -246,10 +246,10 @@ public class BoneHeatRigSolver : IRigSolver
 
         for (int i = 0; i < nv; ++i)
         {
-            if (weights[i].Count == 0) { // if vertex is not attached to any bone fallback
-                for (int j = 1; j < bones.Length; ++j)
+            if (weights[i].Count == 0) { // if vertex is not attached to any bone
+                for (int j = 0; j < bones.Length; ++j)
                 {
-                    if (boneVis[i,j])
+                    if (boneDists[i,j] <= 1.05f * boneDists[i, closest[i]])
                     {
                         BoneWeight1 w = new BoneWeight1();
                         w.boneIndex = j;

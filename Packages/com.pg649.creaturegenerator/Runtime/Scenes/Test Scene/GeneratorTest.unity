@@ -344,7 +344,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 203d14660edde424eb0786e9dd346378, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Target: 1
+  Target: 2
   Settings: {fileID: 11400000, guid: 4e2076ef02c54fb4dbbefc191dc93e5f, type: 2}
   BipedSettings: {fileID: 11400000, guid: 948ac0bf680849246bc2a87baa7ba4c1, type: 2}
   QuadrupedSettings: {fileID: 11400000, guid: 886bb216d458d324fbf54074f4357a57, type: 2}

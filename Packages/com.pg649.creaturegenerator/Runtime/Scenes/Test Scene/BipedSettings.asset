@@ -23,8 +23,8 @@ MonoBehaviour:
     Min: 0
     Max: 3.4028235e+38
   HipLength:
-    Mean: 1.5
-    StandardDeviation: 0.5
+    Mean: 0.5
+    StandardDeviation: 0.1
     Min: 0
     Max: 3.4028235e+38
   NeckThickness:

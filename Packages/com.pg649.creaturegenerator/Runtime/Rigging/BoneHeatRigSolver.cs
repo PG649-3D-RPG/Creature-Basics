@@ -244,9 +244,11 @@ public class BoneHeatRigSolver : IRigSolver
         stopwatch.Stop();
         Debug.Log($"Matrix solving took: {stopwatch.Elapsed.TotalSeconds} seconds.");
 
+        int misattached = 0;
         for (int i = 0; i < nv; ++i)
         {
             if (weights[i].Count == 0) { // if vertex is not attached to any bone
+                misattached++;
                 for (int j = 0; j < bones.Length; ++j)
                 {
                     if (boneDists[i,j] <= 1.05f * boneDists[i, closest[i]])
@@ -257,8 +259,13 @@ public class BoneHeatRigSolver : IRigSolver
                         weights[i].Add(w);
                     }
                 }
+                /*BoneWeight1 w = new BoneWeight1();
+                w.boneIndex = 0;
+                w.weight = 1.0f;
+                weights[i].Add(w);*/
             }
         }
+        Debug.Log($"BoneHeat: Had to fix {misattached} misattached using fallback method.");
 
         byte[] bonesPerVertex = new byte[nv];
         List<BoneWeight1> finalWeights = new List<BoneWeight1>();

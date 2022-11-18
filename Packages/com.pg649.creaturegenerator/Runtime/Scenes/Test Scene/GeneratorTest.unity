@@ -344,7 +344,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 203d14660edde424eb0786e9dd346378, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Target: 2
+  Target: 1
   Settings: {fileID: 11400000, guid: 4e2076ef02c54fb4dbbefc191dc93e5f, type: 2}
   BipedSettings: {fileID: 11400000, guid: 948ac0bf680849246bc2a87baa7ba4c1, type: 2}
   QuadrupedSettings: {fileID: 11400000, guid: 886bb216d458d324fbf54074f4357a57, type: 2}
@@ -444,7 +444,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1356581400}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalPosition: {x: 0, y: -3.62, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

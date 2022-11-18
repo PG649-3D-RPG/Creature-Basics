@@ -55,12 +55,12 @@ public class BipedGenerator {
 
         var leftShoulder = buildShoulder();
         leftShoulder.LinkChild(leftRoot);
-        leftShoulder.AttachmentHint.Position = new RelativePosition(0.7f, 0.0f, 0.5f);
+        leftShoulder.AttachmentHint.Position = new RelativePosition(1f, 0.0f, 0.5f);
         leftShoulder.AttachmentHint.Rotation = Quaternion.Euler(0.0f, -90.0f, 0.0f);
         
         var rightShoulder = buildShoulder();
         rightShoulder.LinkChild(rightRoot);
-        rightShoulder.AttachmentHint.Position = new RelativePosition(-0.7f, 0.0f, 0.5f);
+        rightShoulder.AttachmentHint.Position = new RelativePosition(-1f, 0.0f, 0.5f);
         rightShoulder.AttachmentHint.Rotation = Quaternion.Euler(0.0f, 90.0f, 0.0f);
 
         arms.Add(leftShoulder);

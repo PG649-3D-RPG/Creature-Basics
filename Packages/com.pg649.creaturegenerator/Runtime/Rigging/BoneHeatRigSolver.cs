@@ -107,7 +107,6 @@ public class BoneHeatRigSolver : IRigSolver
                 }
                 else
                 {
-                    //distToSeg = Vector3.Cross((cPos - v1), (cPos - v2)).magnitude / dir.magnitude;
                     distToSeg = Mathf.Max(0, difv1.sqrMagnitude - Mathf.Pow(Vector3.Dot(difv1, dir), 2) / dir.sqrMagnitude);
                 }
 
@@ -120,7 +119,7 @@ public class BoneHeatRigSolver : IRigSolver
             {
                 //the reason we don't just pick the closest bone is so that if two are
                 //equally close, both are factored in.
-                if (boneDists[i, j] > minDist * 1.01f)
+                if (boneDists[i, j] > minDist * 1.0001f)
                     continue;
 
                 Vector3 v1 = bones[j].WorldProximalPoint();
@@ -135,7 +134,7 @@ public class BoneHeatRigSolver : IRigSolver
                 else
                     projToSeg = v1 + (Vector3.Dot((cPos - v1), dir) / dir.sqrMagnitude) * dir;
 
-                boneVis[i, j] = tester.CanSee(cPos, projToSeg); //&& vectorInCone(cPos - projToSeg, normals);
+                boneVis[i, j] = tester.CanSee(cPos, projToSeg) /*&& vectorInCone(cPos - projToSeg, normals)*/;
             }
         }
         stopwatch.Stop();
@@ -155,7 +154,7 @@ public class BoneHeatRigSolver : IRigSolver
 
                 D[i] += (Vector3.Cross((mesh.vertices[edges[i][j]] - mesh.vertices[i]), (mesh.vertices[edges[i][nj]] - mesh.vertices[i]))).magnitude;
             }
-            D[i] = 1 / (1e-10f + D[i]);
+            D[i] = 1 / (1e-5f + D[i]);
 
             //get bones
             float minDist = float.PositiveInfinity;
@@ -171,7 +170,7 @@ public class BoneHeatRigSolver : IRigSolver
             {
                 if (boneVis[i,j] && boneDists[i,j] <= minDist * 1.001f)
                 {
-                    H[i] += initialHeatWeight / Mathf.Pow(1e-6f + boneDists[i, closest[i]], 2);
+                    H[i] += initialHeatWeight / Mathf.Pow(1e-3f + boneDists[i, closest[i]], 2);
                 }
             }
 
@@ -234,7 +233,7 @@ public class BoneHeatRigSolver : IRigSolver
             {
                 if (solved[i] > 1)
                     solved[i] = 1; //clip just in case
-                if (solved[i] > 1e-3) {
+                if (solved[i] > 1e-5) {
                     BoneWeight1 w = new BoneWeight1();
                     w.boneIndex = j;
                     w.weight = solved[i];
@@ -245,41 +244,38 @@ public class BoneHeatRigSolver : IRigSolver
         stopwatch.Stop();
         Debug.Log($"Matrix solving took: {stopwatch.Elapsed.TotalSeconds} seconds.");
 
+        for (int i = 0; i < nv; ++i)
+        {
+            if (weights[i].Count == 0) { // if vertex is not attached to any bone fallback
+                for (int j = 1; j < bones.Length; ++j)
+                {
+                    if (boneVis[i,j])
+                    {
+                        BoneWeight1 w = new BoneWeight1();
+                        w.boneIndex = j;
+                        w.weight = 1.0f / boneDists[i,j];
+                        weights[i].Add(w);
+                    }
+                }
+            }
+        }
+
         byte[] bonesPerVertex = new byte[nv];
         List<BoneWeight1> finalWeights = new List<BoneWeight1>();
         for(int i = 0; i < nv; ++i) {
-            if (weights[i].Count == 0) { // vertex is not attached to any bone
-                /*float minDist = float.PositiveInfinity;
-                int bone = 0;
-                for (int j = 1; j < bones.Length; ++j)
-                {
-                    if (boneVis[i,j] && boneDists[i,j] < minDist)
-                    {
-                        bone = j;
-                        minDist = boneDists[i,j];
-                    }
-                }*/
+            weights[i].Sort((a, b) => b.weight.CompareTo(a.weight));
+
+            float sum = 0;
+            for(int j = 0; j < weights[i].Count; ++j)
+                sum += weights[i][j].weight;
+
+            for(int j = 0; j < weights[i].Count; ++j) {
                 BoneWeight1 w = new BoneWeight1();
-                w.boneIndex = 0;
-                w.weight = 1.0f;
+                w.boneIndex = weights[i][j].boneIndex;
+                w.weight = weights[i][j].weight / sum;
                 finalWeights.Add(w);
-
-                bonesPerVertex[i] = 1;
-            } else {
-                weights[i].Sort((a, b) => b.weight.CompareTo(a.weight));
-
-                float sum = 0;
-                for(int j = 0; j < weights[i].Count; ++j)
-                    sum += weights[i][j].weight;
-
-                for(int j = 0; j < weights[i].Count; ++j) {
-                    BoneWeight1 w = new BoneWeight1();
-                    w.boneIndex = weights[i][j].boneIndex;
-                    w.weight = weights[i][j].weight / sum;
-                    finalWeights.Add(w);
-                }
-                bonesPerVertex[i] = (byte) weights[i].Count;
             }
+            bonesPerVertex[i] = (byte) weights[i].Count;
         }
 
         mesh.SetBoneWeights(new NativeArray<byte>(bonesPerVertex, Allocator.Temp), 

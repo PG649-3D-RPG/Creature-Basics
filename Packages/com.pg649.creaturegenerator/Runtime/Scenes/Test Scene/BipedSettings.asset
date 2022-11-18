@@ -13,13 +13,13 @@ MonoBehaviour:
   m_Name: BipedSettings
   m_EditorClassIdentifier: 
   HeadSize:
-    Mean: 0.9
-    StandardDeviation: 0.6
+    Mean: 0.2
+    StandardDeviation: 0.05
     Min: 0
     Max: 3.4028235e+38
   HipThickness:
-    Mean: 1
-    StandardDeviation: 0.6
+    Mean: 0.8
+    StandardDeviation: 0.1
     Min: 0
     Max: 3.4028235e+38
   HipLength:
@@ -28,8 +28,8 @@ MonoBehaviour:
     Min: 0
     Max: 3.4028235e+38
   NeckThickness:
-    Mean: 0.29999995
-    StandardDeviation: 0.2
+    Mean: 0.1
+    StandardDeviation: 0.01
     Min: 0
     Max: 3.4028235e+38
   NeckLength:
@@ -41,8 +41,8 @@ MonoBehaviour:
     Min: 1
     Max: 4
   TorsoThickness:
-    Mean: 1
-    StandardDeviation: 0.5
+    Mean: 0.3
+    StandardDeviation: 0.1
     Min: 0
     Max: 3.4028235e+38
   TorsoLength:
@@ -54,7 +54,7 @@ MonoBehaviour:
     Min: 1
     Max: 3
   ArmThickness:
-    Mean: 0.29999995
+    Mean: 0.2
     StandardDeviation: 0.08
     Min: 0
     Max: 3.4028235e+38
@@ -73,7 +73,7 @@ MonoBehaviour:
     Max: 3.4028235e+38
   LegThickness:
     Mean: 0.29999995
-    StandardDeviation: 0.2
+    StandardDeviation: 0.1
     Min: 0
     Max: 3.4028235e+38
   LegBones:
@@ -90,13 +90,13 @@ MonoBehaviour:
     Min: 0
     Max: 3.4028235e+38
   HandRadius:
-    Mean: 0.75
-    StandardDeviation: 0.25
+    Mean: 0.4
+    StandardDeviation: 0.2
     Min: 0
     Max: 3.4028235e+38
   ShoulderThickness:
-    Mean: 0.29999995
-    StandardDeviation: 0.2
+    Mean: 0.2
+    StandardDeviation: 0.05
     Min: 0
     Max: 3.4028235e+38
   ShoulderLength:

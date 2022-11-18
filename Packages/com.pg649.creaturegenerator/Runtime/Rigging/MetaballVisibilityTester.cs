@@ -17,7 +17,7 @@ public class MetaballVisibilityTester : IVisibilityTester {
         Vector3 dir = v2 - v1;
         int steps = 100;
         float invSteps = (1.0f / steps);
-        for (int i = 10; i < steps; i++) {
+        for (int i = 5; i < steps; i++) {
             Vector3 pos = v1 + steps * (dir * invSteps);
 
             float val = metaball.Value(pos.x, pos.y, pos.z);

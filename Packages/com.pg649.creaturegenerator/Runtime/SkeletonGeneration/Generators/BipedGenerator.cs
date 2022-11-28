@@ -8,7 +8,7 @@ public class BipedGenerator {
 
     private BoneDefinition neckAttachmentBone;
 
-    private BoneDefinition armAttachmentBone;
+    private BoneDefinition shoulderAttachmentBone;
 
     private static readonly Dictionary<(BoneCategory, BoneCategory), JointLimits> HumanoidJointLimits = new Dictionary<(BoneCategory, BoneCategory), JointLimits>() {
         {(BoneCategory.Arm, BoneCategory.Arm), new JointLimits { XAxisMin = -10, XAxisMax = 160, Axis = Vector3.up, SecondaryAxis = Vector3.forward }},
@@ -25,17 +25,16 @@ public class BipedGenerator {
     public SkeletonDefinition BuildCreature(BipedSettings settings, int? seed, JointLimitOverrides limitOverrides) {
         instance = new BipedInstance(settings, seed);
         List<BoneDefinition> legs = buildLegs();
-        List<BoneDefinition> arms = buildArms();
+        BoneDefinition shoulder = buildArms();
 
         BoneDefinition root = buildTorso();
         buildHip(root, legs[0], legs[1], Vector3.down, Vector3.forward, RelativePositions.ProximalPoint);
 
+        shoulderAttachmentBone.LinkChild(shoulder);
+        neckAttachmentBone = shoulder;
+
         BoneDefinition neck = buildNeck(neckAttachmentBone);
         buildHead(neck);
-
-
-        foreach (var arm in arms)
-            armAttachmentBone.LinkChild(arm);
 
         root.AttachmentHint.Offset = new(0, instance.LegLengths.Sum() + instance.HipLength * 0.5f + SkeletonAssembler.FootHeight, 0);
 
@@ -45,38 +44,34 @@ public class BipedGenerator {
         return new SkeletonDefinition(root, jointLimits, instance);
     }
 
-    private List<BoneDefinition> buildArms() {
+    private BoneDefinition buildArms() {
         List<BoneDefinition> arms = new();
         var leftRoot = buildArm(instance.ArmLengths, instance.ArmThicknesses, false);
-        leftRoot.AttachmentHint.VentralDirection = Vector3.right;
+        leftRoot.AttachmentHint.Rotation = Quaternion.Euler(0f, -90f, 0f);
+        leftRoot.AttachmentHint.Position = new RelativePosition(1f, 0.0f, 0.5f);
         
         var rightRoot = buildArm(instance.ArmLengths, instance.ArmThicknesses, true);
-        rightRoot.AttachmentHint.VentralDirection = Vector3.left;
+        rightRoot.AttachmentHint.Rotation = Quaternion.Euler(0f, 90f, 0f);
+        rightRoot.AttachmentHint.Position = new RelativePosition(-1f, 0.0f, 0.5f);
 
-        var leftShoulder = buildShoulder();
-        leftShoulder.LinkChild(leftRoot);
-        leftShoulder.AttachmentHint.Position = new RelativePosition(1f, 0.0f, 0.5f);
-        leftShoulder.AttachmentHint.Rotation = Quaternion.Euler(0.0f, -90.0f, 0.0f);
-        
-        var rightShoulder = buildShoulder();
-        rightShoulder.LinkChild(rightRoot);
-        rightShoulder.AttachmentHint.Position = new RelativePosition(-1f, 0.0f, 0.5f);
-        rightShoulder.AttachmentHint.Rotation = Quaternion.Euler(0.0f, 90.0f, 0.0f);
+        var shoulder = buildShoulder();
+        shoulder.LinkChild(leftRoot);
+        shoulder.LinkChild(rightRoot);
 
-        arms.Add(leftShoulder);
-        arms.Add(rightShoulder);
-        return arms;
+        return shoulder;
     }
 
     private BoneDefinition buildShoulder()
     {
+        float width = instance.TorsoWidths[instance.TorsoWidths.Count - 1] + instance.ArmThicknesses[0] * 2f;
         return new BoneDefinition
         {
-            Length = instance.ShoulderLength,
-            DistalAxis = Vector3.down,
+            Length = 2f * instance.ArmThicknesses[0],
+            DistalAxis = Vector3.up,
             VentralAxis = Vector3.forward,
             Category = BoneCategory.Shoulder,
-            Thickness = instance.ShoulderThickness,
+            Width = width,
+            Thickness = width * instance.TorsoRatio,
             Mirrored = false
         };
     }
@@ -148,8 +143,8 @@ public class BipedGenerator {
     }
 
     private BoneDefinition buildTorso() {
-        var (bottom, top) = GeneratorUtils.BuildLimb(instance.TorsoLengths, instance.TorsoThicknesses,
-            (length, thickness, _) => new BoneDefinition()
+        var (bottom, top) = GeneratorUtils.BuildLimb(instance.TorsoLengths, instance.TorsoWidths,
+            (length, width, _) => new BoneDefinition()
             {
                 // Construct Torso pointing up, with front side facing forward.
                 Length = length,
@@ -157,10 +152,10 @@ public class BipedGenerator {
                 VentralAxis = Vector3.forward,
                 Category = BoneCategory.Torso,
                 AttachmentHint = new AttachmentHint(),
-                Thickness = thickness,
+                Width = width,
+                Thickness = width * instance.TorsoRatio,
             });
-        neckAttachmentBone = top;
-        armAttachmentBone = top;
+        shoulderAttachmentBone = top;
 
         return bottom;
     }
@@ -208,13 +203,15 @@ public class BipedGenerator {
 
     private BoneDefinition buildHip(BoneDefinition attachTo, BoneDefinition leg1, BoneDefinition leg2, Vector3 distalAxis, Vector3 ventralAxis, RelativePosition pos)
     {
+        float width = Mathf.Max(instance.TorsoWidths.Average(), leg1.Thickness*5f);
         BoneDefinition hip = new()
         {
             Length = instance.HipLength,
             Category = BoneCategory.Hip,
             DistalAxis = distalAxis,
             VentralAxis = ventralAxis,
-            Thickness = instance.HipThickness,
+            Width = width,
+            Thickness = width * instance.TorsoRatio,
             AttachmentHint =
             {
                 Position = pos
@@ -223,9 +220,9 @@ public class BipedGenerator {
 
         attachTo.LinkChild(hip);
         hip.LinkChild(leg1);
-        leg1.AttachmentHint.Position = new RelativePosition(1.0f, 0.0f, 0.5f);
+        leg1.AttachmentHint.Position = new RelativePosition(1f - (leg1.Thickness/(width/2f)), 0.0f, 1f);
         hip.LinkChild(leg2);
-        leg2.AttachmentHint.Position = new RelativePosition(-1.0f, 0.0f, 0.5f);
+        leg2.AttachmentHint.Position = new RelativePosition(-1f + (leg1.Thickness / (width / 2f)), 0.0f, 1f);
 
         //avoid overlapping legs
         if (2f * leg1.Thickness > hip.Thickness)

@@ -22,6 +22,8 @@ public class BoneDefinition {
 
     public float Thickness;
 
+    public float? Width;
+
     public bool Mirrored;
 
     public BoneDefinition() {

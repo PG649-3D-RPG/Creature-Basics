@@ -16,7 +16,7 @@ public class QuadrupedInstance : ISettingsInstance
 
     [ObservationOrder(16)] public readonly int NumTorsoBones;
     [ObservationOrder(6)] public readonly float TotalTorsoLength;
-    [ObservationOrder(7)] public readonly List<float> TorsoThicknesses;
+    [ObservationOrder(7)] public readonly List<float> TorsoWidths;
     [ObservationOrder(8)] public readonly List<float> TorsoLengths;
 
     [ObservationOrder(9)] public readonly int NeckBones;
@@ -48,10 +48,10 @@ public class QuadrupedInstance : ISettingsInstance
 
         var numTorsoBones = settings.TorsoBones.Sample();
         var torsoLengths = settings.TorsoLength.Samples(numTorsoBones);
-        var torsoThicknesses = settings.TorsoLength.Samples(numTorsoBones);
+        var torsoWidths = settings.TorsoWidth.Samples(numTorsoBones);
 
         TotalTorsoLength = torsoLengths.Sum();
-        TorsoThicknesses = torsoThicknesses;
+        TorsoWidths = torsoWidths;
         NumTorsoBones = numTorsoBones;
         TorsoLengths = torsoLengths;
         NeckBones = settings.NeckBones.Sample();

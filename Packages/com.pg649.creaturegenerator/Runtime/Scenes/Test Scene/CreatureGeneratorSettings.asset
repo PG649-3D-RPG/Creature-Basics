@@ -36,7 +36,7 @@ MonoBehaviour:
     RigSolver: 1
     Mode: 0
     Material: {fileID: 0}
-    SmoothNormals: 1
+    SmoothNormals: 0
     enableDQSkinner: 0
     GridResolution: 80
   DebugSettings:

@@ -32,17 +32,17 @@ MonoBehaviour:
     FixColliderPenetrations: 0
     FixIdenticalBonePositions: 1
   MeshSettings:
-    GenerateMetaballMesh: 0
-    RigSolver: 0
+    GenerateMetaballMesh: 1
+    RigSolver: 1
     Mode: 0
     Material: {fileID: 0}
-    SmoothNormals: 1
+    SmoothNormals: 0
     enableDQSkinner: 0
-    GridResolution: 90
+    GridResolution: 80
   DebugSettings:
     LogAdditionalInfo: 1
     DisableBoneGravity: 0
     KinematicBones: 0
-    DisablePhysics: 1
-    AttachPrimitiveMesh: 1
+    DisablePhysics: 0
+    AttachPrimitiveMesh: 0
     DrawNormals: 0

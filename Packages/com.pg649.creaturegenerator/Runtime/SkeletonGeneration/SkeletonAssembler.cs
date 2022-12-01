@@ -147,9 +147,9 @@ public class SkeletonAssembler {
 
         JointDrive slerp = new()
         {
-            positionSpring = 10000.0f,
-            positionDamper = 500.0f,
-            maximumForce = float.MaxValue
+            positionSpring = 0.0f,
+            positionDamper = 0.0f,
+            maximumForce = 0.0f
         };
         joint.slerpDrive = slerp;
         joint.rotationDriveMode = RotationDriveMode.Slerp;

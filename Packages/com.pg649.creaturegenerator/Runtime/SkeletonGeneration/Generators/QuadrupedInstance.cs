@@ -18,15 +18,13 @@ public class QuadrupedInstance : ISettingsInstance
     [ObservationOrder(6)] public readonly float TotalTorsoLength;
     [ObservationOrder(7)] public readonly List<float> TorsoWidths;
     [ObservationOrder(8)] public readonly List<float> TorsoLengths;
+    [ObservationOrder(20)] public readonly float TorsoRatio;
 
     [ObservationOrder(9)] public readonly int NeckBones;
     [ObservationOrder(10)] public readonly float NeckBoneLength;
     [ObservationOrder(11)] public readonly float NeckThickness;
 
     [ObservationOrder(12)] public readonly float HeadSize;
-
-    [ObservationOrder(13)] public readonly float HipThickness;
-    [ObservationOrder(14)] public readonly float HipLength;
 
     public QuadrupedInstance(QuadrupedSettings settings, int? seed)
     {
@@ -58,8 +56,6 @@ public class QuadrupedInstance : ISettingsInstance
         NeckBoneLength = settings.NeckLength.Sample();
         NeckThickness = settings.NeckThickness.Sample();
         HeadSize = settings.HeadSize.Sample();
-        HipLength = settings.HipLength.Sample();
-        HipThickness = settings.HipThickness.Sample();
         TotalFrontLegHeight = frontLegHeights.Sum();
         FrontLegHeights = frontLegHeights;
         FrontLegThicknesses = frontLegThicknesses;
@@ -68,5 +64,6 @@ public class QuadrupedInstance : ISettingsInstance
         HindLegThicknesses = hindLegThicknesses;
         NumHindLegBones = numHindLegBones;
         NumFrontLegBones = numFrontLegBones;
+        TorsoRatio = 0.6f;
     }
 }

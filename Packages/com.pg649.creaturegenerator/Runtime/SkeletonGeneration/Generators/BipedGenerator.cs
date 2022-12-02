@@ -28,7 +28,7 @@ public class BipedGenerator {
         BoneDefinition shoulder = buildArms();
 
         BoneDefinition root = buildTorso();
-        buildHip(root, legs[0], legs[1], Vector3.down, Vector3.forward, RelativePositions.ProximalPoint);
+        var hip = buildHip(root, legs[0], legs[1], Vector3.down, Vector3.forward, RelativePositions.ProximalPoint);
 
         shoulderAttachmentBone.LinkChild(shoulder);
         neckAttachmentBone = shoulder;
@@ -36,7 +36,7 @@ public class BipedGenerator {
         BoneDefinition neck = buildNeck(neckAttachmentBone);
         buildHead(neck);
 
-        root.AttachmentHint.Offset = new(0, instance.LegLengths.Sum() + instance.HipLength * 0.5f + SkeletonAssembler.FootHeight, 0);
+        root.AttachmentHint.Offset = new(0, instance.LegLengths.Sum() + hip.Length + SkeletonAssembler.FootHeight, 0);
 
         LimitTable jointLimits = new(HumanoidJointLimits);
         if (limitOverrides != null)
@@ -206,7 +206,7 @@ public class BipedGenerator {
         float width = Mathf.Max(instance.TorsoWidths.Average(), leg1.Thickness*5f);
         BoneDefinition hip = new()
         {
-            Length = instance.HipLength,
+            Length = width * instance.TorsoRatio,
             Category = BoneCategory.Hip,
             DistalAxis = distalAxis,
             VentralAxis = ventralAxis,
@@ -223,13 +223,6 @@ public class BipedGenerator {
         leg1.AttachmentHint.Position = new RelativePosition(1f - (leg1.Thickness/(width/2f)), 0.0f, 1f);
         hip.LinkChild(leg2);
         leg2.AttachmentHint.Position = new RelativePosition(-1f + (leg1.Thickness / (width / 2f)), 0.0f, 1f);
-
-        //avoid overlapping legs
-        if (2f * leg1.Thickness > hip.Thickness)
-        {
-            leg1.AttachmentHint.Position = new RelativePosition(1.5f * leg1.Thickness / hip.Thickness, 0.0f, 0.5f);
-            leg2.AttachmentHint.Position = new RelativePosition(-1.5f * leg2.Thickness / hip.Thickness, 0.0f, 0.5f);
-        }
 
         return hip;
     }

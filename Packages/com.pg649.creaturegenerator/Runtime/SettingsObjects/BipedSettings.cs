@@ -23,9 +23,5 @@ public class BipedSettings : ParametricCreatureSettings
     
     [Header("Hands")]
     public NormalDistribution HandRadius = new(0.75f, 0.25f, 0.0f, float.MaxValue);
-    
-    [Header("Shoulders")]
-    public NormalDistribution ShoulderThickness = new(0.3f, 0.2f, 0.0f, float.MaxValue);
-    public NormalDistribution ShoulderLength = new(0.75f, 0.25f, 0.0f, float.MaxValue);
 
 }

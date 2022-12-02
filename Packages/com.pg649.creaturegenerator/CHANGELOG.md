@@ -17,8 +17,8 @@
 - Moved biped and quadruped parameters to different settings objects
 - Added separate categories for quadruped's front and hind legs
 - Added angle threshold to generator settings, all axes of joints with lower movement range will be set to locked
-- Changed torso colliders to box shape with fixed width/depth ratio (biped)
-- replaced shoulders and hips with single box collider without separate parameters (biped)
+- Changed torso colliders to box shape with fixed width/depth ratio
+- replaced shoulders and hips with single box collider without separate parameters
 
 ## [3.6.0] - 2022-10-12
 ### Changed

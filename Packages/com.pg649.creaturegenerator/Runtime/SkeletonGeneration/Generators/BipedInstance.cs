@@ -28,9 +28,6 @@ public class BipedInstance : ISettingsInstance
 
     [ObservationOrder(14)] public readonly float HeadSize;
 
-    [ObservationOrder(15)] public readonly float HipThickness;
-    [ObservationOrder(16)] public readonly float HipLength;
-
     public BipedInstance(BipedSettings settings, int? seed)
     {
         if (seed.HasValue) {
@@ -67,8 +64,6 @@ public class BipedInstance : ISettingsInstance
         NeckBoneLength = settings.NeckLength.Sample();
         NeckThickness = settings.NeckThickness.Sample();
         HeadSize = settings.HeadSize.Sample();
-        HipLength = settings.HipLength.Sample();
-        HipThickness = settings.HipThickness.Sample();
         TorsoRatio = 0.4f;
     }
 }

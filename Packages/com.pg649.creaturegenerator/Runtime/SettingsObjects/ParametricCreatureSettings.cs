@@ -20,7 +20,7 @@ public class ParametricCreatureSettings : ScriptableObject
     public UniformIntegerDistribution NeckBones = new(1, 4);
 
     [Header("Torso")]
-    public NormalDistribution TorsoThickness = new(1.0f, 0.5f, 0.0f, float.MaxValue);
+    public NormalDistribution TorsoWidth = new(0.5f, 0.25f, 0.0f, float.MaxValue);
     public NormalDistribution TorsoLength = new(2.0f, 1.0f, 0.0f, float.MaxValue);
     public UniformIntegerDistribution TorsoBones = new(1, 3);
 

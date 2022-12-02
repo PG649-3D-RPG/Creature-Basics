@@ -189,7 +189,7 @@ public class SkeletonAssembler {
             result.transform.parent = parentGo.transform;
             Vector3 pos = parentBone.LocalProximalPoint() +
                 self.AttachmentHint.Position.Proximal * self.ParentBone.Length * parentBone.LocalDistalAxis() +
-                self.AttachmentHint.Position.Lateral * self.ParentBone.Thickness * parentBone.LocalLateralAxis() +
+                self.AttachmentHint.Position.Lateral * (self.ParentBone.Width.HasValue? self.ParentBone.Width.Value / 2f: self.ParentBone.Thickness)  * parentBone.LocalLateralAxis() +
                 self.AttachmentHint.Position.Ventral * self.ParentBone.Thickness * parentBone.LocalVentralAxis();
             result.transform.localPosition = pos;
 
@@ -255,7 +255,31 @@ public class SkeletonAssembler {
                 // Delete Collider from primitive
                 UnityEngine.Object.Destroy(meshObject.GetComponent<Collider>());
             }
-        } else {
+        }
+        else if (self.Width.HasValue)
+        {
+            // Create bones with box shaped geometry attached
+            BoxCollider box = result.AddComponent<BoxCollider>();
+            box.size = new(self.Width.Value, self.Thickness, self.Length);
+            box.center = bone.LocalMidpoint();
+            if (debug.AttachPrimitiveMesh)
+            {
+                meshObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                meshObject.tag = "Agent";
+                meshObject.transform.parent = result.transform;
+                meshObject.transform.localPosition = bone.LocalMidpoint();
+                meshObject.transform.localScale = new Vector3(self.Width.Value, self.Length, self.Thickness);
+                // Rotate box so that y-axis points along ProximalAxis of parent, i.e. in the direction
+                // of the bone
+                meshObject.transform.rotation = Quaternion.LookRotation(bone.WorldVentralAxis(), bone.WorldDistalAxis());
+
+                meshObject.GetComponent<MeshRenderer>().shadowCastingMode = settings.PrimitiveMeshShadows;
+
+                // Delete Collider from primitive
+                UnityEngine.Object.Destroy(meshObject.GetComponent<Collider>());
+            }
+        }
+        else {
             float height = self.Length;
             float radius = self.Thickness;
             if (2f * radius > height)

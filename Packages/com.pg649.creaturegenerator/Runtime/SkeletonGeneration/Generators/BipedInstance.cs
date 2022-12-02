@@ -3,8 +3,6 @@ using UnityEngine;
 
 public class BipedInstance : ISettingsInstance
 { 
-    [ObservationOrder(0)] public readonly float ShoulderThickness;
-    [ObservationOrder(1)] public readonly float ShoulderLength;
 
     [ObservationOrder(19)] public readonly int NumArmBones;
     [ObservationOrder(2)] public readonly List<float> ArmThicknesses;
@@ -20,8 +18,9 @@ public class BipedInstance : ISettingsInstance
     [ObservationOrder(8)] public readonly float FeetLength;
 
     [ObservationOrder(17)] public readonly int NumTorsoBones;
-    [ObservationOrder(9)] public readonly List<float> TorsoThicknesses;
+    [ObservationOrder(9)] public readonly List<float> TorsoWidths;
     [ObservationOrder(10)] public readonly List<float> TorsoLengths;
+    [ObservationOrder(20)] public readonly float TorsoRatio;
 
     [ObservationOrder(11)] public readonly int NeckBones;
     [ObservationOrder(12)] public readonly float NeckBoneLength;
@@ -50,10 +49,8 @@ public class BipedInstance : ISettingsInstance
 
         var numTorsoBones = settings.TorsoBones.Sample();
         var torsoLengths = settings.TorsoLength.Samples(numTorsoBones);
-        var torsoThicknesses = settings.TorsoThickness.Samples(numTorsoBones);
-        
-        ShoulderLength = settings.ShoulderLength.Sample();
-        ShoulderThickness = settings.ShoulderThickness.Sample();
+        var torsoWidths = settings.TorsoWidth.Samples(numTorsoBones);
+
         NumArmBones = numArmBones;
         ArmLengths = armLengths;
         ArmThicknesses = armThicknesses;
@@ -64,7 +61,7 @@ public class BipedInstance : ISettingsInstance
         NumTorsoBones = numTorsoBones;
         FeetWidth = settings.FeetWidth.Sample();
         FeetLength = settings.FeetLength.Sample();
-        TorsoThicknesses = torsoThicknesses;
+        TorsoWidths = torsoWidths;
         TorsoLengths = torsoLengths;
         NeckBones = settings.NeckBones.Sample();
         NeckBoneLength = settings.NeckLength.Sample();
@@ -72,5 +69,6 @@ public class BipedInstance : ISettingsInstance
         HeadSize = settings.HeadSize.Sample();
         HipLength = settings.HipLength.Sample();
         HipThickness = settings.HipThickness.Sample();
+        TorsoRatio = 0.4f;
     }
 }

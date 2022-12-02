@@ -97,12 +97,12 @@ public class QuadrupedGenerator {
 
     private BoneDefinition buildTorso()
     {
-        var (bottom, top) = GeneratorUtils.BuildLimb(instance.TorsoLengths, instance.TorsoThicknesses, (length, thickness, _) =>
+        var (bottom, top) = GeneratorUtils.BuildLimb(instance.TorsoLengths, instance.TorsoWidths, (length, width, _) =>
             new BoneDefinition()
             {
                 // Construct Torso pointing up, with front side facing forward.
                 Length = length,
-                Thickness = thickness,
+                Thickness = width,
                 DistalAxis = Vector3.forward,
                 VentralAxis = Vector3.down,
                 Category = BoneCategory.Torso,

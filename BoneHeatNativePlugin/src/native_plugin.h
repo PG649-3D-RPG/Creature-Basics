@@ -9,6 +9,7 @@
 
 #include<Eigen/SparseCore>
 #include<Eigen/SparseCholesky>
+#include<Eigen/SparseLU>
 
 #include <pmp/SurfaceMesh.h>
 #include <pmp/algorithms/Remeshing.h>
@@ -18,7 +19,7 @@ pmp::SurfaceMesh _mesh;
 
 pmp::Scalar angle(const pmp::Point& p1, const pmp::Point& p2);
 
-NATIVEPLUGIN_API void processMesh();
+NATIVEPLUGIN_API void preprocessMesh(float min_e, float max_e, float approx_error);
 NATIVEPLUGIN_API void setMesh(float* vertexBuffer, int vertexCount, int* indexBuffer, int indexCount);
 
 NATIVEPLUGIN_API int numVertices();

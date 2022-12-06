@@ -18,20 +18,61 @@ public class BoneHeatRigSolver : IRigSolver
         return Vector3.Dot(v.normalized, avg.normalized) > 0.5;
     }
 
+    private Vector3 projectToSegment(Vector3 p, Vector3 v1, Vector3 v2) {
+        Vector3 dir = v2 - v1;
+        Vector3 dirv1 = p - v1;
+        Vector3 dirv2 = p - v2;
+        float dotv1 = Vector3.Dot(dir, dirv1);
+        float dotv2 = Vector3.Dot(dir, dirv2);
+        if (dotv1 > 0)
+        {
+            return v1;
+        }
+        else if (dotv2 < 0)
+        {
+            return v2;
+        }
+        else
+        {
+            return v1 + Vector3.Project(dirv1, dir.normalized);
+        }
+    }
+
+    private float distToSegment(Vector3 p, Vector3 v1, Vector3 v2) {
+        Vector3 dir = v2 - v1;
+        Vector3 dirv1 = p - v1;
+        Vector3 dirv2 = p - v2;
+        float dotv1 = Vector3.Dot(dir, dirv1);
+        float dotv2 = Vector3.Dot(dir, dirv2);
+        float dist;
+        if (dotv1 > 0)
+        {
+            dist = dirv1.magnitude;
+        }
+        else if (dotv2 < 0)
+        {
+            dist = dirv2.magnitude;
+        }
+        else
+        {
+            dist = (Vector3.Cross(dir, dirv1) / dir.magnitude).magnitude;
+        }
+
+        return dist;
+    }
+
+    private static readonly float DistanceEpsilon = 1.00001f;
+    private static readonly float CWeight = 1.0f;
+    //private static readonly float CWeight = 0.22f;
+
     // TODO meshTransform must be respected when accessing mesh.vertices because bone position might not be in the same coordinate system as vertices
     public void CalcBoneWeights(Mesh mesh, IVisibilityTester tester, Bone[] bones, Transform meshTransform)
     {
-        //BoneHeatNativePluginInterface.PreprocessMesh(mesh);
-
         // nv = numVertices
         int nv = mesh.vertices.Length;
 
         Debug.Log($"Starting Bone Heat Weighting with {nv} vertices and {mesh.triangles.Length} triangles...");
         
-        float initialHeatWeight = 0.22f;
-        //float initialHeatWeight = 1.0f;
-        //float initialHeatWeight = 10.0f;
-
         // create a timer
         System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
         stopwatch.Start();
@@ -94,22 +135,11 @@ public class BoneHeatRigSolver : IRigSolver
                 Vector3 v1 = bones[j].WorldProximalPoint();
                 Vector3 v2 = bones[j].WorldDistalPoint();
 
-                Vector3 dir = v2 - v1;
-                Vector3 difv1 = cPos - v1;
-                Vector3 difv2 = v2 - cPos;
-                float distToSeg;
-                if (Vector3.Dot(dir, difv2) < 0)
-                {
-                    distToSeg = Vector3.Distance(v2, cPos);
-                }
-                else if (Vector3.Dot(difv1, dir) <= 0)
-                {
-                    distToSeg = Vector3.Distance(v1, cPos);
-                }
-                else
-                {
-                    distToSeg = Mathf.Max(0, difv1.sqrMagnitude - Mathf.Pow(Vector3.Dot(difv1, dir), 2) / dir.sqrMagnitude);
-                }
+                float distToSeg = distToSegment(cPos, v1, v2);
+
+                /*Vector3 projToSeg = projectToSegment(cPos, v1, v2);
+                float cosine = Vector3.Dot(cPos - projToSeg, mesh.normals[i]);
+                distToSeg = distToSeg / (0.5f * (cosine + 1.001f));*/
 
                 boneDists[i, j] = distToSeg;
                 minDist = Mathf.Min(boneDists[i, j], minDist);
@@ -120,20 +150,12 @@ public class BoneHeatRigSolver : IRigSolver
             {
                 //the reason we don't just pick the closest bone is so that if two are
                 //equally close, both are factored in.
-                if (boneDists[i, j] > minDist * 1.0001f)
+                if (boneDists[i, j] > minDist * DistanceEpsilon)
                     continue;
 
                 Vector3 v1 = bones[j].WorldProximalPoint();
                 Vector3 v2 = bones[j].WorldDistalPoint();
-                Vector3 dir = v2 - v1;
-                Vector3 projToSeg;
-
-                if (Vector3.Dot((v2 - cPos), dir) < 0)
-                    projToSeg = v2;
-                else if (Vector3.Dot((cPos - v1), dir) <= 0)
-                    projToSeg = v1;
-                else
-                    projToSeg = v1 + (Vector3.Dot((cPos - v1), dir) / dir.sqrMagnitude) * dir;
+                Vector3 projToSeg = projectToSegment(cPos, v1, v2);
 
                 boneVis[i, j] = tester.CanSee(cPos, projToSeg) /*&& vectorInCone(cPos - projToSeg, normals)*/;
             }
@@ -143,9 +165,10 @@ public class BoneHeatRigSolver : IRigSolver
 
         stopwatch.Restart();
         SparseMatrix matrix = new SparseMatrix(nv, nv); // The heat matrix to solve.
-        float[] D = new float[nv];
+        float[] area = new float[nv];
         float[] H = new float[nv];
         int[] closest = new int[nv];
+        int[] numclosest = new int[nv];
         for (int i = 0; i < nv; ++i)
         {
             //get areas
@@ -153,9 +176,9 @@ public class BoneHeatRigSolver : IRigSolver
             {
                 int nj = (j + 1) % edges[i].Count;
 
-                D[i] += (Vector3.Cross((mesh.vertices[edges[i][j]] - mesh.vertices[i]), (mesh.vertices[edges[i][nj]] - mesh.vertices[i]))).magnitude;
+                area[i] += (Vector3.Cross((mesh.vertices[edges[i][j]] - mesh.vertices[i]), (mesh.vertices[edges[i][nj]] - mesh.vertices[i]))).magnitude;
             }
-            D[i] = 1.0f / (1e-10f + D[i]);
+            //area[i] /= 3.0f;
 
             //get bones
             float minDist = float.PositiveInfinity;
@@ -167,11 +190,13 @@ public class BoneHeatRigSolver : IRigSolver
                     minDist = boneDists[i,j];
                 }
             }
+            minDist = Mathf.Max(minDist, 1e-4f);
             for (int j = 0; j < bones.Length; ++j)
             {
-                if (boneVis[i,j] && boneDists[i,j] <= minDist * 1.00001f)
+                if (boneVis[i,j] && boneDists[i,j] <= minDist * DistanceEpsilon)
                 {
-                    H[i] += initialHeatWeight / Mathf.Pow(1e-8f + boneDists[i, closest[i]], 2);
+                    numclosest[i]++;
+                    H[i] += CWeight / (minDist * minDist);
                 }
             }
 
@@ -209,7 +234,7 @@ public class BoneHeatRigSolver : IRigSolver
                     continue;
                 matrix.triplets.Add(new SparseMatrix.Triplet(i, edges[i][j], -(cot1 + cot2)));
             }
-            matrix.triplets.Add(new SparseMatrix.Triplet(i, i, sum + H[i]));
+            matrix.triplets.Add(new SparseMatrix.Triplet(i, i, (sum) + H[i]));
         }
         stopwatch.Stop();
         Debug.Log($"Heat and laplacian calculation took: {stopwatch.Elapsed.TotalSeconds} seconds.");
@@ -225,8 +250,10 @@ public class BoneHeatRigSolver : IRigSolver
             float[] rhs = new float[nv];
             for (int i = 0; i < nv; ++i)
             {
-                if (boneVis[i,j] && boneDists[i,j] <= boneDists[i, closest[i]] * 1.00001f)
-                    rhs[i] = H[i];
+                if (boneVis[i,j] && boneDists[i,j] <= boneDists[i, closest[i]] * DistanceEpsilon) {
+                    float p = (numclosest[i] > 0) ? 1.0f / numclosest[i] : 0.0f;
+                    rhs[i] = p * H[i];
+                }
             }
 
             float[] solved = BoneHeatNativePluginInterface.SolveSPDMatrix(matrix, rhs);
@@ -251,7 +278,7 @@ public class BoneHeatRigSolver : IRigSolver
         {
             if (weights[i].Count == 0) { // if vertex is not attached to any bone
                 misattached++;
-                for (int j = 0; j < bones.Length; ++j)
+                /*for (int j = 0; j < bones.Length; ++j)
                 {
                     if (boneDists[i,j] <= 1.05f * boneDists[i, closest[i]])
                     {
@@ -260,11 +287,11 @@ public class BoneHeatRigSolver : IRigSolver
                         w.weight = 1.0f / boneDists[i,j];
                         weights[i].Add(w);
                     }
-                }
-                /*BoneWeight1 w = new BoneWeight1();
+                }*/
+                BoneWeight1 w = new BoneWeight1();
                 w.boneIndex = 0;
                 w.weight = 1.0f;
-                weights[i].Add(w);*/
+                weights[i].Add(w);
             }
         }
         Debug.Log($"BoneHeat: Had to fix {misattached} misattached vertices using fallback method.");
@@ -290,4 +317,5 @@ public class BoneHeatRigSolver : IRigSolver
         mesh.SetBoneWeights(new NativeArray<byte>(bonesPerVertex, Allocator.Temp), 
                             new NativeArray<BoneWeight1>(finalWeights.ToArray(), Allocator.Temp));
     }
+
 }

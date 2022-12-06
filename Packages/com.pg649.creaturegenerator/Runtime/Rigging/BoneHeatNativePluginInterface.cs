@@ -17,7 +17,7 @@ public class BoneHeatNativePluginInterface
 		gcVertices.Free();
 		gcIndices.Free();
 
-        processMesh();
+        preprocessMesh(0.003f, 0.15f, 0.01f);
 
         Vector3[] resultVertices = new Vector3[numVertices()];
         int[] resultIndices = new int[numIndices()];
@@ -69,7 +69,7 @@ public class BoneHeatNativePluginInterface
     [DllImport("BoneHeat")]
     private static extern void setMesh(System.IntPtr vertexBuffer, int vertexCount, System.IntPtr indexBuffer, int indexCount);
     [DllImport("BoneHeat")]
-    private static extern void processMesh();
+    private static extern void preprocessMesh(float min_e, float max_e, float approx_error);
     [DllImport("BoneHeat")]
     private static extern int numVertices();
     [DllImport("BoneHeat")]

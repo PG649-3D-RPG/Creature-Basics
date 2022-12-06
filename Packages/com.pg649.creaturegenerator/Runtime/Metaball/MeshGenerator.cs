@@ -171,6 +171,8 @@ namespace MarchingCubesProject
 
             mesh.RecalculateBounds();
 
+            BoneHeatNativePluginInterface.PreprocessMesh(mesh);
+
             GameObject go = new GameObject("Mesh");
             go.transform.parent = transform;
 
@@ -202,6 +204,7 @@ namespace MarchingCubesProject
             go.GetComponent<SkinnedMeshRenderer>().rootBone = boneTransforms[0];
             go.GetComponent<SkinnedMeshRenderer>().updateWhenOffscreen = true;
             go.GetComponent<SkinnedMeshRenderer>().bones = boneTransforms;
+            go.GetComponent<SkinnedMeshRenderer>().quality = SkinQuality.Bone4;
 
             if (enableDQSkinner) {
                 go.AddComponent<DualQuaternionSkinner>();

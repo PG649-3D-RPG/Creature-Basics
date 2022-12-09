@@ -29,12 +29,11 @@ NATIVEPLUGIN_API void setMesh(float* vertexBuffer, int vertexCount, int* indexBu
 }
 
 
-NATIVEPLUGIN_API void processMesh()
+NATIVEPLUGIN_API void preprocessMesh(float min_e, float max_e, float approx_error)
 {
-    const pmp::Scalar edge_length(0.5);
     const int iterations = 10;
     pmp::Remeshing rm(_mesh);
-    rm.uniform_remeshing(edge_length, iterations);
+    rm.adaptive_remeshing(min_e, max_e, approx_error, iterations);
     
     pmp::Triangulation tri(_mesh);
     tri.triangulate(pmp::Triangulation::Objective::MAX_ANGLE);
@@ -42,7 +41,7 @@ NATIVEPLUGIN_API void processMesh()
     bool isDelaunay = false;
     int passes = 0;
     int flips = 0;
-    for (int i = 0; !isDelaunay && i < 10000; i++) {
+    for (int i = 0; !isDelaunay && i < 100; i++) {
         isDelaunay = true;
         passes++;
         flips = 0;
@@ -129,6 +128,9 @@ NATIVEPLUGIN_API int solveSPDMatrix(int rows, int cols, Eigen::Triplet<float>* t
     for (int i = 0; i < tripletsLength; i++) {
         Eigen::Triplet<float> t = triplets[i];
         matrix.insert(t.row(), t.col()) = t.value();
+
+        if (t.row() != t.col())
+            matrix.insert(t.col(), t.row()) = t.value();
     }
 
     Eigen::VectorXf b(rhsLength);
@@ -137,7 +139,7 @@ NATIVEPLUGIN_API int solveSPDMatrix(int rows, int cols, Eigen::Triplet<float>* t
     }
 
     Eigen::VectorXf x;
-    Eigen::SimplicialLDLT<Eigen::SparseMatrix<float>, Eigen::Lower> solver;
+    Eigen::SparseLU<Eigen::SparseMatrix<float>> solver;
     solver.compute(matrix);
     if(solver.info() != Eigen::Success) {
         // decomposition failed

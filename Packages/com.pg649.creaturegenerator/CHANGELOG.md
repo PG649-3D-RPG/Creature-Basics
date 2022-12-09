@@ -6,6 +6,11 @@
 - Default joint limits can now be overridden using an optional JointLimitOverrides object (see wiki https://github.com/PG649-3D-RPG/Creature-Generation/wiki/Joint-Limit-Overrides)
 - Parameter for number of torso segments
 - Parameter for number of leg segments (only quadruped, must be between 1 and 4)
+- Bone-Heat Rigging: 
+    - use better matrix solver
+    - improved heat distribution
+    - use Remeshing to reduce vertices and avoid numerical errors
+    - improved performance
 
 ### Fixed
 - Quadruped's feet rotation not locked anymore (added paw subcategory to differentiate)
@@ -82,3 +87,4 @@
 - Limbs are not attached correctly, even if parent bone radius has been clamped
 - Quadruped creatures no longer explode once they hit the ground
 - Settings objects can be initialized via ScriptableObject.CreateInstance without throwing a NPE
+

@@ -40,7 +40,17 @@ public class SkeletonSettings
 
     [Tooltip("Locks a joint's rotation along an axis, if the movement range is smaller or equal to given angle")]
     public float AngleThreshold = 0f;
-    
+
+    [Tooltip("Unlocks movement along bone for certain leg bones, serving as shock absorbers")]
+    public bool ShockAbsorbers = false;
+
+    [Tooltip("How much movement the shock absorbers are allowed. Relative to bone length")]
+    public float ShockAbsorberMovement = 0.02f;
+
+    public float ShockAbsorberSpring = 60000.0f;
+    public float ShockAbsorberDamper = 5000.0f;
+    public float ShockAbsorberMaxForce = 80000.0f;
+
     [Header("Physics")]
     
     [Tooltip("Multiplier for all rigibody masses. More convenient than adjusting densities.")]

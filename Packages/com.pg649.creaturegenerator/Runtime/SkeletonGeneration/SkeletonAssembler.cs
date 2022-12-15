@@ -153,6 +153,21 @@ public class SkeletonAssembler {
         };
         joint.slerpDrive = slerp;
         joint.rotationDriveMode = RotationDriveMode.Slerp;
+
+        if (settings.ShockAbsorbers == false) return;
+        if (parentCategory is not (BoneCategory.Hip or BoneCategory.Leg)) return;
+
+        joint.zMotion = ConfigurableJointMotion.Limited;
+        joint.zDrive = new JointDrive()
+        {
+            positionSpring = settings.ShockAbsorberSpring,
+            positionDamper = settings.ShockAbsorberDamper,
+            maximumForce = settings.ShockAbsorberMaxForce,
+        };
+        joint.linearLimit = new SoftJointLimit()
+        {
+            limit = settings.ShockAbsorberMovement * child.GetComponent<Bone>().length,
+        };
     }
     private static GameObject toGameObject(BoneDefinition self, GameObject parentGo, GameObject rootGo, DensityTable densities, SkeletonSettings settings, DebugSettings debug) {
         bool isRoot = parentGo == null;

@@ -188,6 +188,7 @@ public class SkeletonAssembler {
         bone.length = self.Length;
         bone.mirrored = self.Mirrored;
         bone.thickness = self.Thickness;
+        bone.width = self.Width;
 
         // Align local coordinate system to chosen proximal and ventral axis.
         result.transform.rotation = Quaternion.LookRotation(self.DistalAxis, self.VentralAxis);

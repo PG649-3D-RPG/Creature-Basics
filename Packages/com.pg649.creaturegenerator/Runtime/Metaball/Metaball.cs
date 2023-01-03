@@ -107,6 +107,10 @@ public class Metaball
             {
                 metaball.AddBox(new(bone.thickness, 0.25f, bone.length), bone.WorldProximalPoint(), bone.WorldDistalAxis(), bone.WorldVentralAxis(), function);
             }
+            else if (bone.width.HasValue)
+            {
+                metaball.AddBox(new(bone.width.Value, bone.thickness, bone.length), bone.WorldProximalPoint(), bone.WorldDistalAxis(), bone.WorldVentralAxis(), function);
+            }
             else
             {
                 metaball.AddCapsule(new(bone.WorldProximalPoint(), bone.WorldDistalPoint(), bone.thickness), function);

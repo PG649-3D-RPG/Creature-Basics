@@ -24,6 +24,7 @@ public class Bone : MonoBehaviour
 
     public bool isRoot;
 
+    public float? width;
     /// <summary>
     ///  True if this bone is a mirrored version of another bone
     /// </summary>

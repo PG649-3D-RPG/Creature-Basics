@@ -13,9 +13,6 @@ public class CreatureGeneratorSettings : ScriptableObject
 
     private void OnEnable()
     {
-        // NOTE: Shader.Find is not allowed during deserialization.
-        // Instead find the standard shader once the object is loaded.
-        MeshSettings.Material = new Material(Shader.Find("Standard"));
     }
 }
 

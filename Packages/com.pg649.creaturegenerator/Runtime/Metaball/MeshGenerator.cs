@@ -200,6 +200,7 @@ namespace MarchingCubesProject
             go.AddComponent<MeshRenderer>();
             go.GetComponent<MeshRenderer>().material = material;
             go.AddComponent<SkinnedMeshRenderer>();
+            go.GetComponent<SkinnedMeshRenderer>().material = material;
             go.GetComponent<SkinnedMeshRenderer>().sharedMesh = mesh;
             go.GetComponent<SkinnedMeshRenderer>().rootBone = boneTransforms[0];
             go.GetComponent<SkinnedMeshRenderer>().updateWhenOffscreen = true;

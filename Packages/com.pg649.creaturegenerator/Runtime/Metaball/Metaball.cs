@@ -26,6 +26,12 @@ public class Metaball
         balls.Add(newCapsule);
     }
 
+    public void AddFlattenedCapsule(Segment segment, Vector3 scaleAxis, float width, FalloffFunction function)
+    {
+        FlattenedCapsule newCapsule = new FlattenedCapsule(segment, scaleAxis, width, function);
+        balls.Add(newCapsule);
+    }
+
     public void AddCone(Segment segment, float tipThickness, FalloffFunction function)
     {
         Cone newCone = new Cone(segment, tipThickness, function);
@@ -109,7 +115,7 @@ public class Metaball
             }
             else if (bone.width.HasValue)
             {
-                metaball.AddBox(new(bone.width.Value, bone.thickness, bone.length), bone.WorldProximalPoint(), bone.WorldDistalAxis(), bone.WorldVentralAxis(), function);
+                metaball.AddFlattenedCapsule(new(bone.WorldProximalPoint(), bone.WorldDistalPoint(), bone.thickness/2), bone.WorldLateralAxis(), bone.width.Value/2, function);
             }
             else
             {

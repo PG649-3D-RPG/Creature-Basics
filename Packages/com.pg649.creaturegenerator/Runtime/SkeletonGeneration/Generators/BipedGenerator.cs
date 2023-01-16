@@ -130,8 +130,9 @@ public class BipedGenerator {
             DistalAxis = Vector3.forward,
             VentralAxis = Vector3.up,
             Length = instance.FeetLength,
-            Thickness = instance.FeetWidth,
+            Thickness = SkeletonAssembler.FootHeight,
             Category = BoneCategory.Foot,
+            Width = instance.FeetWidth,
             AttachmentHint = new AttachmentHint
             {
                 Position = new RelativePosition(0.0f, 0.0f, 1.05f),

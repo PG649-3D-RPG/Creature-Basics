@@ -4,7 +4,7 @@ using System;
 
 public class SkeletonAssembler {
 
-    public const float FootHeight = 0.05f;
+    public const float FootHeight = 0.1f;
     public static Skeleton Assemble(SkeletonDefinition skeleton, SkeletonSettings settings, DebugSettings debugSettings) {
         Dictionary<BoneDefinition, GameObject> objects = new();
         Dictionary<BoneCategory, int> nextIndices = new();
@@ -188,6 +188,7 @@ public class SkeletonAssembler {
         bone.length = self.Length;
         bone.mirrored = self.Mirrored;
         bone.thickness = self.Thickness;
+        bone.width = self.Width;
 
         // Align local coordinate system to chosen proximal and ventral axis.
         result.transform.rotation = Quaternion.LookRotation(self.DistalAxis, self.VentralAxis);
@@ -244,28 +245,6 @@ public class SkeletonAssembler {
                 meshObject.transform.localPosition = bone.LocalMidpoint();
                 meshObject.transform.localScale = new Vector3(radius / 0.5f, radius / 0.5f , radius / 0.5f);
 
-                meshObject.GetComponent<MeshRenderer>().shadowCastingMode = settings.PrimitiveMeshShadows;
-                // Delete Collider from primitive
-                UnityEngine.Object.Destroy(meshObject.GetComponent<Collider>());
-            }
-        }
-        else if (self.Category == BoneCategory.Foot && self.SubCategory != BoneCategory.Paw) {
-            Vector3 size = new Vector3(self.Thickness, FootHeight, self.Length * 0.9f);
-
-            BoxCollider collider = result.AddComponent<BoxCollider>();
-            collider.size = size;
-            Vector3 pos = 0.25f * (bone.LocalDistalPoint() - bone.LocalProximalPoint());
-            collider.center = pos;
-            rb.mass = settings.MassMultiplier * densities[self.Category] * (size.x * size.y * size.z);
-
-            if(debug.AttachPrimitiveMesh){
-                meshObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                meshObject.tag = "Agent";
-                meshObject.transform.parent = result.transform;
-                meshObject.transform.localPosition = pos;
-                meshObject.transform.localScale = size;
-                meshObject.transform.rotation = Quaternion.LookRotation(bone.WorldDistalAxis(), bone.WorldVentralAxis());
-                //meshObject.transform.rotation = Quaternion.LookRotation(bone.WorldVentralAxis(), bone.WorldProximalAxis());
                 meshObject.GetComponent<MeshRenderer>().shadowCastingMode = settings.PrimitiveMeshShadows;
                 // Delete Collider from primitive
                 UnityEngine.Object.Destroy(meshObject.GetComponent<Collider>());

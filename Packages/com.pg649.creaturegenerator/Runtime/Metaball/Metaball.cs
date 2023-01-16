@@ -109,11 +109,7 @@ public class Metaball
     public static Metaball BuildFromSkeleton(Skeleton skeleton, FalloffFunction function) {
         Metaball metaball = new Metaball();
         foreach (var (go, bone, rb, joint) in skeleton.Iterator()) {
-            if (bone.category == BoneCategory.Foot && bone.subCategory != BoneCategory.Paw)
-            {
-                metaball.AddBox(new(bone.thickness, 0.25f, bone.length), bone.WorldProximalPoint(), bone.WorldDistalAxis(), bone.WorldVentralAxis(), function);
-            }
-            else if (bone.width.HasValue)
+            if (bone.width.HasValue)
             {
                 metaball.AddFlattenedCapsule(new(bone.WorldProximalPoint(), bone.WorldDistalPoint(), bone.thickness/2), bone.WorldLateralAxis(), bone.width.Value/2, function);
             }

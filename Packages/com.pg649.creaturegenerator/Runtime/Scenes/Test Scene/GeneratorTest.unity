@@ -347,7 +347,7 @@ MonoBehaviour:
   Target: 1
   Settings: {fileID: 11400000, guid: 4e2076ef02c54fb4dbbefc191dc93e5f, type: 2}
   BipedSettings: {fileID: 11400000, guid: 948ac0bf680849246bc2a87baa7ba4c1, type: 2}
-  QuadrupedSettings: {fileID: 11400000, guid: 886bb216d458d324fbf54074f4357a57, type: 2}
+  QuadrupedSettings: {fileID: 11400000, guid: 265b25e12f76b444bb40373e299fb6f8, type: 2}
   LSystemSettings: {fileID: 11400000, guid: 798c827d56dd97d4d97638ca5761b571, type: 2}
   JointLimitOverrides: {fileID: 11400000, guid: e590da90337ee5444b4a65bd34de4d5e,
     type: 2}

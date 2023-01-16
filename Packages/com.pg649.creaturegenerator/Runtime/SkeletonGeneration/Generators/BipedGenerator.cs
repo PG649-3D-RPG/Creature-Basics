@@ -138,7 +138,6 @@ public class BipedGenerator {
                 Position = new RelativePosition(0.0f, 0.0f, 1.05f),
             }
         };
-        Debug.Log(instance.FeetWidth);
 
         end.LinkChild(foot);
         return root;

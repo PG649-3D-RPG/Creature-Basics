@@ -42,7 +42,7 @@ MonoBehaviour:
     Mode: 0
     Material: {fileID: 2100000, guid: 42485bcdd436aa610982966f35911897, type: 2}
     SmoothNormals: 0
-    enableDQSkinner: 0
+    enableDQSkinner: 1
     GridResolution: 80
   DebugSettings:
     LogAdditionalInfo: 1

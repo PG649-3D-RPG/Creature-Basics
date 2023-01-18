@@ -213,6 +213,8 @@ namespace MarchingCubesProject
                 go.GetComponent<DualQuaternionSkinner>().shaderDQBlend = (ComputeShader) Resources.Load("Compute/DQBlend");
                 go.GetComponent<DualQuaternionSkinner>().shaderApplyMorph = (ComputeShader) Resources.Load("Compute/ApplyMorph");
                 go.GetComponent<DualQuaternionSkinner>().SetViewFrustrumCulling(false);
+                go.GetComponent<DualQuaternionSkinner>().boneOrientationVector = new Vector3(0, 0, 1);
+                go.GetComponent<DualQuaternionSkinner>().bulgeCompensation = 1.0f;
             }
 
             meshes.Add(go);

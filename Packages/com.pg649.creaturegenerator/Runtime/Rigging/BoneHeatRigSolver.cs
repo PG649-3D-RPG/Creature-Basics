@@ -61,9 +61,8 @@ public class BoneHeatRigSolver : IRigSolver
         return dist;
     }
 
-    private static readonly float DistanceEpsilon = 1.00001f;
-    private static readonly float CWeight = 1.0f;
-    //private static readonly float CWeight = 0.22f;
+    private static readonly float DistanceEpsilon = 1.1f;
+    private static readonly float CWeight = 0.22f;
 
     // TODO meshTransform must be respected when accessing mesh.vertices because bone position might not be in the same coordinate system as vertices
     public void CalcBoneWeights(Mesh mesh, IVisibilityTester tester, Bone[] bones, Transform meshTransform)

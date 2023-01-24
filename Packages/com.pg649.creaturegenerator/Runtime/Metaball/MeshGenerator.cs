@@ -196,6 +196,12 @@ namespace MarchingCubesProject
                 boneTransforms[i] = bones[i].gameObject.transform;
             }
 
+            Color[] colors = new Color[mesh.vertices.Length];
+            for (int i = 0; i < mesh.vertices.Length; i++) {
+                colors[i] = new Color(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f), 1f);
+            }
+            mesh.colors = colors;
+
             go.AddComponent<MeshFilter>();
             go.AddComponent<MeshRenderer>();
             go.GetComponent<MeshRenderer>().material = material;

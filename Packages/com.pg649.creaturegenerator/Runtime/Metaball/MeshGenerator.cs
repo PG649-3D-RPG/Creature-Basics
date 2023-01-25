@@ -196,6 +196,29 @@ namespace MarchingCubesProject
                 boneTransforms[i] = bones[i].gameObject.transform;
             }
 
+            Color[] boneColormap = new Color[bones.Length];
+            for (int i = 0; i < bones.Length; i++) {
+                boneColormap[i] = new Color(UnityEngine.Random.Range(0f, 1f), UnityEngine.Random.Range(0f, 1f), UnityEngine.Random.Range(0f, 1f), 1f);
+            }
+
+            Color[] colors = new Color[mesh.vertices.Length];
+            var boneWeights = mesh.GetAllBoneWeights();
+            var bonesPerVertex = mesh.GetBonesPerVertex();
+            int boneWeightIndex = 0;
+            for (int i = 0; i < mesh.vertices.Length; i++) {
+                var numBones = bonesPerVertex[i];
+                Color color = Color.black;
+
+                for (int j = 0; j < numBones; j++)
+                {
+                    var currentBoneWeight = boneWeights[boneWeightIndex];
+                    boneWeightIndex++;
+                    color += boneColormap[currentBoneWeight.boneIndex] * currentBoneWeight.weight;
+                }
+                colors[i] = color;
+            }
+            mesh.colors = colors;
+
             go.AddComponent<MeshFilter>();
             go.AddComponent<MeshRenderer>();
             go.GetComponent<MeshRenderer>().material = material;

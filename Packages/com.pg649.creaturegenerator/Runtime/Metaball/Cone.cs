@@ -2,13 +2,14 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+#nullable enable
 
 public class Cone: Ball
 {
     public Segment segment;
     public float ratio;
 
-    public Cone(Segment seg, float tipThickness, FalloffFunction function) : base(seg.thickness, Vector3.zero, function)
+    public Cone(Segment seg, float tipThickness, FalloffFunction function, Bone? bone=null) : base(seg.thickness, Vector3.zero, function, bone: bone)
     {
         segment = seg;
         ratio = seg.thickness / tipThickness;

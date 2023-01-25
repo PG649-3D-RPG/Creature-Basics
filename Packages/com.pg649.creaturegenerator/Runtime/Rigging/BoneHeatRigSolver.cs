@@ -66,7 +66,7 @@ public class BoneHeatRigSolver : IRigSolver
     //private static readonly float CWeight = 0.22f;
 
     // TODO meshTransform must be respected when accessing mesh.vertices because bone position might not be in the same coordinate system as vertices
-    public void CalcBoneWeights(Mesh mesh, IVisibilityTester tester, Bone[] bones, Transform meshTransform)
+    public void CalcBoneWeights(Mesh mesh, IVisibilityTester tester, Bone[] bones, Transform meshTransform, Metaball metaball)
     {
         // nv = numVertices
         int nv = mesh.vertices.Length;

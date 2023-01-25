@@ -189,7 +189,7 @@ namespace MarchingCubesProject
             //IVisibilityTester tester = new SDFVisibilityTester(mesh, 64);
             IVisibilityTester tester = new MetaballVisibilityTester(metaball, 1.0f);
 
-            rigSolver.CalcBoneWeights(mesh, tester, bones, transform);
+            rigSolver.CalcBoneWeights(mesh, tester, bones, transform, metaball);
 
             Transform[] boneTransforms = new Transform[bones.Length];
             for (int i = 0; i < bones.Length; i++) {
@@ -200,7 +200,6 @@ namespace MarchingCubesProject
             go.AddComponent<MeshRenderer>();
             go.GetComponent<MeshRenderer>().material = material;
             go.AddComponent<SkinnedMeshRenderer>();
-            go.GetComponent<SkinnedMeshRenderer>().material = material;
             go.GetComponent<SkinnedMeshRenderer>().sharedMesh = mesh;
             go.GetComponent<SkinnedMeshRenderer>().rootBone = boneTransforms[0];
             go.GetComponent<SkinnedMeshRenderer>().updateWhenOffscreen = true;

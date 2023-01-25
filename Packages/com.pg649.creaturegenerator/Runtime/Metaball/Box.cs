@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+#nullable enable
 
 public class Box: Ball
 {
@@ -10,7 +11,7 @@ public class Box: Ball
     public Quaternion toLocalAxes;
     public Vector3 center;
 
-    public Box(Vector3 dimensions, Vector3 pos, Vector3 fwd, Vector3 up, FalloffFunction function) : base(dimensions.x, Vector3.zero, function)
+    public Box(Vector3 dimensions, Vector3 pos, Vector3 fwd, Vector3 up, FalloffFunction function, Bone? bone=null) : base(dimensions.x, Vector3.zero, function, bone: bone)
     {
         this.fwd = fwd;
         // dimensions now represent distance from center to edge of box

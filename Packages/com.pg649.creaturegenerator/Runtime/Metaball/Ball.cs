@@ -10,13 +10,16 @@ public class Ball
     public Vector3 position;
     public FalloffFunction function;
     public bool inverted;
+#nullable enable
+    public Bone? bone;
 
-    public Ball(float r, Vector3 pos, FalloffFunction function, bool inverted = false)
+    public Ball(float r, Vector3 pos, FalloffFunction function, bool inverted = false, Bone? bone=null)
     {
         this.R = r;
         this.position = pos;
         this.function = function;
         this.inverted = inverted;
+        this.bone = bone;
     }
 
     public virtual float Value(float x, float y, float z)

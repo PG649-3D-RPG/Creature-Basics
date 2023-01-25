@@ -8,7 +8,7 @@ using System.Linq;
 public class VisibleBonesRigSolver : IRigSolver
 {
 
-    public void CalcBoneWeights(Mesh mesh, IVisibilityTester tester, Bone[] bones, Transform meshTransform)
+    public void CalcBoneWeights(Mesh mesh, IVisibilityTester tester, Bone[] bones, Transform meshTransform, Metaball metaball)
     {
         // nv = numVertices
         int nv = mesh.vertices.Length;

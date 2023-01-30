@@ -2,6 +2,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
+#nullable enable
 
 public class Metaball
 {
@@ -14,33 +16,33 @@ public class Metaball
         balls.Add(ball);
     }
 
-    public void AddBall(float radius, Vector3 position, FalloffFunction function)
+    public void AddBall(float radius, Vector3 position, FalloffFunction function, Bone? bone=null)
     {
-        Ball newBall = new Ball(radius, position, function);
+        Ball newBall = new Ball(radius, position, function, bone: bone);
         balls.Add(newBall);
     }
 
-    public void AddCapsule(Segment segment, FalloffFunction function)
+    public void AddCapsule(Segment segment, FalloffFunction function, Bone? bone=null)
     {
-        Capsule newCapsule = new Capsule(segment, function);
+        Capsule newCapsule = new Capsule(segment, function, bone: bone);
         balls.Add(newCapsule);
     }
 
-    public void AddFlattenedCapsule(Segment segment, Vector3 scaleAxis, float width, FalloffFunction function)
+    public void AddFlattenedCapsule(Segment segment, Vector3 scaleAxis, float width, FalloffFunction function, Bone? bone = null)
     {
-        FlattenedCapsule newCapsule = new FlattenedCapsule(segment, scaleAxis, width, function);
+        FlattenedCapsule newCapsule = new FlattenedCapsule(segment, scaleAxis, width, function, bone: bone);
         balls.Add(newCapsule);
     }
 
-    public void AddCone(Segment segment, float tipThickness, FalloffFunction function)
+    public void AddCone(Segment segment, float tipThickness, FalloffFunction function, Bone? bone = null)
     {
-        Cone newCone = new Cone(segment, tipThickness, function);
+        Cone newCone = new Cone(segment, tipThickness, function, bone: bone);
         balls.Add(newCone);
     }
 
-    public void AddBox(Vector3 dimensions, Vector3 position, Vector3 forward, Vector3 up, FalloffFunction function)
+    public void AddBox(Vector3 dimensions, Vector3 position, Vector3 forward, Vector3 up, FalloffFunction function, Bone? bone = null)
     {
-        Box newBox = new Box(dimensions, position, forward, up, function);
+        Box newBox = new Box(dimensions, position, forward, up, function, bone: bone);
         balls.Add(newBox);
     }
 
@@ -64,6 +66,38 @@ public class Metaball
         }
 
         return bounds;
+    }
+
+    public (Bone[], float[]) GetWeights(float x, float y, float z)
+    {
+        Dictionary<Bone, float> boneValues = new();
+        float total = 0f;
+        foreach (Ball ball in balls)
+        {
+            if (ball.bone != null)
+            {
+                float val = ball.Value(x, y, z);
+                total += val;
+                boneValues.Add(ball.bone, val);
+            }
+            else
+                throw new NotSupportedException("Bone weights cannot be generated through metaball because metaball was not generated using the skeleton");
+        }
+        boneValues = boneValues.Where(bv => bv.Value / total > 0.1 && (bv.Key.category != BoneCategory.Shoulder || bv.Value > 0.6) ).ToDictionary(bv => bv.Key, bv => bv.Value);
+        Bone[] bones = new Bone[boneValues.Count];
+        float[] weights = new float[boneValues.Count];
+        int i = 0;
+        foreach(var bv in boneValues)
+        {
+            bones[i] = bv.Key;
+            //weights[i] = bv.Value;
+            weights[i] = Mathf.Pow(bv.Value, 4f);
+            i++;
+        }
+        Array.Sort(weights, bones);
+        Array.Reverse(bones);
+        Array.Sort(weights, new Comparison<float>((i1, i2) => i2.CompareTo(i1)));
+        return (bones, weights);
     }
 
     /// <summary>
@@ -111,11 +145,11 @@ public class Metaball
         foreach (var (go, bone, rb, joint) in skeleton.Iterator()) {
             if (bone.width.HasValue)
             {
-                metaball.AddFlattenedCapsule(new(bone.WorldProximalPoint(), bone.WorldDistalPoint(), bone.thickness/2), bone.WorldLateralAxis(), bone.width.Value/2, function);
+                metaball.AddFlattenedCapsule(new(bone.WorldProximalPoint(), bone.WorldDistalPoint(), bone.thickness/2), bone.WorldLateralAxis(), bone.width.Value/2, function, bone: bone);
             }
             else
             {
-                metaball.AddCapsule(new(bone.WorldProximalPoint(), bone.WorldDistalPoint(), bone.thickness), function);
+                metaball.AddCapsule(new(bone.WorldProximalPoint(), bone.WorldDistalPoint(), bone.thickness), function, bone: bone);
             }
         }
         return metaball;

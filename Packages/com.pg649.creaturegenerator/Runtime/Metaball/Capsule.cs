@@ -2,12 +2,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+#nullable enable
 
 public class Capsule: Ball
 {
     public Segment segment;
 
-    public Capsule(Segment seg, FalloffFunction function) : base(seg.thickness, Vector3.zero, function)
+    public Capsule(Segment seg, FalloffFunction function, Bone? bone=null) : base(seg.thickness, Vector3.zero, function, bone: bone)
     {
         segment = seg;
     }

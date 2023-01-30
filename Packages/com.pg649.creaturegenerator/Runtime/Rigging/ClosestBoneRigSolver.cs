@@ -6,7 +6,7 @@ using Unity.Collections;
 public class ClosestBoneRigSolver : IRigSolver
 {
 
-    public void CalcBoneWeights(Mesh mesh, IVisibilityTester tester, Bone[] bones, Transform meshTransform) {
+    public void CalcBoneWeights(Mesh mesh, IVisibilityTester tester, Bone[] bones, Transform meshTransform, Metaball metaball) {
 		Vector3[] vertices = mesh.vertices;
 
         byte[] bonesPerVertex = new byte[vertices.Length];

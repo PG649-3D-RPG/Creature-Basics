@@ -195,8 +195,7 @@ namespace MarchingCubesProject
 
                 //IVisibilityTester tester = new SDFVisibilityTester(mesh, 64);
                 IVisibilityTester tester = new MetaballVisibilityTester(metaball, 1.0f);
-
-                rigSolver.CalcBoneWeights(mesh, tester, bones, transform);
+                rigSolver.CalcBoneWeights(mesh, tester, bones, transform, metaball);
 
                 Transform[] boneTransforms = new Transform[bones.Length];
                 for (int i = 0; i < bones.Length; i++)

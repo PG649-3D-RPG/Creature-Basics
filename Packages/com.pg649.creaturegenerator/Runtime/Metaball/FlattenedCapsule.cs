@@ -1,13 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+#nullable enable
 
 public class FlattenedCapsule : Ball
 {
     Segment segment;
     Vector3 axis;
     float width;
-    public FlattenedCapsule(Segment seg, Vector3 scaleAxis, float width, FalloffFunction function) : base(seg.thickness, Vector3.zero, function)
+    public FlattenedCapsule(Segment seg, Vector3 scaleAxis, float width, FalloffFunction function, Bone? bone=null) : base(seg.thickness, Vector3.zero, function, bone: bone)
     {
         segment = new(seg.startPoint, seg.endPoint, seg.thickness);
         Vector3 segFwd = segment.endPoint - segment.startPoint;

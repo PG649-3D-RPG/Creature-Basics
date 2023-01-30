@@ -176,68 +176,83 @@ namespace MarchingCubesProject
             GameObject go = new GameObject("Mesh");
             go.transform.parent = transform;
 
+            go.AddComponent<MeshFilter>();
+            go.GetComponent<MeshFilter>().sharedMesh = mesh;
+
             Bone[] bones = BoneUtil.FindBones(transform.gameObject);
             Debug.Log("Found " + bones.Length + " Bones in the hierarchy");
 
-            // bind poses must be generated relative to the meshes transform
-            List<Matrix4x4> bindPoses = new List<Matrix4x4>();
-            foreach (Bone bone in bones) {
-                bindPoses.Add(bone.gameObject.transform.worldToLocalMatrix * go.transform.localToWorldMatrix);
-            }
-            mesh.bindposes = bindPoses.ToArray();
+            if (bones.Length > 0)
+            {
 
-            //IVisibilityTester tester = new SDFVisibilityTester(mesh, 64);
-            IVisibilityTester tester = new MetaballVisibilityTester(metaball, 1.0f);
-
-            rigSolver.CalcBoneWeights(mesh, tester, bones, transform, metaball);
-
-            Transform[] boneTransforms = new Transform[bones.Length];
-            for (int i = 0; i < bones.Length; i++) {
-                boneTransforms[i] = bones[i].gameObject.transform;
-            }
-
-            Color[] boneColormap = new Color[bones.Length];
-            for (int i = 0; i < bones.Length; i++) {
-                boneColormap[i] = new Color(UnityEngine.Random.Range(0f, 1f), UnityEngine.Random.Range(0f, 1f), UnityEngine.Random.Range(0f, 1f), 1f);
-            }
-
-            Color[] colors = new Color[mesh.vertices.Length];
-            var boneWeights = mesh.GetAllBoneWeights();
-            var bonesPerVertex = mesh.GetBonesPerVertex();
-            int boneWeightIndex = 0;
-            for (int i = 0; i < mesh.vertices.Length; i++) {
-                var numBones = bonesPerVertex[i];
-                Color color = Color.black;
-
-                for (int j = 0; j < numBones; j++)
+                // bind poses must be generated relative to the meshes transform
+                List<Matrix4x4> bindPoses = new List<Matrix4x4>();
+                foreach (Bone bone in bones)
                 {
-                    var currentBoneWeight = boneWeights[boneWeightIndex];
-                    boneWeightIndex++;
-                    color += boneColormap[currentBoneWeight.boneIndex] * currentBoneWeight.weight;
+                    bindPoses.Add(bone.gameObject.transform.worldToLocalMatrix * go.transform.localToWorldMatrix);
                 }
-                colors[i] = color;
-            }
-            mesh.colors = colors;
+                mesh.bindposes = bindPoses.ToArray();
 
-            go.AddComponent<MeshFilter>();
-            go.AddComponent<MeshRenderer>();
-            go.GetComponent<MeshRenderer>().material = material;
-            go.AddComponent<SkinnedMeshRenderer>();
-            go.GetComponent<SkinnedMeshRenderer>().sharedMesh = mesh;
-            go.GetComponent<SkinnedMeshRenderer>().rootBone = boneTransforms[0];
-            go.GetComponent<SkinnedMeshRenderer>().updateWhenOffscreen = true;
-            go.GetComponent<SkinnedMeshRenderer>().bones = boneTransforms;
-            go.GetComponent<SkinnedMeshRenderer>().quality = SkinQuality.Bone4;
+                //IVisibilityTester tester = new SDFVisibilityTester(mesh, 64);
+                IVisibilityTester tester = new MetaballVisibilityTester(metaball, 1.0f);
+                rigSolver.CalcBoneWeights(mesh, tester, bones, transform, metaball);
 
-            if (enableDQSkinner) {
-                go.AddComponent<DualQuaternionSkinner>();
-                go.GetComponent<DualQuaternionSkinner>().shaderComputeBoneDQ = (ComputeShader) Resources.Load("Compute/ComputeBoneDQ");
-                go.GetComponent<DualQuaternionSkinner>().shaderDQBlend = (ComputeShader) Resources.Load("Compute/DQBlend");
-                go.GetComponent<DualQuaternionSkinner>().shaderApplyMorph = (ComputeShader) Resources.Load("Compute/ApplyMorph");
-                go.GetComponent<DualQuaternionSkinner>().SetViewFrustrumCulling(false);
-                go.GetComponent<DualQuaternionSkinner>().boneOrientationVector = new Vector3(0, 0, 1);
-                go.GetComponent<DualQuaternionSkinner>().bulgeCompensation = 1.0f;
+                Transform[] boneTransforms = new Transform[bones.Length];
+                for (int i = 0; i < bones.Length; i++)
+                {
+                    boneTransforms[i] = bones[i].gameObject.transform;
+                }
+
+                Color[] boneColormap = new Color[bones.Length];
+                for (int i = 0; i < bones.Length; i++)
+                {
+                    boneColormap[i] = new Color(UnityEngine.Random.Range(0f, 1f), UnityEngine.Random.Range(0f, 1f), UnityEngine.Random.Range(0f, 1f), 1f);
+                }
+
+                Color[] colors = new Color[mesh.vertices.Length];
+                var boneWeights = mesh.GetAllBoneWeights();
+                var bonesPerVertex = mesh.GetBonesPerVertex();
+                int boneWeightIndex = 0;
+                for (int i = 0; i < mesh.vertices.Length; i++)
+                {
+                    var numBones = bonesPerVertex[i];
+                    Color color = Color.black;
+
+                    for (int j = 0; j < numBones; j++)
+                    {
+                        var currentBoneWeight = boneWeights[boneWeightIndex];
+                        boneWeightIndex++;
+                        color += boneColormap[currentBoneWeight.boneIndex] * currentBoneWeight.weight;
+                    }
+                    colors[i] = color;
+                }
+                mesh.colors = colors;
+                go.AddComponent<SkinnedMeshRenderer>();
+                go.GetComponent<SkinnedMeshRenderer>().material = material;
+                go.GetComponent<SkinnedMeshRenderer>().sharedMesh = mesh;
+                go.GetComponent<SkinnedMeshRenderer>().rootBone = boneTransforms[0];
+                go.GetComponent<SkinnedMeshRenderer>().updateWhenOffscreen = true;
+                go.GetComponent<SkinnedMeshRenderer>().bones = boneTransforms;
+                go.GetComponent<SkinnedMeshRenderer>().quality = SkinQuality.Bone4;
+
+                if (enableDQSkinner)
+                {
+                    go.AddComponent<DualQuaternionSkinner>();
+                    go.GetComponent<DualQuaternionSkinner>().shaderComputeBoneDQ = (ComputeShader)Resources.Load("Compute/ComputeBoneDQ");
+                    go.GetComponent<DualQuaternionSkinner>().shaderDQBlend = (ComputeShader)Resources.Load("Compute/DQBlend");
+                    go.GetComponent<DualQuaternionSkinner>().shaderApplyMorph = (ComputeShader)Resources.Load("Compute/ApplyMorph");
+                    go.GetComponent<DualQuaternionSkinner>().SetViewFrustrumCulling(false);
+                    go.GetComponent<DualQuaternionSkinner>().boneOrientationVector = new Vector3(0, 0, 1);
+                    go.GetComponent<DualQuaternionSkinner>().bulgeCompensation = 1.0f;
+                }
             }
+            else
+            {
+                Debug.Log("Static mesh generated");
+                go.AddComponent<MeshRenderer>();
+                go.GetComponent<MeshRenderer>().material = material;
+            }
+
 
             meshes.Add(go);
             

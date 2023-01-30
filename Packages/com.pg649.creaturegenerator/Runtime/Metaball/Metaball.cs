@@ -16,33 +16,43 @@ public class Metaball
         balls.Add(ball);
     }
 
-    public void AddBall(float radius, Vector3 position, FalloffFunction function, Bone? bone=null)
+    public void AddBall(float radius, Vector3 position, FalloffFunction function, Bone? bone=null, Color? color=null)
     {
         Ball newBall = new Ball(radius, position, function, bone: bone);
+        if (color.HasValue)
+            newBall.color = color;
         balls.Add(newBall);
     }
 
-    public void AddCapsule(Segment segment, FalloffFunction function, Bone? bone=null)
+    public void AddCapsule(Segment segment, FalloffFunction function, Bone? bone=null, Color? color = null)
     {
         Capsule newCapsule = new Capsule(segment, function, bone: bone);
+        if (color.HasValue)
+            newCapsule.color = color;
         balls.Add(newCapsule);
     }
 
-    public void AddFlattenedCapsule(Segment segment, Vector3 scaleAxis, float width, FalloffFunction function, Bone? bone = null)
+    public void AddFlattenedCapsule(Segment segment, Vector3 scaleAxis, float width, FalloffFunction function, Bone? bone = null, Color? color = null)
     {
         FlattenedCapsule newCapsule = new FlattenedCapsule(segment, scaleAxis, width, function, bone: bone);
+        if (color.HasValue)
+            newCapsule.color = color;
         balls.Add(newCapsule);
     }
 
-    public void AddCone(Segment segment, float tipThickness, FalloffFunction function, Bone? bone = null)
+    public void AddCone(Segment segment, float tipThickness, FalloffFunction function, Bone? bone = null, Color? color = null)
     {
         Cone newCone = new Cone(segment, tipThickness, function, bone: bone);
+        if (color.HasValue)
+            newCone.color = color;
         balls.Add(newCone);
     }
 
-    public void AddBox(Vector3 dimensions, Vector3 position, Vector3 forward, Vector3 up, FalloffFunction function, Bone? bone = null)
+    public void AddBox(Vector3 dimensions, Vector3 position, Vector3 forward, Vector3 up, FalloffFunction function, Bone? bone = null, Color? color = null)
     {
         Box newBox = new Box(dimensions, position, forward, up, function, bone: bone);
+        if (color.HasValue)
+            newBox.color = color;
         balls.Add(newBox);
     }
 
@@ -68,36 +78,31 @@ public class Metaball
         return bounds;
     }
 
-    public (Bone[], float[]) GetWeights(float x, float y, float z)
+    public (Ball[], float[]) GetWeights(float x, float y, float z)
     {
-        Dictionary<Bone, float> boneValues = new();
+        Dictionary<Ball, float> ballValues = new();
         float total = 0f;
         foreach (Ball ball in balls)
         {
-            if (ball.bone != null)
-            {
-                float val = ball.Value(x, y, z);
-                total += val;
-                boneValues.Add(ball.bone, val);
-            }
-            else
-                throw new NotSupportedException("Bone weights cannot be generated through metaball because metaball was not generated using the skeleton");
+            float val = ball.Value(x, y, z);
+            total += val;
+            ballValues.Add(ball, val);
         }
-        boneValues = boneValues.Where(bv => bv.Value / total > 0.1 && (bv.Key.category != BoneCategory.Shoulder || bv.Value > 0.6) ).ToDictionary(bv => bv.Key, bv => bv.Value);
-        Bone[] bones = new Bone[boneValues.Count];
-        float[] weights = new float[boneValues.Count];
+        ballValues = ballValues.Where(bv => bv.Value / total > 0.1 && (bv.Key.bone == null || (bv.Key.bone.category != BoneCategory.Shoulder || bv.Value > 0.6)) ).ToDictionary(bv => bv.Key, bv => bv.Value);
+        Ball[] infBalls = new Ball[ballValues.Count];
+        float[] weights = new float[ballValues.Count];
         int i = 0;
-        foreach(var bv in boneValues)
+        foreach(var bv in ballValues)
         {
-            bones[i] = bv.Key;
+            infBalls[i] = bv.Key;
             //weights[i] = bv.Value;
             weights[i] = Mathf.Pow(bv.Value, 4f);
             i++;
         }
-        Array.Sort(weights, bones);
-        Array.Reverse(bones);
+        Array.Sort(weights, infBalls);
+        Array.Reverse(infBalls);
         Array.Sort(weights, new Comparison<float>((i1, i2) => i2.CompareTo(i1)));
-        return (bones, weights);
+        return (infBalls, weights);
     }
 
     /// <summary>
@@ -114,7 +119,7 @@ public class Metaball
         {
             foreach (Segment segment in segments)
             {
-                metaball.AddCapsule(segment, function);
+                metaball.AddCapsule(segment, function, color: segment.color);
             }
         }
         else
@@ -132,8 +137,8 @@ public class Metaball
                     Vector3 randomDirection = new Vector3(RandomGaussian(-toMidPoint.magnitude, toMidPoint.magnitude),
                         RandomGaussian(-toMidPoint.magnitude, toMidPoint.magnitude),
                         RandomGaussian(-toMidPoint.magnitude, toMidPoint.magnitude)) * variation;
-                    metaball.AddBall(Mathf.Abs(RandomGaussian(0.5f, 1.5f) * variation) * segment.thickness, position + randomDirection, function);
-                    metaball.AddBall(segment.thickness, position, function);
+                    metaball.AddBall(Mathf.Abs(RandomGaussian(0.5f, 1.5f) * variation) * segment.thickness, position + randomDirection, function, color: segment.color);
+                    metaball.AddBall(segment.thickness, position, function, color: segment.color);
                 }
             }
         }
@@ -145,11 +150,11 @@ public class Metaball
         foreach (var (go, bone, rb, joint) in skeleton.Iterator()) {
             if (bone.width.HasValue)
             {
-                metaball.AddFlattenedCapsule(new(bone.WorldProximalPoint(), bone.WorldDistalPoint(), bone.thickness/2), bone.WorldLateralAxis(), bone.width.Value/2, function, bone: bone);
+                metaball.AddFlattenedCapsule(new(bone.WorldProximalPoint(), bone.WorldDistalPoint(), bone.thickness/2), bone.WorldLateralAxis(), bone.width.Value/2, function, bone: bone, color: bone.color);
             }
             else
             {
-                metaball.AddCapsule(new(bone.WorldProximalPoint(), bone.WorldDistalPoint(), bone.thickness), function, bone: bone);
+                metaball.AddCapsule(new(bone.WorldProximalPoint(), bone.WorldDistalPoint(), bone.thickness), function, bone: bone, color: bone.color);
             }
         }
         return metaball;

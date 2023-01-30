@@ -222,7 +222,7 @@ namespace MarchingCubesProject
                     {
                         var currentBoneWeight = boneWeights[boneWeightIndex];
                         boneWeightIndex++;
-                        color += boneColormap[currentBoneWeight.boneIndex] * currentBoneWeight.weight;
+                        color += bones[currentBoneWeight.boneIndex].color.GetValueOrDefault() * currentBoneWeight.weight;
                     }
                     colors[i] = color;
                 }
@@ -251,6 +251,26 @@ namespace MarchingCubesProject
                 Debug.Log("Static mesh generated");
                 go.AddComponent<MeshRenderer>();
                 go.GetComponent<MeshRenderer>().material = material;
+
+                // get colors from metaball attributes
+                Color[] colors = new Color[mesh.vertexCount];
+                for (int i = 0; i < mesh.vertexCount; i++)
+                {
+                    Ball[] balls;
+                    float[] weights;
+                    (balls, weights) = metaball.GetWeights(mesh.vertices[i].x, mesh.vertices[i].y, mesh.vertices[i].z);
+                    float sum = 0;
+                    for (int j = 0; j < weights.Length; ++j)
+                        sum += weights[j];
+
+                    Color color = Color.black;
+                    for (int j = 0; j < weights.Length; ++j)
+                    {
+                        color += (weights[j] / sum) * balls[j].color.GetValueOrDefault();
+                    }
+                    colors[i] = color;
+                }
+                mesh.colors = colors;
             }
 
 

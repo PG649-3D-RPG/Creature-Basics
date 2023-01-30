@@ -12,6 +12,7 @@ public class Ball
     public bool inverted;
 #nullable enable
     public Bone? bone;
+    public Color? color;
 
     public Ball(float r, Vector3 pos, FalloffFunction function, bool inverted = false, Bone? bone=null)
     {

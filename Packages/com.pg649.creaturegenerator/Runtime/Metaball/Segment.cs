@@ -7,8 +7,9 @@ public class Segment
     public float thickness;
     public Vector3 startPoint;
     public Vector3 endPoint;
+    public Color? color;
 
-    public Segment(Vector3 start, Vector3 end, float thickness)
+    public Segment(Vector3 start, Vector3 end, float thickness, Color? color=null)
     {
         startPoint = start;
         endPoint = end;

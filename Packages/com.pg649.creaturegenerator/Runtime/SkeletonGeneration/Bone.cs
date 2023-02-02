@@ -9,6 +9,8 @@ public class Bone : MonoBehaviour
 
     public BoneCategory? subCategory;
 
+    public Color? color;
+
     public float length;
 
     public float thickness;

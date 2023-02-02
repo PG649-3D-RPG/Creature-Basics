@@ -190,6 +190,8 @@ public class SkeletonAssembler {
         bone.thickness = self.Thickness;
         bone.width = self.Width;
 
+        bone.color = new Color(UnityEngine.Random.Range(0f, 1f), UnityEngine.Random.Range(0f, 1f), UnityEngine.Random.Range(0f, 1f), 1f);
+
         // Align local coordinate system to chosen proximal and ventral axis.
         result.transform.rotation = Quaternion.LookRotation(self.DistalAxis, self.VentralAxis);
 

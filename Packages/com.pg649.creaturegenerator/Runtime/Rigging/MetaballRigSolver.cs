@@ -14,9 +14,9 @@ public class MetaballRigSolver : IRigSolver
         List<BoneWeight1> finalWeights = new List<BoneWeight1>();
         for (int i=0; i<nv; i++)
         {
-            Bone[] vertexBones;
+            Ball[] vertexBalls;
             float[] weights;
-            (vertexBones, weights) = metaball.GetWeights(mesh.vertices[i].x, mesh.vertices[i].y, mesh.vertices[i].z);
+            (vertexBalls, weights) = metaball.GetWeights(mesh.vertices[i].x, mesh.vertices[i].y, mesh.vertices[i].z);
             float sum = 0;
             for (int j = 0; j < weights.Length; ++j)
                 sum += weights[j];
@@ -24,7 +24,7 @@ public class MetaballRigSolver : IRigSolver
             for (int j = 0; j < weights.Length; ++j)
             {
                 BoneWeight1 w = new BoneWeight1();
-                w.boneIndex = Array.IndexOf(bones, vertexBones[j]);
+                w.boneIndex = Array.IndexOf(bones, vertexBalls[j].bone);
                 w.weight = weights[j] / sum;
                 finalWeights.Add(w);
             }

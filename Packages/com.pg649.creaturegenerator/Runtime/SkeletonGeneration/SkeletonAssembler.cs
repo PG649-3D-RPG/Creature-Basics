@@ -190,7 +190,12 @@ public class SkeletonAssembler {
         bone.thickness = self.Thickness;
         bone.width = self.Width;
 
-        bone.color = new Color(UnityEngine.Random.Range(0f, 1f), UnityEngine.Random.Range(0f, 1f), UnityEngine.Random.Range(0f, 1f), 1f);
+        //bone.color = new Color(UnityEngine.Random.Range(0f, 1f), UnityEngine.Random.Range(0f, 1f), UnityEngine.Random.Range(0f, 1f), 1f);
+        System.Random rand = new System.Random();
+        float hue = 0.3333f;
+        float saturation = (float)(rand.NextDouble()) * 0.1f + 0.8f;
+        float brightness = (float)(rand.NextDouble()) * 0.5f + 0.2f;
+        bone.color = Color.HSVToRGB(hue, saturation, brightness);
 
         // Align local coordinate system to chosen proximal and ventral axis.
         result.transform.rotation = Quaternion.LookRotation(self.DistalAxis, self.VentralAxis);
